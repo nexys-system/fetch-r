@@ -11,7 +11,7 @@ if (!HOST || !DBUSER || !PASSWORD || !DATABASE) {
 
 const port: number = Number(PORT) || 3306;
 
-export default class SQL {
+export class SQL {
   connection: mysql.Connection;
 
   constructor(host: string, user: string, password: string, database: string) {

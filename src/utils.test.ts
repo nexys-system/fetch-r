@@ -13,3 +13,27 @@ test("escape", () => {
 test("entity to table", () => {
   expect(U.entityToTable({ name: "MyName" })).toEqual("my_name");
 });
+
+test("field to col", () => {
+  expect(U.fieldToColumn({ name: "MyName" })).toEqual("my_name");
+});
+
+test("find field", () => {
+  expect(
+    U.findField(
+      {
+        name: "MyName",
+        fields: [
+          {
+            type: "String",
+            name: "MyFieldName",
+            column: "my_column",
+            optional: false,
+          },
+        ],
+        uuid: false,
+      },
+      "MyFieldName"
+    )
+  ).toEqual({ name: "MyFieldName", column: "my_column" });
+});

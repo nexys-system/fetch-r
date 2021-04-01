@@ -37,3 +37,11 @@ export interface QueryParams {
 export interface Query {
   [entity: string]: QueryParams;
 }
+
+export interface Join {
+  entity: Entity;
+  field: Field;
+  parentTable: string;
+  projection?: QueryProjection;
+  pFields?: { name: string; column: string }[];
+}
