@@ -41,7 +41,6 @@ export const exec = async (mq: T.Query, s: Connection.SQL) => {
       });
 
       return fieldsWithValue;
-      //console.log({ x, id: x[0].id, i, e: qs[i] });
     }
 
     throw Error("expecting an array");
