@@ -4,21 +4,7 @@ import { entities } from "./model";
 import * as T from "./type";
 import * as U from "./utils";
 
-const entityToTable = (entity: T.Entity): string =>
-  entity.table || NUtils.string.camelToSnakeCase(entity.name);
-
 // SQL
-
-const escape = (v: any): string | number => {
-  switch (typeof v) {
-    case "number":
-      return v;
-    case "string":
-      return '"' + v.replace('"', '\\"') + '"';
-    default:
-      return escape(String(v));
-  }
-};
 
 const findField = (
   modelUnit: T.Entity,
@@ -51,7 +37,7 @@ const getFilters = (modelUnit: T.Entity, filters?: T.QueryFilters): string => {
     .map(([col, value]) => {
       const field = findField(modelUnit, col);
 
-      return field.column + "=" + escape(value);
+      return field.column + "=" + U.escape(value);
     })
     .join(" AND ");
 };
@@ -159,7 +145,7 @@ const toQuery = (
   projection: { name: string; column: string }[];
   joins: Join[];
 } => {
-  const table = entityToTable(modelUnit);
+  const table = U.entityToTable(modelUnit);
   const { pFields: projection, joins } = getProjectionFields(
     modelUnit,
     model,
@@ -188,7 +174,7 @@ const toQuery = (
 
   const joinTable = joins
     .map((join, tableIdx) => {
-      const table = entityToTable(join.entity);
+      const table = U.entityToTable(join.entity);
       const alias = "j" + tableIdx;
 
       return (
