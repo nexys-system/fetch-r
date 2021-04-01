@@ -45,3 +45,11 @@ export interface Join {
   projection?: QueryProjection;
   pFields?: { name: string; column: string }[];
 }
+
+export interface SQuery {
+  query: string;
+  entity: string;
+  modelEntity: Entity;
+  projection: { name: string; column: string }[];
+  joins: Join[];
+}

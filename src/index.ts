@@ -21,17 +21,21 @@ const mq: T.Query = {
   },
 };
 
+const mq2 = { Instance: {}, UserStatus: {} };
+
 export const run = async (): Promise<void> => {
   const s = Connection.init();
 
   s.connection.connect();
 
-  //
-  const responseWithEntites = await Exec.exec(mq, s);
-  //
+  await Exec.execWithTime(mq, s);
 
-  console.log(responseWithEntites);
-  console.log(responseWithEntites.UserAuthentication);
+  await Exec.execWithTime(mq2, s);
+  await Exec.execWithTime(mq, s);
+  await Exec.execWithTime(mq2, s);
+  await Exec.execWithTime(mq2, s);
+  await Exec.execWithTime(mq2, s);
+  await Exec.execWithTime({ Instance: {} }, s);
 
   s.connection.end();
 };

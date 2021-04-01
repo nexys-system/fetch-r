@@ -168,16 +168,7 @@ export const toQuery = (
   return { query, projection, joins };
 };
 
-export const createQuery = (
-  query: T.Query,
-  entities: T.Entity[]
-): {
-  query: string;
-  entity: string;
-  modelEntity: T.Entity;
-  projection: { name: string; column: string }[];
-  joins: T.Join[];
-}[] =>
+export const createQuery = (query: T.Query, entities: T.Entity[]): T.SQuery[] =>
   Object.entries(query).map(([entity, queryParams]) => {
     const modelEntity = entities.find((x) => x.name === entity);
     if (!modelEntity) {
