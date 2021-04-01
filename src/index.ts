@@ -2,22 +2,10 @@ import NUtils from "@nexys/utils";
 import * as SQL from "./connection";
 import { entities } from "./model";
 import * as T from "./type";
+import * as U from "./utils";
 
-const types: T.Type[] = [
-  "String",
-  "Int",
-  "Boolean",
-  "BigDecimal",
-  "Float",
-  "LocalDate",
-  "LocalDateTime",
-  "LocalTime",
-];
-
-const isStandardType = (t: string): t is T.Type => types.includes(t as T.Type);
-
-const entityToTable = (entity: string): string =>
-  NUtils.string.camelToSnakeCase(entity);
+const entityToTable = (entity: T.Entity): string =>
+  entity.table || NUtils.string.camelToSnakeCase(entity.name);
 
 // SQL
 
@@ -102,7 +90,7 @@ const getProjectionFields = (
         throw Error("field could not be found:" + modelUnit.name + ":" + col);
       }
 
-      if (!isStandardType(field.type)) {
+      if (!U.isStandardType(field.type)) {
         const modelUnitChild = models.find((x) => x.name === field.type);
 
         if (!modelUnitChild) {
@@ -171,7 +159,7 @@ const toQuery = (
   projection: { name: string; column: string }[];
   joins: Join[];
 } => {
-  const table = modelUnit.table || entityToTable(modelUnit.name);
+  const table = entityToTable(modelUnit);
   const { pFields: projection, joins } = getProjectionFields(
     modelUnit,
     model,
@@ -184,8 +172,7 @@ const toQuery = (
       : ", " +
         joins
           .map((join, tableIdx) => {
-            //const table = join.entity.table || entityToTable(join.entity.name);
-            const { pFields } = getProjectionFields(
+            const { pFields, joins } = getProjectionFields(
               join.entity,
               model,
               join.projection
@@ -201,7 +188,7 @@ const toQuery = (
 
   const joinTable = joins
     .map((join, tableIdx) => {
-      const table = join.entity.table || entityToTable(join.entity.name);
+      const table = entityToTable(join.entity);
       const alias = "j" + tableIdx;
 
       return (
@@ -272,7 +259,9 @@ export const run = async (): Promise<string> => {
         instance: { name: true },
       },
     },
-    // UserAuthentication: {},
+    UserAuthentication: {
+      projection: { user: { firstName: true, instance: {} } },
+    },
   };
   const qs = createQuery(mq, entities);
 
@@ -332,7 +321,7 @@ export const run = async (): Promise<string> => {
 
   console.log(responseWithEntites);
 
-  console.log(responseWithEntites.User);
+  console.log(responseWithEntites.UserAuthentication);
 
   //console.log(insertBp([{ countryId: 1, name: "myname", ceid: "fd" }]));
   //console.log(insertBpFromTable);
