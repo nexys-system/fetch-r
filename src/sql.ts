@@ -163,7 +163,7 @@ export const toQuery = (
     .filter(NUtils.array.notEmpty)
     .join("\n");
 
-  console.log(query);
+  // console.log(query);
 
   return { query, projection, joins };
 };

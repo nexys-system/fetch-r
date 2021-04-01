@@ -6,16 +6,14 @@ import * as SQL from "./sql";
 export const exec = async (mq: T.Query, s: Connection.SQL) => {
   const qs = SQL.createQuery(mq, entities);
 
-  const q = await s.execQuery(qs.map((x) => x.query).join("\n"));
-  console.log(q);
+  const response = await s.execQuery(qs.map((x) => x.query).join("\n"));
+  // console.log(response);
 
-  if (!Array.isArray(q)) {
+  if (!Array.isArray(response)) {
     throw Error("not an array");
   }
 
-  //console.log(q);
-
-  const responseParsed = q.map((x: any, i: number) => {
+  const responseParsed = response.map((x: any, i: number) => {
     if (Array.isArray(x)) {
       const { projection, joins } = qs[i];
 
