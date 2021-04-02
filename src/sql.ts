@@ -170,21 +170,25 @@ export const toQuery = (
 
   const filters = getFilters(modelUnit, params.filters);
 
-  const joinTable = joins
-    .map((join, tableIdx) => {
-      const table = U.entityToTable(join.entity);
-      const alias = table; // "j" + tableIdx;
+  const joinTable =
+    joins.length === 0
+      ? undefined // this is to make sure that we have a clean query (no extra break line)
+      : joins
+          .map((join, tableIdx) => {
+            const table = U.entityToTable(join.entity);
+            const alias = table; // "j" + tableIdx;
 
-      return (
-        (join.field.optional ? "LEFT" : "") +
-        `JOIN ${table} as ${alias} ON ${alias}.id = ${U.entityToTable(
-          join.parent
-        )}.${
-          join.field.column || NUtils.string.camelToSnakeCase(join.field.name)
-        }`
-      );
-    })
-    .join("\n");
+            return (
+              (join.field.optional ? "LEFT" : "") +
+              `JOIN ${table} as ${alias} ON ${alias}.id = ${U.entityToTable(
+                join.parent
+              )}.${
+                join.field.column ||
+                NUtils.string.camelToSnakeCase(join.field.name)
+              }`
+            );
+          })
+          .join("\n");
 
   const query = [
     `SELECT ${getProjectionString(projection, table)}${joinStrings}`,
