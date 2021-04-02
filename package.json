@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@nexys/utils": "^3.9.14",
+    "crc-32": "^1.2.0",
     "dotenv": "^8.2.0",
     "mysql2": "^2.2.5"
   },
