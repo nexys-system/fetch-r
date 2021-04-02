@@ -241,6 +241,41 @@ const toQueryInsert = (entity: T.Entity, data: any) => {
   return `INSERT INTO ${U.entityToTable(entity)} (${fields}) VALUES ${values};`;
 };
 
+const toQueryUpdate = (
+  entity: T.Entity,
+  data: any,
+  filters: T.QueryFilters
+) => {
+  const filterString = getFilters(entity, filters);
+
+  const values = Object.entries(data)
+    .map(([k, v]) => {
+      const field = entity.fields.find((x) => x.name === k);
+
+      if (!field) {
+        throw Error(`update: cannot find ${entity.name}.${k}`);
+      }
+
+      const col = U.fieldToColumn(field);
+
+      return `${col}=${U.escape(v)}`;
+    })
+    .join(", ");
+  return `UPDATE ${U.entityToTable(
+    entity
+  )} SET ${values} WHERE ${filterString} ;`;
+};
+
+const toQueryDelete = (
+  entity: T.Entity,
+
+  filters: T.QueryFilters
+) => {
+  const filterString = getFilters(entity, filters);
+
+  return `DELETE FROM ${U.entityToTable(entity)}  WHERE ${filterString} ;`;
+};
+
 export const createMutateQuery = (
   query: T.Mutate,
   entities: T.Entity[]
@@ -257,11 +292,15 @@ export const createMutateQuery = (
       }
 
       if (queryParams.update) {
-        //return toQueryUpdate()
+        return toQueryUpdate(
+          modelEntity,
+          queryParams.update.data,
+          queryParams.update.filters
+        );
       }
 
       if (queryParams.delete) {
-        // return toQueryDelete()
+        return toQueryDelete(modelEntity, queryParams.delete.filters);
       }
 
       return;
