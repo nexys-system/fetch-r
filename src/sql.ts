@@ -246,6 +246,14 @@ export const createMutateQuery = (
         return toQueryInsert(modelEntity, queryParams.insert.data);
       }
 
+      if (queryParams.update) {
+        //return toQueryUpdate()
+      }
+
+      if (queryParams.delete) {
+        // return toQueryDelete()
+      }
+
       return;
     })
     .filter(NUtils.array.notEmpty);
