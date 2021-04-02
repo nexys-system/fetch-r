@@ -41,7 +41,7 @@ export interface Query {
 export interface Join {
   entity: Entity;
   field: Field;
-  parentTable: string;
+  parent: Entity;
   projection?: QueryProjection;
   pFields?: { name: string; column: string }[];
 }

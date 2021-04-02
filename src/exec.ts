@@ -2,6 +2,7 @@ import * as Connection from "./connection";
 import { entities } from "./model";
 import * as T from "./type";
 import * as SQL from "./sql";
+import * as U from "./utils";
 
 const handleReponseUnit = (
   x: any[],
@@ -16,21 +17,49 @@ const handleReponseUnit = (
       const r: { [k: string]: any } = {};
 
       projection.forEach((f) => {
+        console.log("her1e");
+        console.log(f);
         r[f.name] = y[f.column];
       });
 
-      joins.forEach((join, tIdx) => {
-        r[join.field.name] = {};
-        // alias
-        const j = r[join.field.name];
+      // to be reviewed
+      joins
+        .filter((join) => join.parent.name === qsi.entity)
+        .forEach((join) => {
+          r[join.field.name] = {};
+          // alias
+          console.log("here");
+          console.log(join.field.name);
+          //console.log(join, qsi.entity);
+          const j = r[join.field.name];
 
-        if (join.pFields) {
-          join.pFields.forEach((field) => {
-            const key = "j" + tIdx + "_" + field.column;
-            j[field.name] = y[key];
-          });
-        }
-      });
+          if (join.pFields) {
+            join.pFields.forEach((field) => {
+              //const key = "j" + tIdx + "_" + field.column;
+              const key = U.entityToTable(join.entity) + "_" + field.column;
+              j[field.name] = y[key];
+            });
+          }
+
+          const fs = joins.filter((x) => join.field.type === x.parent.name);
+          if (fs.length > 0) {
+            fs.forEach((join) => {
+              // alias
+              j[join.field.name] = {};
+              const k = j[join.field.name];
+
+              if (join.pFields) {
+                join.pFields.forEach((field) => {
+                  //const key = "j" + tIdx + "_" + field.column;
+                  const key = U.entityToTable(join.entity) + "_" + field.column;
+                  k[field.name] = y[key];
+                });
+              }
+            });
+
+            //
+          }
+        });
 
       return r;
     });
@@ -78,7 +107,7 @@ export const execWithTime = async (query: T.Query, s: Connection.SQL) => {
   const r = await exec(query, s);
   const t2 = new Date().getTime();
   console.log(`delta ${t2 - t1}`);
-  console.log(r);
+  //console.log(r);
   return r;
   //
 };

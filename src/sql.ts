@@ -18,9 +18,41 @@ const getFilters = (modelUnit: T.Entity, filters?: T.QueryFilters): string => {
     .join(" AND ");
 };
 
+const handleJoin = (
+  models: T.Entity[],
+  field: T.Field,
+  modelUnit: T.Entity,
+  qProjection: boolean | T.QueryProjection,
+  joins: T.Join[]
+) => {
+  const modelUnitChild = models.find((x) => x.name === field.type);
+
+  if (!modelUnitChild) {
+    throw Error(
+      "could not find associated model, for joined field: " +
+        modelUnit.name +
+        ":" +
+        field.name
+    );
+  }
+
+  const projection: T.QueryProjection =
+    typeof qProjection === "boolean" ? {} : qProjection;
+
+  getProjectionFields(modelUnitChild, models, joins, projection);
+
+  joins.push({
+    entity: modelUnitChild,
+    field,
+    parent: modelUnit,
+    projection,
+  });
+};
+
 const getProjectionFields = (
   modelUnit: T.Entity,
   models: T.Entity[],
+  joins: T.Join[],
   projection?: T.QueryProjection
 ): {
   pFields: { name: string; column: string }[];
@@ -32,39 +64,22 @@ const getProjectionFields = (
       fieldObject[field.name] = true;
     });
 
-    return getProjectionFields(modelUnit, models, fieldObject);
+    return getProjectionFields(modelUnit, models, joins, fieldObject);
   }
 
-  const joins: T.Join[] = [];
-
-  const ar: { name: string; column: string }[] = Object.entries(projection)
-    .map(([col, val]) => {
+  const pFields: { name: string; column: string }[] = Object.entries(projection)
+    .map(([col, qProjection]) => {
       const field = modelUnit.fields.find((x) => x.name === col);
       if (!field) {
         throw Error("field could not be found:" + modelUnit.name + ":" + col);
       }
 
+      // check if the type refers to another table, if so join
       if (!U.isStandardType(field.type)) {
-        const modelUnitChild = models.find((x) => x.name === field.type);
-
-        if (!modelUnitChild) {
-          throw Error(
-            "could not find associated model, for joined field: " +
-              modelUnit.name +
-              ":" +
-              col
-          );
-        }
-        joins.push({
-          entity: modelUnitChild,
-          field,
-          parentTable:
-            modelUnit.table || NUtils.string.camelToSnakeCase(modelUnit.name),
-          projection: typeof val === "boolean" ? {} : val,
-        });
+        handleJoin(models, field, modelUnit, qProjection, joins);
       }
 
-      if (val === true) {
+      if (qProjection === true) {
         const colName =
           field.column || NUtils.string.camelToSnakeCase(field.name);
         return { name: field.name, column: colName };
@@ -75,12 +90,12 @@ const getProjectionFields = (
     .filter(NUtils.array.notEmpty);
 
   if (modelUnit.uuid) {
-    ar.unshift({ name: "uuid", column: "uuid" });
+    pFields.unshift({ name: "uuid", column: "uuid" });
   } else {
-    ar.unshift({ name: "id", column: "id" });
+    pFields.unshift({ name: "id", column: "id" });
   }
 
-  return { pFields: ar, joins };
+  return { pFields, joins };
 };
 
 const getProjectionString = (
@@ -88,6 +103,7 @@ const getProjectionString = (
   table?: string,
   alias: boolean = false
 ) => {
+  console.log("eneter");
   if (projectionArray.length === 0) {
     return "*";
   }
@@ -104,6 +120,13 @@ const getProjectionString = (
     .join(", ");
 };
 
+/**
+ * generates SQL query for one query
+ * @param params
+ * @param modelUnit
+ * @param model
+ * @returns
+ */
 export const toQuery = (
   params: T.QueryParams,
   modelUnit: T.Entity,
@@ -114,9 +137,11 @@ export const toQuery = (
   joins: T.Join[];
 } => {
   const table = U.entityToTable(modelUnit);
-  const { pFields: projection, joins } = getProjectionFields(
+  const joins: T.Join[] = [];
+  const { pFields: projection } = getProjectionFields(
     modelUnit,
     model,
+    joins,
     params.projection
   );
 
@@ -125,16 +150,19 @@ export const toQuery = (
       ? ""
       : ", " +
         joins
+          .reverse()
           .map((join, tableIdx) => {
+            const table = U.entityToTable(join.entity);
             const { pFields, joins } = getProjectionFields(
               join.entity,
               model,
+              [],
               join.projection
             );
 
             join.pFields = pFields;
 
-            return getProjectionString(pFields, "j" + tableIdx, true);
+            return getProjectionString(pFields, table, true);
           })
           .join(", ");
 
@@ -143,11 +171,13 @@ export const toQuery = (
   const joinTable = joins
     .map((join, tableIdx) => {
       const table = U.entityToTable(join.entity);
-      const alias = "j" + tableIdx;
+      const alias = table; // "j" + tableIdx;
 
       return (
         (join.field.optional ? "LEFT" : "") +
-        `JOIN ${table} as ${alias} ON ${alias}.id = ${join.parentTable}.${
+        `JOIN ${table} as ${alias} ON ${alias}.id = ${U.entityToTable(
+          join.parent
+        )}.${
           join.field.column || NUtils.string.camelToSnakeCase(join.field.name)
         }`
       );
@@ -163,11 +193,18 @@ export const toQuery = (
     .filter(NUtils.array.notEmpty)
     .join("\n");
 
-  // console.log(query);
+  console.log(query);
 
   return { query, projection, joins };
 };
 
+/**
+ * generates SQL queries (goes through the different queries)
+ * @param params
+ * @param modelUnit
+ * @param model
+ * @returns
+ */
 export const createQuery = (query: T.Query, entities: T.Entity[]): T.SQuery[] =>
   Object.entries(query).map(([entity, queryParams]) => {
     const modelEntity = entities.find((x) => x.name === entity);
@@ -183,5 +220,3 @@ export const createQuery = (query: T.Query, entities: T.Entity[]): T.SQuery[] =>
 
     return { query, projection, joins, entity, modelEntity };
   });
-
-//const parseResponse = ()

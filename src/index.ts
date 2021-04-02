@@ -12,12 +12,19 @@ const mq: T.Query = {
     projection: {
       firstName: true,
       lastName: true,
-      status: {},
+      status: { name: true },
       instance: { name: true },
     },
   },
   UserAuthentication: {
-    projection: { user: { firstName: true, instance: {} } },
+    projection: {
+      value: true,
+      user: {
+        firstName: true,
+        instance: { name: true },
+        status: { name: true },
+      },
+    },
   },
 };
 
@@ -28,14 +35,18 @@ export const run = async (): Promise<void> => {
 
   s.connection.connect();
 
-  await Exec.execWithTime(mq, s);
+  const t = await Exec.execWithTime(
+    { UserAuthentication: mq.UserAuthentication },
+    s
+  );
+  console.log(JSON.stringify(t, null, 2));
 
-  await Exec.execWithTime(mq2, s);
-  await Exec.execWithTime(mq, s);
-  await Exec.execWithTime(mq2, s);
-  await Exec.execWithTime(mq2, s);
-  await Exec.execWithTime(mq2, s);
-  await Exec.execWithTime({ Instance: {} }, s);
+  //await Exec.execWithTime(mq2, s);
+  //await Exec.execWithTime(mq, s);
+  //await Exec.execWithTime(mq2, s);
+  //await Exec.execWithTime(mq2, s);
+  //await Exec.execWithTime(mq2, s);
+  //await Exec.execWithTime({ Instance: {} }, s);
 
   s.connection.end();
 };
