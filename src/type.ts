@@ -1,3 +1,5 @@
+// should be in sync with
+// https://github.com/Nexysweb/lib/blob/master/src/query/types.ts
 export type Type =
   | "String"
   | "Int"
@@ -7,6 +9,27 @@ export type Type =
   | "LocalDate"
   | "LocalDateTime"
   | "LocalTime";
+
+interface FiltersIn {
+  $in: (number | string | boolean | Date)[];
+}
+
+interface FiltersNe {
+  $ne: null | number | string | boolean | Date;
+}
+
+export type FilterAttribute =
+  | string
+  | boolean
+  | number
+  | Date
+  | FiltersIn
+  | FiltersNe
+  | null;
+
+export interface References {
+  [entity: string]: QueryParams & { joinOn?: string };
+}
 
 export interface Entity {
   name: string;
@@ -26,12 +49,16 @@ export interface QueryProjection {
 }
 
 export interface QueryFilters {
-  [field: string]: number | Date | string | QueryFilters;
+  [attr: string]: FilterAttribute | QueryFilters;
 }
 
 export interface QueryParams {
   projection?: QueryProjection;
   filters?: QueryFilters;
+  references?: References;
+  order?: { by: string; desc?: boolean };
+  take?: number;
+  skip?: number;
 }
 
 export interface Query {
@@ -51,6 +78,31 @@ export interface MutateResponseInsert {
   uuid?: string;
   id?: number;
   status?: string;
+}
+
+export interface MutateResponseInsert {
+  success: boolean;
+  uuid?: string;
+  id?: number;
+  status?: string;
+}
+
+export interface MutateResponseUpdate {
+  success: boolean;
+  updated: number;
+}
+
+export interface MutateResponseDelete {
+  success: boolean;
+  deleted: number;
+}
+
+export interface MutateResponse {
+  [entity: string]: {
+    insert?: MutateResponseInsert | MutateResponseInsert[];
+    update?: MutateResponseUpdate;
+    delete?: MutateResponseDelete; //| MutateResponseDelete[]; for now remove this one (I don't think it is implemented anyway)
+  };
 }
 
 export interface Join {
