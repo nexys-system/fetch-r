@@ -1,6 +1,4 @@
 import * as T from "../type";
-import * as Connection from "../connection";
-import { RowDataPacket } from "mysql2";
 import CRC32 from "crc-32";
 
 // manages migration
@@ -27,24 +25,26 @@ export const createMigrationTable = [
 
 export const getMigrations = `SELECT * FROM ${table};`;
 
+export const toVersion = (version: number, idx: number) => version + "." + idx;
+
 export const migrationToRow = (
-  m: T.Migration,
+  name: string,
+  version: string,
   execution_time: number,
   success: number,
   checksum: number,
   lastRank: number
 ) => {
   const installed_rank = lastRank + 1;
-  const version = m.version + "." + m.idx;
   const versionString = version.replace(".", "_");
-  const script = `${versionString}__${m.name}.sql`;
+  const script = `${versionString}__${name}.sql`;
 
   const type = "SQL";
   const row: T.MigrationRow = {
     installed_by: "admin",
     execution_time,
     installed_on: new Date(),
-    description: m.name,
+    description: name,
     checksum,
     installed_rank,
     script,
@@ -55,6 +55,11 @@ export const migrationToRow = (
 
   return row;
 };
+
+// mimic checksum done by flyway
+// see https://stackoverflow.com/questions/43267202/flyway-the-meaning-of-the-concept-of-checksums
+// see https://www.npmjs.com/package/crc-32
+export const getChecksum = (str: string) => CRC32.str(str);
 
 export const checkSequence = (
   migrations: Pick<T.Migration, "idx" | "version">[]
@@ -79,4 +84,23 @@ export const checkSequence = (
 
     throw Error("input migrations are not in sequence");
   });
+};
+
+export const findPreviousMigrations = (
+  version: string,
+  checksum: number,
+  y: Pick<T.MigrationRow, "version" | "checksum">[]
+): boolean => {
+  const f = y.find((x) => x.version === version);
+  if (f) {
+    if (checksum === f.checksum) {
+      return true;
+    }
+
+    throw Error(
+      `found previous migration with same version but different checksum: ${version}. New checksum: ${checksum}, Old Checksum: ${f.checksum}`
+    );
+  }
+
+  return false;
 };

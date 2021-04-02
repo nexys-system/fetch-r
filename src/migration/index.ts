@@ -1,14 +1,23 @@
 import * as T from "../type";
 import * as Connection from "../connection";
-import { RowDataPacket } from "mysql2";
-import CRC32 from "crc-32";
+import { OkPacket, RowDataPacket } from "mysql2";
+
 import * as U from "./utils";
+
+const getLastRow = (y: T.MigrationRow[]): { installed_rank: number } => {
+  const l = y.length;
+
+  if (y.length === 0) {
+    return { installed_rank: 0 };
+  }
+
+  const { installed_rank } = y[l - 1];
+
+  return { installed_rank };
+};
 
 // manages migration
 // inspiration from flyway - https://flywaydb.org/
-
-const table = "flyway_schema_history";
-
 export const runMigrations = async (
   migrations: T.Migration[],
   s: Connection.SQL
@@ -20,30 +29,31 @@ export const runMigrations = async (
 
   // get all migrations
   const r: RowDataPacket[] = await s.execQuery(U.getMigrations);
-
   const y = r as T.MigrationRow[];
 
-  const l = y.length;
-
-  const lastRow =
-    y.length === 0 ? { installed_rank: 0, version: "0.0" } : y[l - 1];
+  const lastRow = getLastRow(y);
 
   let lastRank = lastRow.installed_rank;
-  let lastVersion = lastRow.version;
 
   const rows: T.MigrationRow[] = [];
 
   const pWaitForLoop = migrations.map(async (migration) => {
-    const checksum = CRC32.str(migration.sql);
+    const version = U.toVersion(migration.version, migration.idx);
+    const checksum = U.getChecksum(migration.sql);
+
+    // find previous migration with szme version and compare checksums
+    if (U.findPreviousMigrations(version, checksum, y)) {
+      return;
+    }
+
     const t1 = new Date().getTime();
-    const rm: { serverStatus: number } = await Promise.resolve({
-      serverStatus: 2,
-    }); //s.execQuery(migration.sql); OkPacket
+    const rm: OkPacket = await s.execQuery(migration.sql);
     const t2 = new Date().getTime();
 
     const success = rm.serverStatus;
     const row = U.migrationToRow(
-      migration,
+      migration.name,
+      version,
       t2 - t1,
       success,
       checksum,

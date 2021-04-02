@@ -50,3 +50,34 @@ describe("check sequence", () => {
     }
   });
 });
+
+test("to version", () => {
+  expect(M.toVersion(2, 4)).toEqual("2.4");
+});
+
+test("checksum", () => {
+  const cs = -1064643516;
+  const s =
+    "CREATE TABLE `user` (`id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, `uuid` VARCHAR(64) NOT NULL, `first_name` VARCHAR(512) NOT NULL, `last_name` VARCHAR(512) NOT NULL, `email` VARCHAR(512) NOT NULL, `status_id` BIGINT NOT NULL, `log_date_added` DATETIME NOT NULL DEFAULT NOW(), `instance_id` BIGINT NOT NULL, `lang` VARCHAR(512) NOT NULL);";
+  expect(M.getChecksum(s)).toEqual(cs);
+});
+
+describe("find previsou migrations", () => {
+  const y = [{ version: "2.1", checksum: 123 }];
+
+  test("does not exist", () => {
+    expect(M.findPreviousMigrations("2.2", 23, y)).toEqual(false);
+  });
+
+  test("already exists", () => {
+    expect(M.findPreviousMigrations("2.1", 123, y)).toEqual(true);
+  });
+
+  test("already exists but checksum different", () => {
+    try {
+      M.findPreviousMigrations("2.1", 43, y);
+    } catch (err) {
+      expect(typeof err).toEqual("object");
+    }
+  });
+});
