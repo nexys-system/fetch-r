@@ -71,7 +71,9 @@ const getProjectionFields = (
     .map(([col, qProjection]) => {
       const field = modelUnit.fields.find((x) => x.name === col);
       if (!field) {
-        throw Error("field could not be found:" + modelUnit.name + ":" + col);
+        throw Error(
+          "SQL field could not be found:" + modelUnit.name + ":" + col
+        );
       }
 
       // check if the type refers to another table, if so join
@@ -103,7 +105,6 @@ const getProjectionString = (
   table?: string,
   alias: boolean = false
 ) => {
-  console.log("eneter");
   if (projectionArray.length === 0) {
     return "*";
   }
@@ -193,7 +194,7 @@ export const toQuery = (
     .filter(NUtils.array.notEmpty)
     .join("\n");
 
-  console.log(query);
+  // console.log(query);
 
   return { query, projection, joins };
 };

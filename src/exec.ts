@@ -16,11 +16,7 @@ const handleReponseUnit = (
     const fieldsWithValue = x.map((y) => {
       const r: { [k: string]: any } = {};
 
-      projection.forEach((f) => {
-        console.log("her1e");
-        console.log(f);
-        r[f.name] = y[f.column];
-      });
+      projection.forEach((f) => (r[f.name] = y[f.column]));
 
       // to be reviewed
       hJoins(joins, qsi.entity, r, y);

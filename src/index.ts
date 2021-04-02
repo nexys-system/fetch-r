@@ -21,8 +21,9 @@ const mq: T.Query = {
       value: true,
       user: {
         firstName: true,
+        lastName: true,
         instance: { name: true },
-        status: { name: true },
+        status: {},
       },
     },
   },
@@ -35,10 +36,7 @@ export const run = async (): Promise<void> => {
 
   s.connection.connect();
 
-  const t = await Exec.execWithTime(
-    { UserAuthentication: mq.UserAuthentication },
-    s
-  );
+  const t = await Exec.execWithTime(mq, s);
   console.log(JSON.stringify(t, null, 2));
 
   //await Exec.execWithTime(mq2, s);
