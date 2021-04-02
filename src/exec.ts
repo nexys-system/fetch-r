@@ -23,43 +23,7 @@ const handleReponseUnit = (
       });
 
       // to be reviewed
-      joins
-        .filter((join) => join.parent.name === qsi.entity)
-        .forEach((join) => {
-          r[join.field.name] = {};
-          // alias
-          console.log("here");
-          console.log(join.field.name);
-          //console.log(join, qsi.entity);
-          const j = r[join.field.name];
-
-          if (join.pFields) {
-            join.pFields.forEach((field) => {
-              //const key = "j" + tIdx + "_" + field.column;
-              const key = U.entityToTable(join.entity) + "_" + field.column;
-              j[field.name] = y[key];
-            });
-          }
-
-          const fs = joins.filter((x) => join.field.type === x.parent.name);
-          if (fs.length > 0) {
-            fs.forEach((join) => {
-              // alias
-              j[join.field.name] = {};
-              const k = j[join.field.name];
-
-              if (join.pFields) {
-                join.pFields.forEach((field) => {
-                  //const key = "j" + tIdx + "_" + field.column;
-                  const key = U.entityToTable(join.entity) + "_" + field.column;
-                  k[field.name] = y[key];
-                });
-              }
-            });
-
-            //
-          }
-        });
+      hJoins(joins, qsi.entity, r, y);
 
       return r;
     });
@@ -68,6 +32,35 @@ const handleReponseUnit = (
   }
 
   throw Error("expecting an array");
+};
+
+const hJoins = (
+  joins: T.Join[],
+  parentType: string,
+  r: {
+    [k: string]: any;
+  },
+  y: {
+    [k: string]: any;
+  }
+) => {
+  const fs = joins.filter((x) => parentType === x.parent.name);
+
+  fs.forEach((join) => {
+    // alias
+    r[join.field.name] = {};
+    const k = r[join.field.name];
+
+    if (join.pFields) {
+      join.pFields.forEach((field) => {
+        //const key = "j" + tIdx + "_" + field.column;
+        const key = U.entityToTable(join.entity) + "_" + field.column;
+        k[field.name] = y[key];
+      });
+    }
+
+    hJoins(joins, join.field.type, k, y);
+  });
 };
 
 const handleReponse = (response: any, qs: T.SQuery[]): any => {
