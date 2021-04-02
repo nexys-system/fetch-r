@@ -38,6 +38,14 @@ export interface Query {
   [entity: string]: QueryParams;
 }
 
+export interface Mutate {
+  [entity: string]: {
+    insert?: { data: any };
+    update?: { data: any; filters: QueryFilters };
+    delete?: { filters: QueryFilters };
+  };
+}
+
 export interface Join {
   entity: Entity;
   field: Field;

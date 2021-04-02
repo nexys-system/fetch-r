@@ -31,12 +31,14 @@ const mq: T.Query = {
 
 const mq2 = { Instance: {}, UserStatus: {} };
 
+const iq = { UserStatus: { insert: { data: { name: "inserted!" } } } };
+
 export const run = async (): Promise<void> => {
   const s = Connection.init();
 
   s.connection.connect();
 
-  const t = await Exec.execWithTime(mq, s);
+  const t = await Exec.mutate(iq, s);
   console.log(JSON.stringify(t, null, 2));
 
   //await Exec.execWithTime(mq2, s);

@@ -1,4 +1,5 @@
 import NUtils from "@nexys/utils";
+import { entities } from "./model";
 import * as T from "./type";
 import * as U from "./utils";
 
@@ -221,3 +222,30 @@ export const createQuery = (query: T.Query, entities: T.Entity[]): T.SQuery[] =>
 
     return { query, projection, joins, entity, modelEntity };
   });
+
+const toQueryInsert = (entity: T.Entity, data: any) => {
+  const fields = entity.fields.map((x) => U.fieldToColumn(x)).join(", ");
+  const values = entity.fields.map((x) => U.escape(data[x.name]));
+  return `INSERT INTO ${U.entityToTable(
+    entity
+  )} (${fields}) VALUES (${values});`;
+};
+
+export const createMutateQuery = (
+  query: T.Mutate,
+  entities: T.Entity[]
+): string[] =>
+  Object.entries(query)
+    .map(([entity, queryParams]) => {
+      const modelEntity = entities.find((x) => x.name === entity);
+      if (!modelEntity) {
+        throw Error("entity not found" + entity);
+      }
+
+      if (queryParams.insert) {
+        return toQueryInsert(modelEntity, queryParams.insert.data);
+      }
+
+      return;
+    })
+    .filter(NUtils.array.notEmpty);

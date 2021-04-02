@@ -100,3 +100,11 @@ export const execWithTime = async (query: T.Query, s: Connection.SQL) => {
   return r;
   //
 };
+
+export const mutate = async (mq: T.Mutate, s: Connection.SQL) => {
+  const qs = SQL.createMutateQuery(mq, entities);
+  console.log(qs);
+  const response = await s.execQuery(qs.map((x) => x).join("\n"));
+  console.log(response);
+  return response;
+};
