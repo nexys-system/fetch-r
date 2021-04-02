@@ -31,14 +31,19 @@ const handleReponseUnit = (
   throw Error("expecting an array");
 };
 
+/**
+ *
+ * @param joins
+ * @param parentType
+ * @param r return object
+ * @param y object to be parsed (linear SQL response)
+ */
 const hJoins = (
   joins: T.Join[],
   parentType: string,
-  r: {
-    [k: string]: any;
-  },
+  r: T.ReturnUnit,
   y: {
-    [k: string]: any;
+    [k: string]: T.Value | null;
   }
 ) => {
   const fs = joins.filter((x) => parentType === x.parent.name);

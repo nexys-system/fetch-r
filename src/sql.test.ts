@@ -54,6 +54,23 @@ describe("create  query", () => {
     const r = S.createQuery(q, entities)[0];
     expect(r.query.split("\n")).toEqual(s);
   });
+
+  test("select w 2nd level join", () => {
+    const q: T.Query = {
+      UserAuthentication: {
+        projection: { value: true, user: { status: { name: true } } },
+      },
+    };
+    const s = [
+      "SELECT user_authentication.`uuid`, user_authentication.`value`, user.`uuid` as user_uuid, user_status.`id` as user_status_id, user_status.`name` as user_status_name",
+      "FROM user_authentication",
+      "JOIN user as user ON user.id = user_authentication.user_id",
+      "JOIN user_status as user_status ON user_status.id = user.status_id",
+      "WHERE 1;",
+    ];
+    const r = S.createQuery(q, entities)[0];
+    expect(r.query.split("\n")).toEqual(s);
+  });
 });
 
 describe("create mutate query", () => {

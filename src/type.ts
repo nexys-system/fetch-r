@@ -10,12 +10,14 @@ export type Type =
   | "LocalDateTime"
   | "LocalTime";
 
+export type Value = number | string | boolean | Date;
+
 interface FiltersIn {
-  $in: (number | string | boolean | Date)[];
+  $in: Value[];
 }
 
 interface FiltersNe {
-  $ne: null | number | string | boolean | Date;
+  $ne: null | Value;
 }
 
 export type FilterAttribute =
@@ -120,3 +122,7 @@ export interface SQuery {
   projection: { name: string; column: string }[];
   joins: Join[];
 }
+
+export type ReturnUnit = {
+  [k: string]: any; //T.Value | null | ReturnUnit;
+};
