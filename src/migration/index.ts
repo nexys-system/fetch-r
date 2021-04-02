@@ -1,4 +1,4 @@
-import * as T from "../type";
+import * as T from "./type";
 import * as Connection from "../connection";
 import { OkPacket, RowDataPacket } from "mysql2";
 

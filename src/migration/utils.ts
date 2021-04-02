@@ -1,4 +1,4 @@
-import * as T from "../type";
+import * as T from "./type";
 import CRC32 from "crc-32";
 
 // manages migration
