@@ -5,17 +5,12 @@ import * as SQL from "./sql";
 import * as U from "./utils";
 import { OkPacket, RowDataPacket } from "mysql2";
 
-const handleReponseUnit = (
-  x: any[],
-  qsi: T.SQuery
-): {
-  [k: string]: any;
-}[] => {
+const handleReponseUnit = (x: RowDataPacket, qsi: T.SQuery): T.ReturnUnit[] => {
   if (Array.isArray(x)) {
     const { projection, joins } = qsi;
 
     const fieldsWithValue = x.map((y) => {
-      const r: { [k: string]: any } = {};
+      const r: T.ReturnUnit = {};
 
       projection.forEach((f) => (r[f.name] = y[f.column]));
 
@@ -73,7 +68,7 @@ const isRawDataPacket = (
 const handleReponse = (
   response: RowDataPacket[] | RowDataPacket,
   qs: T.SQuery[]
-): any => {
+): T.ReturnUnit => {
   if (!Array.isArray(response)) {
     throw Error("not an array");
   }
@@ -83,11 +78,11 @@ const handleReponse = (
     return handleReponse([response], qs);
   }
 
-  const responseParsed = response.map((x: any, i: number) =>
+  const responseParsed = response.map((x: RowDataPacket, i: number) =>
     handleReponseUnit(x, qs[i])
   );
 
-  const responseWithEntites: { [entity: string]: any } = {};
+  const responseWithEntites: T.ReturnUnit = {};
 
   responseParsed.forEach((responseEntity, i) => {
     responseWithEntites[qs[i].entity] = responseEntity;
