@@ -1,6 +1,6 @@
-import * as T from "./type";
-import * as Connection from "./connection";
-import { OkPacket, RowDataPacket } from "mysql2";
+import * as T from "../type";
+import * as Connection from "../connection";
+import { RowDataPacket } from "mysql2";
 import CRC32 from "crc-32";
 
 // manages migration
@@ -8,7 +8,7 @@ import CRC32 from "crc-32";
 
 const table = "flyway_schema_history";
 
-const createMigrationTable = [
+export const createMigrationTable = [
   "CREATE TABLE IF NOT EXISTS `" + table + "` (",
   "`installed_rank` int NOT NULL,",
   " `version` varchar(50) DEFAULT NULL,",
@@ -25,9 +25,9 @@ const createMigrationTable = [
   ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci",
 ].join("\n");
 
-const getMigrations = `SELECT * FROM ${table};`;
+export const getMigrations = `SELECT * FROM ${table};`;
 
-const migrationToRow = (
+export const migrationToRow = (
   m: T.Migration,
   execution_time: number,
   success: number,
@@ -78,58 +78,5 @@ export const checkSequence = (
     }
 
     throw Error("input migrations are not in sequence");
-  });
-};
-
-export const runMigrations = async (
-  migrations: T.Migration[],
-  s: Connection.SQL
-) => {
-  checkSequence(migrations);
-  // create table if not exists
-  console.log(createMigrationTable);
-  await s.execQuery(createMigrationTable);
-
-  // get all migrations
-  const r: RowDataPacket[] = await s.execQuery(getMigrations);
-
-  const y = r as T.MigrationRow[];
-
-  const l = y.length;
-
-  const lastRow =
-    y.length === 0 ? { installed_rank: 0, version: "0.0" } : y[l - 1];
-
-  let lastRank = lastRow.installed_rank;
-  let lastVersion = lastRow.version;
-
-  const rows: T.MigrationRow[] = [];
-
-  const pWaitForLoop = migrations.map(async (migration) => {
-    const checksum = CRC32.str(migration.sql);
-    const t1 = new Date().getTime();
-    const rm: { serverStatus: number } = await Promise.resolve({
-      serverStatus: 2,
-    }); //s.execQuery(migration.sql); OkPacket
-    const t2 = new Date().getTime();
-
-    const success = rm.serverStatus;
-    const row = migrationToRow(migration, t2 - t1, success, checksum, lastRank);
-    lastRank += 1;
-
-    rows.push(row);
-    return 1;
-  });
-
-  const waitForLoop = await Promise.all(pWaitForLoop);
-
-  if (waitForLoop.length !== migrations.length) {
-    throw Error("something went wrong while applying migrations");
-  }
-
-  console.log(rows);
-
-  return y.map((x) => {
-    return { c: x.checksum, d: x.installed_rank };
   });
 };

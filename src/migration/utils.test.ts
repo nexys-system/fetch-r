@@ -1,11 +1,9 @@
-import * as M from "./migration";
-import * as T from "./type";
-import * as Connection from "./connection";
+import * as M from "./utils";
 
 // see https://stackoverflow.com/a/54175600/1659569 (because of mysql2)
-require("iconv-lite").encodingExists("foo");
+//require("iconv-lite").encodingExists("foo");
 
-const s = Connection.init();
+//const s = Connection.init();
 
 /*test("creat table", async () => {
   s.connection.connect();
