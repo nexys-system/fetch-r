@@ -46,6 +46,13 @@ export interface Mutate {
   };
 }
 
+export interface MutateResponseInsert {
+  success: boolean;
+  uuid?: string;
+  id?: number;
+  status?: string;
+}
+
 export interface Join {
   entity: Entity;
   field: Field;

@@ -3,6 +3,7 @@ import { entities } from "./model";
 import * as T from "./type";
 import * as SQL from "./sql";
 import * as U from "./utils";
+import { OkPacket, RowDataPacket } from "mysql2";
 
 const handleReponseUnit = (
   x: any[],
@@ -59,13 +60,21 @@ const hJoins = (
   });
 };
 
-const handleReponse = (response: any, qs: T.SQuery[]): any => {
+const isRawDataPacket = (
+  response: RowDataPacket[] | RowDataPacket
+): response is RowDataPacket =>
+  response.length > 0 && !Array.isArray(response[0]);
+
+const handleReponse = (
+  response: RowDataPacket[] | RowDataPacket,
+  qs: T.SQuery[]
+): any => {
   if (!Array.isArray(response)) {
     throw Error("not an array");
   }
 
   // in case we requested only one query, the response is a single array, we call the function recursively to be able to handle it
-  if (response.length > 0 && !Array.isArray(response[0])) {
+  if (isRawDataPacket(response)) {
     return handleReponse([response], qs);
   }
 
@@ -85,7 +94,10 @@ const handleReponse = (response: any, qs: T.SQuery[]): any => {
 export const exec = async (mq: T.Query, s: Connection.SQL) => {
   const qs = SQL.createQuery(mq, entities);
 
-  const response = await s.execQuery(qs.map((x) => x.query).join("\n"));
+  // here we cast to RowDataPacket[] but theoreticfally it can also be RowDataPacket, it is checked downstream
+  const response = await s.execQuery<RowDataPacket[]>(
+    qs.map((x) => x.query).join("\n")
+  );
 
   return handleReponse(response, qs);
 };
@@ -101,10 +113,18 @@ export const execWithTime = async (query: T.Query, s: Connection.SQL) => {
   //
 };
 
+const parseMutate = (response: OkPacket): T.MutateResponseInsert => {
+  return {
+    success: typeof response.insertId === "number",
+    uuid: undefined,
+    id: response.insertId,
+    status: response.message,
+  };
+};
+
 export const mutate = async (mq: T.Mutate, s: Connection.SQL) => {
   const qs = SQL.createMutateQuery(mq, entities);
-  console.log(qs);
-  const response = await s.execQuery(qs.map((x) => x).join("\n"));
-  console.log(response);
-  return response;
+  const response = await s.execQuery<OkPacket>(qs.join("\n"));
+
+  return parseMutate(response);
 };

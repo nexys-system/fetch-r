@@ -31,20 +31,21 @@ export class SQL {
     //console.log(this.connection);
   }
 
-  execQuery = (
+  execQuery = <
+    A extends
+      | mysql.RowDataPacket[]
+      | mysql.RowDataPacket[][]
+      | mysql.OkPacket
+      | mysql.OkPacket[]
+      | mysql.ResultSetHeader
+  >(
     query: string
-  ): Promise<
-    | mysql.RowDataPacket[]
-    | mysql.RowDataPacket[][]
-    | mysql.OkPacket
-    | mysql.OkPacket[]
-    | mysql.ResultSetHeader
-  > =>
+  ): Promise<A> =>
     new Promise((r) => {
       this.connection.query(query, (error, results) => {
         if (error) throw error;
 
-        r(results);
+        r(results as A);
       });
     });
 }

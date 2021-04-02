@@ -223,12 +223,22 @@ export const createQuery = (query: T.Query, entities: T.Entity[]): T.SQuery[] =>
     return { query, projection, joins, entity, modelEntity };
   });
 
+const getValuesInsert = (data: any, fields: T.Field[]) => {
+  const v = fields.map((x) => U.escape(data[x.name])).join(", ");
+
+  return "(" + v + ")";
+};
+
+const getValuesInsertMultiple = (data: any[], fields: T.Field[]) =>
+  data.map((d) => getValuesInsert(d, fields)).join(", ");
+
 const toQueryInsert = (entity: T.Entity, data: any) => {
   const fields = entity.fields.map((x) => U.fieldToColumn(x)).join(", ");
-  const values = entity.fields.map((x) => U.escape(data[x.name]));
-  return `INSERT INTO ${U.entityToTable(
-    entity
-  )} (${fields}) VALUES (${values});`;
+
+  const values = Array.isArray(data)
+    ? getValuesInsertMultiple(data, entity.fields)
+    : getValuesInsert(data, entity.fields);
+  return `INSERT INTO ${U.entityToTable(entity)} (${fields}) VALUES ${values};`;
 };
 
 export const createMutateQuery = (
