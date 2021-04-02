@@ -263,7 +263,7 @@ const toQueryUpdate = (
     .join(", ");
   return `UPDATE ${U.entityToTable(
     entity
-  )} SET ${values} WHERE ${filterString} ;`;
+  )} SET ${values} WHERE ${filterString};`;
 };
 
 const toQueryDelete = (
@@ -273,7 +273,7 @@ const toQueryDelete = (
 ) => {
   const filterString = getFilters(entity, filters);
 
-  return `DELETE FROM ${U.entityToTable(entity)}  WHERE ${filterString} ;`;
+  return `DELETE FROM ${U.entityToTable(entity)} WHERE ${filterString};`;
 };
 
 export const createMutateQuery = (
