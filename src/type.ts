@@ -113,6 +113,8 @@ export interface Join {
   parent: Entity;
   projection?: QueryProjection;
   pFields?: { name: string; column: string }[];
+  alias?: string;
+  parentAlias?: string;
 }
 
 export interface SQuery {

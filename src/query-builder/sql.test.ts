@@ -1,6 +1,6 @@
 import * as S from "./sql";
-import * as T from "./type";
-import { entities } from "./model";
+import * as T from "../type";
+import { entities } from "../model";
 
 describe("create  query", () => {
   test("simple select", () => {
@@ -34,9 +34,9 @@ describe("create  query", () => {
   test("select w join - true", () => {
     const q: T.Query = { User: { projection: { status: true } } };
     const s = [
-      "SELECT user.`uuid`, user.`status_id`, user_status.`id` as user_status_id",
+      "SELECT user.`uuid`, user.`status_id`, t0.`id` as t0_id",
       "FROM user",
-      "JOIN user_status as user_status ON user_status.id = user.status_id",
+      "JOIN user_status as t0 ON t0.id = user.status_id",
       "WHERE 1;",
     ];
     const r = S.createQuery(q, entities)[0];
@@ -46,9 +46,9 @@ describe("create  query", () => {
   test("select w join - {}", () => {
     const q: T.Query = { User: { projection: { status: { name: true } } } };
     const s = [
-      "SELECT user.`uuid`, user_status.`id` as user_status_id, user_status.`name` as user_status_name",
+      "SELECT user.`uuid`, t0.`id` as t0_id, t0.`name` as t0_name",
       "FROM user",
-      "JOIN user_status as user_status ON user_status.id = user.status_id",
+      "JOIN user_status as t0 ON t0.id = user.status_id",
       "WHERE 1;",
     ];
     const r = S.createQuery(q, entities)[0];
@@ -62,10 +62,10 @@ describe("create  query", () => {
       },
     };
     const s = [
-      "SELECT user_authentication.`uuid`, user_authentication.`value`, user.`uuid` as user_uuid, user_status.`id` as user_status_id, user_status.`name` as user_status_name",
+      "SELECT user_authentication.`uuid`, user_authentication.`value`, t0.`uuid` as t0_uuid, t1.`id` as t1_id, t1.`name` as t1_name",
       "FROM user_authentication",
-      "JOIN user as user ON user.id = user_authentication.user_id",
-      "JOIN user_status as user_status ON user_status.id = user.status_id",
+      "JOIN user as t0 ON t0.id = user_authentication.user_id",
+      "JOIN user_status as t1 ON t1.id = t0.status_id",
       "WHERE 1;",
     ];
     const r = S.createQuery(q, entities)[0];

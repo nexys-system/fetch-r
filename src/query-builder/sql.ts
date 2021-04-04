@@ -1,7 +1,6 @@
 import NUtils from "@nexys/utils";
-import { entities } from "./model";
-import * as T from "./type";
-import * as U from "./utils";
+import * as T from "../type";
+import * as U from "../utils";
 
 // SQL
 
@@ -20,15 +19,15 @@ const getFilters = (modelUnit: T.Entity, filters?: T.QueryFilters): string => {
 };
 
 const handleJoin = (
-  models: T.Entity[],
   field: T.Field,
   modelUnit: T.Entity,
+  models: T.Entity[],
   qProjection: boolean | T.QueryProjection,
   joins: T.Join[]
 ) => {
-  const modelUnitChild = models.find((x) => x.name === field.type);
+  const entity = models.find((x) => x.name === field.type);
 
-  if (!modelUnitChild) {
+  if (!entity) {
     throw Error(
       "could not find associated model, for joined field: " +
         modelUnit.name +
@@ -40,10 +39,10 @@ const handleJoin = (
   const projection: T.QueryProjection =
     typeof qProjection === "boolean" ? {} : qProjection;
 
-  getProjectionFields(modelUnitChild, models, joins, projection);
+  getProjectionFields(entity, models, joins, projection);
 
   joins.push({
-    entity: modelUnitChild,
+    entity,
     field,
     parent: modelUnit,
     projection,
@@ -79,13 +78,12 @@ const getProjectionFields = (
 
       // check if the type refers to another table, if so join
       if (!U.isStandardType(field.type)) {
-        handleJoin(models, field, modelUnit, qProjection, joins);
+        handleJoin(field, modelUnit, models, qProjection, joins);
       }
 
       if (qProjection === true) {
-        const colName =
-          field.column || NUtils.string.camelToSnakeCase(field.name);
-        return { name: field.name, column: colName };
+        const column = U.fieldToColumn(field);
+        return { name: field.name, column };
       }
 
       return undefined;
@@ -154,8 +152,9 @@ export const toQuery = (
         joins
           .reverse()
           .map((join, tableIdx) => {
-            const table = U.entityToTable(join.entity);
-            const { pFields, joins } = getProjectionFields(
+            //const table = U.entityToTable(join.entity);
+            const alias = "t" + tableIdx;
+            const { pFields } = getProjectionFields(
               join.entity,
               model,
               [],
@@ -163,8 +162,9 @@ export const toQuery = (
             );
 
             join.pFields = pFields;
+            join.alias = alias;
 
-            return getProjectionString(pFields, table, true);
+            return getProjectionString(pFields, alias, true);
           })
           .join(", ");
 
@@ -174,15 +174,20 @@ export const toQuery = (
     joins.length === 0
       ? undefined // this is to make sure that we have a clean query (no extra break line)
       : joins
-          .map((join, tableIdx) => {
-            const table = U.entityToTable(join.entity);
-            const alias = table; // "j" + tableIdx;
+          .map((join) => {
+            const jtable = U.entityToTable(join.entity);
+            const alias = join.alias; //table; // "j" + tableIdx;
+
+            // todo: link parent entity and field!
+            const parentAlias =
+              join.parent.name === modelUnit.name
+                ? table
+                : joins.find((j) => j.entity.name === join.parent.name)
+                    ?.alias || "entitynotfound";
 
             return (
               (join.field.optional ? "LEFT" : "") +
-              `JOIN ${table} as ${alias} ON ${alias}.id = ${U.entityToTable(
-                join.parent
-              )}.${
+              `JOIN ${jtable} as ${alias} ON ${alias}.id = ${parentAlias}.${
                 join.field.column ||
                 NUtils.string.camelToSnakeCase(join.field.name)
               }`
@@ -199,8 +204,6 @@ export const toQuery = (
     .filter(NUtils.array.notEmpty)
     .join("\n");
 
-  // console.log(query);
-
   return { query, projection, joins };
 };
 
@@ -215,7 +218,7 @@ export const createQuery = (query: T.Query, entities: T.Entity[]): T.SQuery[] =>
   Object.entries(query).map(([entity, queryParams]) => {
     const modelEntity = entities.find((x) => x.name === entity);
     if (!modelEntity) {
-      throw Error("entity not found" + entity);
+      throw Error("entity not found: " + entity);
     }
 
     const { query, projection, joins } = toQuery(
