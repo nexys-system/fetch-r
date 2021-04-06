@@ -124,12 +124,12 @@ export const toMeta = (
         // check foreign
         if (!U.isStandardType(field.type)) {
           const join = getJoin(modelUnit, field);
-          addFilters(field.type, value as T.QueryFilters, join);
+          addFilters(field.type, value as T.QueryFilters, join, aliasIdx + 1);
           return;
         }
 
         if (true) {
-          // oppoiste todo cast to {} for non query filters
+          // opposite todo cast to {} for non query filters
           metaFilters.push({
             name: field.name,
             column: U.fieldToColumn(field),
@@ -144,7 +144,7 @@ export const toMeta = (
         entity,
         table,
         alias,
-        fields: r[alias].fields || [],
+        fields: r[alias]?.fields || [],
         filters: metaFilters,
         join,
       };
@@ -156,13 +156,13 @@ export const toMeta = (
   }
 
   const m: MetaQueryUnit[] = Object.entries(r).map(
-    ([alias, { entity, fields, table, join }]) => {
+    ([alias, { entity, fields, filters, table, join }]) => {
       const mu: MetaQueryUnit = {
         entity,
         table,
         alias,
         fields,
-        filters: [],
+        filters,
         join,
       };
       return mu;
@@ -180,25 +180,27 @@ export const toQuery = (meta: MetaQueryUnit[]) => {
       if (x.filters.length === 0) {
         return "1";
       }
-      return x.filters.map((y) => `t${i}.${y.column}=${y.value}`).join(", ");
+      return x.filters
+        .map((y) => `t${i}.${y.column}=${U.escape(y.value)}`)
+        .join(", ");
     })
     .join(" AND ");
 
   const joins: string = meta
     .slice(1)
     .map((x, i) => {
-      const alias = "t" + i;
+      const alias = x.alias;
       const parentAlias = meta.findIndex((m) => m.entity === x.join?.entity);
       return (
         (x.join?.optional ? "LEFT " : "") +
-        `JOIN ${x.table} as ${alias} ON ${alias}.id=${parentAlias}=${x.join?.field}`
+        `JOIN ${x.table} as ${alias} ON ${alias}.id=t${parentAlias}.${x.join?.field}`
       );
     })
     .join("\n");
 
   return [
     "SELECT " + projection,
-    "FROM " + meta[0].table,
+    "FROM " + meta[0].table + " as " + meta[0].alias,
     joins,
     "WHERE " + filters,
   ];

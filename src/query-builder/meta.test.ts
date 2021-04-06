@@ -2,6 +2,13 @@ import * as M from "./meta";
 import { entities as model } from "../model";
 import * as T from "../type";
 
+const q: T.Query = {
+  User: {
+    projection: { firstName: true, status: { name: true } },
+    filters: { status: { name: "ok" } },
+  },
+};
+
 const meta: M.MetaQueryUnit[] = [
   {
     entity: "User",
@@ -14,27 +21,11 @@ const meta: M.MetaQueryUnit[] = [
     entity: "UserStatus",
     table: "user_status",
     alias: "t1",
-    join: { entity: "User", field: "name", optional: false },
+    join: { entity: "User", field: "status", optional: false },
     fields: [{ name: "name", column: "col_name" }],
-    filters: [{ name: "id", column: "id", value: 7 }],
+    filters: [{ name: "name", column: "name", value: "ok" }],
   },
 ];
-
-test("to query", () => {
-  expect(M.toQuery(meta)).toEqual([
-    "SELECT t0.first_name, t1.col_name",
-    "FROM user",
-    "JOIN user_status as t0 ON t0.id=0=name",
-    "WHERE 1 AND t1.id=7",
-  ]);
-});
-
-const q: T.Query = {
-  User: {
-    projection: { firstName: true, status: { name: true } },
-    filters: { status: { name: 7 } },
-  },
-};
 
 test("to meta", () => {
   // todo filters
@@ -51,9 +42,18 @@ test("to meta", () => {
       alias: "t1",
       entity: "UserStatus",
       fields: [{ column: "name", name: "name" }],
-      filters: [],
+      filters: [{ name: "name", column: "name", value: "ok" }],
       join: { entity: "User", field: "status", optional: false },
       table: "user_status",
     },
+  ]);
+});
+
+test("to query", () => {
+  expect(M.toQuery(meta)).toEqual([
+    "SELECT t0.first_name, t1.col_name",
+    "FROM user as t0",
+    "JOIN user_status as t1 ON t1.id=t0.status",
+    'WHERE 1 AND t1.name="ok"',
   ]);
 });
