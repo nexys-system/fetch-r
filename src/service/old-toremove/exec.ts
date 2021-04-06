@@ -1,8 +1,8 @@
-import * as Connection from "./connection";
-import { entities } from "./model";
-import * as T from "./type";
-import * as SQL from "./query-builder/sql";
-import * as U from "./utils";
+import * as Connection from "../connection";
+import { entities } from "../model";
+import * as T from "../type";
+import * as SQL from "./sql";
+import * as U from "../utils";
 import { OkPacket, RowDataPacket } from "mysql2";
 
 const handleReponseUnit = (x: RowDataPacket, qsi: T.SQuery): T.ReturnUnit[] => {

@@ -1,57 +1,36 @@
-import * as Connection from "./connection";
-import * as Exec from "./exec2";
-import * as T from "./type";
+import Koa from "koa";
+import Router from "koa-router";
+import bodyParser from "koa-body";
+import * as Middleware from "./middleware";
 
-const mq: T.Query = {
-  Instance: {
-    projection: { dateAdded: true },
-    filters: { name: "nexys" },
-  },
-  UserStatus: { filters: { id: 2 } },
-  User: {
-    projection: {
-      firstName: true,
-      lastName: true,
-      status: { name: true },
-      instance: { name: true },
-    },
-  },
-  UserAuthentication: {
-    projection: {
-      value: true,
-      user: {
-        firstName: true,
-        lastName: true,
-        instance: { name: true },
-        status: {},
-      },
-    },
-  },
-};
+const app = new Koa();
+const router: Router = new Router();
 
-const mq2 = { UserAuthentication: {} };
+router.all("/", async (ctx: Koa.Context) => {
+  ctx.body = { msg: "hello" };
+});
 
-const iq = {
-  UserStatus: { insert: { data: { name: "m1!" } } },
-};
+router.all(
+  "/data",
+  Middleware.isAuth,
+  bodyParser(),
+  async (ctx: Koa.Context) => {
+    // get model
 
-export const run = async (): Promise<void> => {
-  const s = Connection.init();
+    // get query
+    const { body: query } = ctx.request;
 
-  s.connection.connect();
+    ctx.body = { msg: "data" };
+  }
+);
 
-  //const t = await Exec.mutate(iq, s);
-  //console.log(JSON.stringify(t, null, 2));
+router.post("/mutate", async (ctx) => {
+  ctx.body = { msg: "mutate" };
+});
 
-  const t2 = await Exec.exec(mq2, s);
-  console.log(JSON.stringify(t2));
-  //await Exec.execWithTime(mq, s);
-  //await Exec.execWithTime(mq2, s);
-  //await Exec.execWithTime(mq2, s);
-  //await Exec.execWithTime(mq2, s);
-  //await Exec.execWithTime({ Instance: {} }, s);
+app.use(router.routes());
 
-  s.connection.end();
-};
-
-run();
+const port = 9000 || process.env.PORT;
+app.listen(port, () => {
+  console.log("fetch-r started on port " + port);
+});
