@@ -3,8 +3,7 @@ import * as U from "../utils";
 
 interface MetaJoin {
   entity: string;
-  field: string;
-  optional: boolean;
+  field: Pick<T.Field, "name" | "column" | "optional">;
 }
 
 interface MetaField {
@@ -35,15 +34,26 @@ const getModel = (entityName: string, model: T.Entity[]) => {
   return f;
 };
 
-const getField = (fieldName: string, entityName: string, fields: T.Field[]) => {
+const getField = (
+  fieldName: string,
+  entity: T.Entity,
+  fields: T.Field[]
+): T.Field => {
   const field = fields.find((f) => f.name === fieldName);
 
   if (!field) {
+    if (fieldName === "id" && !entity.uuid) {
+      return { name: "id", type: "Int", optional: false };
+    }
+
+    if (fieldName === "uuid" && entity.uuid) {
+      return { name: "uuid", type: "String", optional: false };
+    }
     throw Error(
       "while creating meta query: could not find field: " +
         fieldName +
         " from " +
-        entityName
+        entity.name
     );
   }
 
@@ -53,8 +63,11 @@ const getField = (fieldName: string, entityName: string, fields: T.Field[]) => {
 const getJoin = (modelUnit: T.Entity, field: T.Field) => {
   const join = {
     entity: modelUnit.name, // name of the parent entity
-    field: field.name, // the name of the child field
-    optional: field.optional, // determines if JOIN or LEFT JOIN
+    field: {
+      name: field.name, // the name of the child field
+      column: field.column,
+      optional: field.optional, // // determines if JOIN or LEFT JOIN
+    },
   };
 
   return join;
@@ -70,44 +83,56 @@ export const toMeta = (
     [alias: string]: MetaQueryUnit;
   } = {};
 
-  if (query.projection) {
-    const addProjection = (
-      entity: string,
-      proj: T.QueryProjection,
-      join?: MetaJoin,
-      aliasIdx: number = 0
-    ) => {
-      const modelUnit = getModel(entity, model);
-      const fields: MetaField[] = [];
-      Object.entries(proj).forEach(([fieldName, value]) => {
-        const field = getField(fieldName, entity, modelUnit.fields);
+  const addProjection = (
+    entity: string,
+    proj: T.QueryProjection,
+    join?: MetaJoin,
+    aliasIdx: number = 0
+  ) => {
+    const modelUnit = getModel(entity, model);
+    // turn projection into object
+    const projEntries = Object.entries(proj);
 
-        // check foreign
-        if (!U.isStandardType(field.type)) {
-          const join = getJoin(modelUnit, field);
-          addProjection(
-            field.type,
-            typeof value === "boolean" ? {} : value,
-            join,
-            aliasIdx + 1
-          );
-          return;
-        }
+    // if there are no attributes in projection, add them all
+    if (projEntries.length === 0) {
+      modelUnit.fields.forEach((f) => projEntries.push([f.name, true]));
+    }
 
-        if (typeof value === "boolean" && value === true) {
-          fields.push({ name: field.name, column: U.fieldToColumn(field) });
-        }
-      });
+    // check primary key, if not included in projection, add it
+    const primaryKey: "uuid" | "id" = modelUnit.uuid ? "uuid" : "id";
+    if (!proj[primaryKey]) {
+      projEntries.unshift([primaryKey, true]);
+    }
 
-      const table = U.entityToTable(modelUnit);
-      const alias = `t${aliasIdx}`;
-      r[alias] = { entity, table, alias, filters: [], fields, join };
-    };
+    const fields: MetaField[] = [];
+    projEntries.forEach(([fieldName, value]) => {
+      const field = getField(fieldName, modelUnit, modelUnit.fields);
 
-    //
-    addProjection(entity, query.projection);
-    //
-  }
+      // check foreign
+      if (!U.isStandardType(field.type)) {
+        const join = getJoin(modelUnit, field);
+        addProjection(
+          field.type,
+          typeof value === "boolean" ? {} : value,
+          join,
+          aliasIdx + 1
+        );
+        return;
+      }
+
+      if (typeof value === "boolean" && value === true) {
+        fields.push({ name: field.name, column: U.fieldToColumn(field) });
+      }
+    });
+
+    const table = U.entityToTable(modelUnit);
+    const alias = `t${aliasIdx}`;
+    r[alias] = { entity, table, alias, filters: [], fields, join };
+  };
+
+  //
+  addProjection(entity, query.projection || {});
+  //
 
   if (query.filters) {
     const addFilters = (
@@ -120,7 +145,7 @@ export const toMeta = (
 
       const metaFilters: MetaFilter[] = [];
       Object.entries(filters).forEach(([fieldName, value]) => {
-        const field = getField(fieldName, entity, modelUnit.fields);
+        const field = getField(fieldName, modelUnit, modelUnit.fields);
         // check foreign
         if (!U.isStandardType(field.type)) {
           const join = getJoin(modelUnit, field);
@@ -171,9 +196,13 @@ export const toMeta = (
 
   return m.sort((a, b) => (a > b ? 1 : -1));
 };
-export const toQuery = (meta: MetaQueryUnit[]) => {
+export const toQuery = (meta: MetaQueryUnit[]): string[] => {
   const projection: string = meta
-    .map((x) => x.fields.map((y) => `${x.alias}.${y.column}`).join(", "))
+    .map((x) =>
+      x.fields
+        .map((y) => `${x.alias}.\`${y.column}\` AS ${x.alias}_${y.name}`)
+        .join(", ")
+    )
     .join(", ");
   const filters: string = meta
     .map((x, i) => {
@@ -181,27 +210,26 @@ export const toQuery = (meta: MetaQueryUnit[]) => {
         return "1";
       }
       return x.filters
-        .map((y) => `t${i}.${y.column}=${U.escape(y.value)}`)
-        .join(", ");
+        .map((y) => `t${i}.\`${y.column}\`=${U.escape(y.value)}`)
+        .join(" AND ");
     })
     .join(" AND ");
 
-  const joins: string = meta
-    .slice(1)
-    .map((x, i) => {
-      const alias = x.alias;
-      const parentAlias = meta.findIndex((m) => m.entity === x.join?.entity);
-      return (
-        (x.join?.optional ? "LEFT " : "") +
-        `JOIN ${x.table} as ${alias} ON ${alias}.id=t${parentAlias}.${x.join?.field}`
-      );
-    })
-    .join("\n");
+  const joins: string[] = meta.slice(1).map((x) => {
+    const alias = x.alias;
+    const parentAlias = meta.findIndex((m) => m.entity === x.join?.entity);
+    return (
+      (x.join?.field.optional ? "LEFT " : "") +
+      `JOIN ${x.table} AS ${alias} ON ${alias}.id=t${parentAlias}.${x.join?.field.column}`
+    );
+  });
 
-  return [
+  const r = [
     "SELECT " + projection,
-    "FROM " + meta[0].table + " as " + meta[0].alias,
-    joins,
-    "WHERE " + filters,
+    "FROM " + meta[0].table + " AS " + meta[0].alias,
   ];
+
+  joins.forEach((join) => r.push(join));
+  r.push("WHERE " + filters);
+  return r;
 };
