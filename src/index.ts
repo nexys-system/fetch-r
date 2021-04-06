@@ -22,26 +22,38 @@ router.all("/", async (ctx: Koa.Context) => {
   ctx.body = { msg: "hello" };
 });
 
+const getModel = (j: JwtStructure) => {
+  const model = models[j.product + "_" + j.env];
+
+  if (!model) {
+    throw Error("could not find model");
+  }
+  return model;
+};
+
 router.all(
   "/data",
   Middleware.isAuth,
   bodyParser(),
   async (ctx: Koa.Context) => {
-    // get model
-    const jwtContent: JwtStructure = ctx.state.jwtContent;
-
     // get query
     const { body: query } = ctx.request;
 
-    const model = models[jwtContent.product + "_" + jwtContent.env];
-
+    // get model
     try {
-      const r = await QueryService.run(query, model);
+      const model = getModel(ctx.state.jwtContent);
 
-      ctx.body = r;
+      try {
+        ctx.body = await QueryService.run(query, model);
+      } catch (err) {
+        ctx.status = 400;
+        ctx.body = { error: err.message };
+        return;
+      }
     } catch (err) {
-      ctx.status = 400;
-      ctx.body = { error: err.message };
+      ctx.status = 500;
+      ctx.body = { error: "could not find model" };
+      return;
     }
   }
 );
