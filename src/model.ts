@@ -37,6 +37,7 @@ export const entities: T.Entity[] = [
       {
         type: "String",
         name: "name",
+        column: "col_name",
         optional: false,
       },
     ],

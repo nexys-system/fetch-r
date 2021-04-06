@@ -6,7 +6,7 @@ describe("create  query", () => {
   test("simple select", () => {
     const q: T.Query = { UserStatus: {} };
     const s =
-      "SELECT user_status.`id`, user_status.`name`\nFROM user_status\nWHERE 1;";
+      "SELECT user_status.`id`, user_status.`col_name`\nFROM user_status\nWHERE 1;";
     const r = S.createQuery(q, entities)[0];
     expect(r.query).toEqual(s);
   });
@@ -23,7 +23,7 @@ describe("create  query", () => {
       UserStatus: { projection: {}, filters: { id: 2, name: "ok" } },
     };
     const s =
-      'SELECT user_status.`id`\nFROM user_status\nWHERE id=2 AND name="ok";';
+      'SELECT user_status.`id`\nFROM user_status\nWHERE id=2 AND col_name="ok";';
     const r = S.createQuery(q, entities)[0];
     expect(r.query).toEqual(s);
   });
@@ -46,7 +46,7 @@ describe("create  query", () => {
   test("select w join - {}", () => {
     const q: T.Query = { User: { projection: { status: { name: true } } } };
     const s = [
-      "SELECT user.`uuid`, t0.`id` as t0_id, t0.`name` as t0_name",
+      "SELECT user.`uuid`, t0.`id` as t0_id, t0.`col_name` as t0_col_name",
       "FROM user",
       "JOIN user_status as t0 ON t0.id = user.status_id",
       "WHERE 1;",
@@ -62,7 +62,7 @@ describe("create  query", () => {
       },
     };
     const s = [
-      "SELECT user_authentication.`uuid`, user_authentication.`value`, t0.`uuid` as t0_uuid, t1.`id` as t1_id, t1.`name` as t1_name",
+      "SELECT user_authentication.`uuid`, user_authentication.`value`, t0.`uuid` as t0_uuid, t1.`id` as t1_id, t1.`col_name` as t1_col_name",
       "FROM user_authentication",
       "JOIN user as t0 ON t0.id = user_authentication.user_id",
       "JOIN user_status as t1 ON t1.id = t0.status_id",
@@ -76,7 +76,7 @@ describe("create  query", () => {
 describe("create mutate query", () => {
   test("simple insert", () => {
     const q: T.Mutate = { UserStatus: { insert: { data: { name: "ok" } } } };
-    const s = ['INSERT INTO user_status (name) VALUES ("ok");'];
+    const s = ['INSERT INTO user_status (col_name) VALUES ("ok");'];
     expect(S.createMutateQuery(q, entities)).toEqual(s);
   });
 
@@ -90,7 +90,7 @@ describe("create mutate query", () => {
     const q: T.Mutate = {
       UserStatus: { update: { data: { name: "ok" }, filters: { id: 2 } } },
     };
-    const s = ['UPDATE user_status SET name="ok" WHERE id=2;'];
+    const s = ['UPDATE user_status SET col_name="ok" WHERE id=2;'];
     expect(S.createMutateQuery(q, entities)).toEqual(s);
   });
 });
