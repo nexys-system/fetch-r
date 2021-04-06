@@ -1,6 +1,8 @@
 import * as M from "./meta";
 import { entities as model } from "../model";
+import * as TT from "./type";
 import * as T from "../type";
+import { RowDataPacket } from "mysql2";
 
 describe("to meta and to query", () => {
   const q: T.Query = {
@@ -10,7 +12,7 @@ describe("to meta and to query", () => {
     },
   };
 
-  const meta: M.MetaQueryUnit[] = [
+  const meta: TT.MetaQueryUnit[] = [
     {
       alias: "t0",
       entity: "User",
@@ -67,7 +69,7 @@ describe("to meta and to query 2", () => {
     },
   };
 
-  const meta: M.MetaQueryUnit[] = [
+  const meta: TT.MetaQueryUnit[] = [
     {
       alias: "t0",
       entity: "User",
@@ -115,7 +117,7 @@ describe("to meta and to query 2", () => {
   });
 });
 
-test("simple select", () => {
+test("simple select + parse", () => {
   const q: T.Query = { UserStatus: {} };
   const m = M.toMeta("UserStatus", q.UserStatus, model);
   const s = [
@@ -123,8 +125,41 @@ test("simple select", () => {
     "FROM user_status AS t0",
     "WHERE 1",
   ];
-  const r = M.toQuery(m);
-  expect(r).toEqual(s);
+  const mq = M.toQuery(m);
+  expect(mq).toEqual(s);
+  const r = [
+    {
+      id: 1,
+      name: "ok",
+    },
+    {
+      id: 2,
+      name: "pending",
+    },
+    {
+      id: 3,
+      name: "denied",
+    },
+  ];
+
+  const y = [
+    { t0_id: 1, t0_name: "ok" },
+    { t0_id: 2, t0_name: "pending" },
+    { t0_id: 3, t0_name: "denied" },
+  ] as RowDataPacket[];
+
+  expect(M.parse(y as any, m)).toEqual(r);
+});
+
+test("simple select to SQLs", () => {
+  const q: T.Query = { UserStatus: {} };
+  const s = [
+    "SELECT t0.`id` AS t0_id, t0.`col_name` AS t0_name",
+    "FROM user_status AS t0",
+    "WHERE 1;",
+  ].join("\n");
+  const ss = M.createQuery(q, model).map((x) => x.sql);
+  expect(ss).toEqual([s]);
 });
 
 test("simple select w projection", () => {
@@ -154,7 +189,7 @@ test("simple select w projection and filter", () => {
   expect(r).toEqual(s);
 });
 
-test("select w jion 2nd level", () => {
+test("select w json 2nd level", () => {
   const q: T.Query = {
     UserAuthentication: {
       projection: { value: true, user: { status: { name: true } } },
@@ -169,6 +204,64 @@ test("select w jion 2nd level", () => {
   ];
 
   const m = M.toMeta("UserAuthentication", q.UserAuthentication, model);
-  const r = M.toQuery(m);
-  expect(r).toEqual(s);
+  const qs = M.toQuery(m);
+  expect(qs).toEqual(s);
+
+  const r = [
+    {
+      uuid: "73df6e2e-9334-11eb-af36-06a9a423ccf6",
+      value: "myvalue",
+      user: {
+        uuid: "512a3fa3-9322-11eb-af36-06a9a423ccf6",
+        status: { id: 1, name: "ok" },
+      },
+    },
+  ];
+
+  const y = [
+    {
+      t0_uuid: "73df6e2e-9334-11eb-af36-06a9a423ccf6",
+      t0_value: "myvalue",
+      t1_uuid: "512a3fa3-9322-11eb-af36-06a9a423ccf6",
+      t2_id: 1,
+      t2_name: "ok",
+    },
+  ] as RowDataPacket[];
+
+  expect(M.parse(y as any, m)).toEqual(r);
+});
+
+test("implicitly nested query", () => {
+  const entity = "UserAuthentication";
+  const q: T.Query = {
+    [entity]: {},
+  };
+  const m = [
+    {
+      entity: "UserAuthentication",
+      table: "user_authentication",
+      alias: "t0",
+      fields: [
+        { name: "uuid", column: "uuid" },
+        { name: "value", column: "value" },
+        { name: "isEnabled", column: "is_enabled" },
+      ],
+      filters: [],
+    },
+    {
+      entity: "User",
+      table: "user",
+      alias: "t1",
+      fields: [{ name: "uuid", column: "uuid" }],
+      filters: [],
+      join: {
+        entity: "UserAuthentication",
+        field: { name: "user", column: "user_id", optional: false },
+      },
+    },
+  ];
+
+  const em = M.toMeta(entity, q[entity], model);
+  console.log(JSON.stringify(em));
+  expect(m).toEqual(em);
 });

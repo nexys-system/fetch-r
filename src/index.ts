@@ -1,5 +1,5 @@
 import * as Connection from "./connection";
-import * as Exec from "./exec";
+import * as Exec from "./exec2";
 import * as T from "./type";
 
 const mq: T.Query = {
@@ -29,7 +29,7 @@ const mq: T.Query = {
   },
 };
 
-const mq2 = { Instance: {}, UserStatus: {} };
+const mq2 = { UserAuthentication: {} };
 
 const iq = {
   UserStatus: { insert: { data: { name: "m1!" } } },
@@ -40,11 +40,11 @@ export const run = async (): Promise<void> => {
 
   s.connection.connect();
 
-  const t = await Exec.mutate(iq, s);
-  console.log(JSON.stringify(t, null, 2));
+  //const t = await Exec.mutate(iq, s);
+  //console.log(JSON.stringify(t, null, 2));
 
-  const t2 = await Exec.execWithTime(mq2, s);
-  console.log(t2);
+  const t2 = await Exec.exec(mq2, s);
+  console.log(JSON.stringify(t2));
   //await Exec.execWithTime(mq, s);
   //await Exec.execWithTime(mq2, s);
   //await Exec.execWithTime(mq2, s);

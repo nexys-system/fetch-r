@@ -1,34 +1,21 @@
+/**
+ * the system receives a query,
+ * the query is transformed into a (linear) meta query,
+ * the meta query is transformed into MySQL (or any SQL-like system, grammar to be adjusted)
+ * teh result of the query is parsed
+ */
 import * as T from "../type";
+import * as TT from "./type";
 import * as U from "../utils";
-
-interface MetaJoin {
-  entity: string;
-  field: Pick<T.Field, "name" | "column" | "optional">;
-}
-
-interface MetaField {
-  name: string;
-  column: string;
-}
-
-interface MetaFilter extends MetaField {
-  value: any;
-}
-
-export interface MetaQueryUnit {
-  entity: string;
-  alias: string;
-  table: string;
-  fields: MetaField[];
-  filters: MetaFilter[];
-  join?: MetaJoin;
-}
+import { RowDataPacket } from "mysql2";
 
 const getModel = (entityName: string, model: T.Entity[]) => {
   const f = model.find((m) => m.name === entityName);
 
   if (!f) {
-    throw Error("while creating meta query: could not find model" + entityName);
+    throw Error(
+      "while creating meta query: could not find model: " + entityName
+    );
   }
 
   return f;
@@ -60,33 +47,29 @@ const getField = (
   return field;
 };
 
-const getJoin = (modelUnit: T.Entity, field: T.Field) => {
-  const join = {
-    entity: modelUnit.name, // name of the parent entity
-    field: {
-      name: field.name, // the name of the child field
-      column: field.column,
-      optional: field.optional, // // determines if JOIN or LEFT JOIN
-    },
-  };
-
-  return join;
-};
+const getJoin = (modelUnit: T.Entity, field: T.Field) => ({
+  entity: modelUnit.name, // name of the parent entity
+  field: {
+    name: field.name, // the name of the child field
+    column: field.column,
+    optional: field.optional, // determines if JOIN or LEFT JOIN
+  },
+});
 
 export const toMeta = (
   entity: string,
   query: T.QueryParams,
   model: T.Entity[]
-): MetaQueryUnit[] => {
+): TT.MetaQueryUnit[] => {
   // init return object
   const r: {
-    [alias: string]: MetaQueryUnit;
+    [alias: string]: TT.MetaQueryUnit;
   } = {};
 
   const addProjection = (
     entity: string,
     proj: T.QueryProjection,
-    join?: MetaJoin,
+    join?: TT.MetaJoin,
     aliasIdx: number = 0
   ) => {
     const modelUnit = getModel(entity, model);
@@ -94,7 +77,7 @@ export const toMeta = (
     const projEntries = Object.entries(proj);
 
     // if there are no attributes in projection, add them all
-    if (projEntries.length === 0) {
+    if (projEntries.length === 0 && join === undefined) {
       modelUnit.fields.forEach((f) => projEntries.push([f.name, true]));
     }
 
@@ -104,7 +87,7 @@ export const toMeta = (
       projEntries.unshift([primaryKey, true]);
     }
 
-    const fields: MetaField[] = [];
+    const fields: TT.MetaField[] = [];
     projEntries.forEach(([fieldName, value]) => {
       const field = getField(fieldName, modelUnit, modelUnit.fields);
 
@@ -138,12 +121,12 @@ export const toMeta = (
     const addFilters = (
       entity: string,
       filters: T.QueryFilters,
-      join?: MetaJoin,
+      join?: TT.MetaJoin,
       aliasIdx: number = 0
     ) => {
       const modelUnit = getModel(entity, model);
 
-      const metaFilters: MetaFilter[] = [];
+      const metaFilters: TT.MetaFilter[] = [];
       Object.entries(filters).forEach(([fieldName, value]) => {
         const field = getField(fieldName, modelUnit, modelUnit.fields);
         // check foreign
@@ -180,9 +163,9 @@ export const toMeta = (
     //
   }
 
-  const m: MetaQueryUnit[] = Object.entries(r).map(
+  const m: TT.MetaQueryUnit[] = Object.entries(r).map(
     ([alias, { entity, fields, filters, table, join }]) => {
-      const mu: MetaQueryUnit = {
+      const mu: TT.MetaQueryUnit = {
         entity,
         table,
         alias,
@@ -194,13 +177,20 @@ export const toMeta = (
     }
   );
 
-  return m.sort((a, b) => (a > b ? 1 : -1));
+  return m.sort((a, b) => (a.alias > b.alias ? 1 : -1));
 };
-export const toQuery = (meta: MetaQueryUnit[]): string[] => {
+
+const getAliasColumn = (tableAlias: string, fieldName: string) =>
+  tableAlias + "_" + fieldName;
+
+export const toQuery = (meta: TT.MetaQueryUnit[]): string[] => {
   const projection: string = meta
     .map((x) =>
       x.fields
-        .map((y) => `${x.alias}.\`${y.column}\` AS ${x.alias}_${y.name}`)
+        .map(
+          (y) =>
+            `${x.alias}.\`${y.column}\` AS ${getAliasColumn(x.alias, y.name)}`
+        )
         .join(", ")
     )
     .join(", ");
@@ -232,4 +222,51 @@ export const toQuery = (meta: MetaQueryUnit[]): string[] => {
   joins.forEach((join) => r.push(join));
   r.push("WHERE " + filters);
   return r;
+};
+
+export const createQuery = (
+  query: T.Query,
+  model: T.Entity[]
+): { sql: string; meta: TT.MetaQueryUnit[] }[] =>
+  Object.entries(query).map(([entity, v]) => {
+    const meta = toMeta(entity, v, model);
+    const pSQL = toQuery(meta);
+    const sql = pSQL.join("\n") + ";";
+    return { sql, meta };
+  });
+
+export const parseUnit = (x: RowDataPacket, meta: TT.MetaQueryUnit[]) => {
+  const hJoins = (m: TT.MetaQueryUnit, r: { [col: string]: any }) =>
+    m.fields.forEach((f) => {
+      const aliasName = getAliasColumn(m.alias, f.name);
+      r[f.name] = x[aliasName];
+    });
+
+  const recur = (parentEntity: string, r: { [col: string]: any }) =>
+    meta
+      .filter((x) => x.join?.entity === parentEntity)
+      .forEach((m) => {
+        if (m.join) {
+          const attrName = m.join.field.name;
+          r[attrName] = {};
+          hJoins(m, r[attrName]);
+
+          recur(m.entity, r[attrName]);
+        }
+      });
+
+  const r: { [col: string]: any } = {};
+  const m = meta[0];
+
+  hJoins(m, r);
+  recur(m.entity, r);
+
+  return r;
+};
+
+export const parse = (x: RowDataPacket, meta: TT.MetaQueryUnit[]) => {
+  if (!Array.isArray(x)) {
+    throw Error("expecting an array");
+  }
+  return x.map((y) => parseUnit(y, meta));
 };
