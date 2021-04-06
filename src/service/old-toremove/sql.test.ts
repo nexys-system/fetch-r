@@ -1,6 +1,8 @@
 import * as S from "./sql";
 import * as T from "../type";
-import { entities } from "../model";
+import { get } from "../model";
+
+const entities = get["124_1"];
 
 describe("create  query", () => {
   test("simple select", () => {

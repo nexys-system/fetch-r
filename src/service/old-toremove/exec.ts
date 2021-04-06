@@ -1,5 +1,4 @@
 import * as Connection from "../connection";
-import { entities } from "../model";
 import * as T from "../type";
 import * as SQL from "./sql";
 import * as U from "../utils";
@@ -91,7 +90,11 @@ const handleReponse = (
   return responseWithEntites;
 };
 
-export const exec = async (mq: T.Query, s: Connection.SQL) => {
+export const exec = async (
+  mq: T.Query,
+  entities: T.Entity[],
+  s: Connection.SQL
+) => {
   const qs = SQL.createQuery(mq, entities);
 
   // here we cast to RowDataPacket[] but theoreticfally it can also be RowDataPacket, it is checked downstream
@@ -102,10 +105,14 @@ export const exec = async (mq: T.Query, s: Connection.SQL) => {
   return handleReponse(response, qs);
 };
 
-export const execWithTime = async (query: T.Query, s: Connection.SQL) => {
+export const execWithTime = async (
+  query: T.Query,
+  entities: T.Entity[],
+  s: Connection.SQL
+) => {
   //
   const t1 = new Date().getTime();
-  const r = await exec(query, s);
+  const r = await exec(query, entities, s);
   const t2 = new Date().getTime();
   console.log(`delta ${t2 - t1}`);
   //console.log(r);
@@ -122,7 +129,11 @@ const parseMutate = (response: OkPacket): T.MutateResponseInsert => {
   };
 };
 
-export const mutate = async (mq: T.Mutate, s: Connection.SQL) => {
+export const mutate = async (
+  mq: T.Mutate,
+  entities: T.Entity[],
+  s: Connection.SQL
+) => {
   const qs = SQL.createMutateQuery(mq, entities);
   const response = await s.execQuery<OkPacket>(qs.join("\n"));
 

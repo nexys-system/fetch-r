@@ -1,8 +1,11 @@
 import * as M from "./meta";
-import { entities as model } from "../model";
 import * as TT from "./type";
 import * as T from "../type";
 import { RowDataPacket } from "mysql2";
+
+import { get } from "../model";
+
+const model = get["124_1"];
 
 describe("to meta and to query", () => {
   const q: T.Query = {
@@ -262,6 +265,6 @@ test("implicitly nested query", () => {
   ];
 
   const em = M.toMeta(entity, q[entity], model);
-  console.log(JSON.stringify(em));
+
   expect(m).toEqual(em);
 });

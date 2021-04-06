@@ -1,5 +1,4 @@
 import * as Connection from "./connection";
-import { entities } from "./model";
 import * as T from "./type";
 
 import * as Meta from "./query-builder/meta";

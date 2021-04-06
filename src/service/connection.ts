@@ -12,7 +12,8 @@ if (!HOST || !DBUSER || !PASSWORD || !DATABASE) {
 const port: number = Number(PORT) || 3306;
 
 export class SQL {
-  connection: mysql.Connection;
+  //connection: mysql.Connection;
+  pool: mysql.Pool;
 
   constructor(host: string, user: string, password: string, database: string) {
     const config = {
@@ -25,8 +26,9 @@ export class SQL {
     };
 
     //console.log(config);
-
-    this.connection = mysql.createConnection(config);
+    // https://www.npmjs.com/package/mysql2#using-connection-pools
+    //this.connection = mysql.createConnection(config);
+    this.pool = mysql.createPool(config);
 
     //console.log(this.connection);
   }
@@ -42,7 +44,7 @@ export class SQL {
     query: string
   ): Promise<A> =>
     new Promise((r) => {
-      this.connection.query(query, (error, results) => {
+      this.pool.query(query, (error, results) => {
         if (error) throw error;
 
         r(results as A);
