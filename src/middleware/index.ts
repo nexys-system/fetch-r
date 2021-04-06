@@ -3,6 +3,17 @@ import JWT from "jsonwebtoken";
 
 import * as C from "../config";
 
+export const isJson = (headers: { "content-type"?: string }): void => {
+  if (
+    !headers["content-type"] ||
+    headers["content-type"] !== "application/json"
+  ) {
+    throw Error("content type must be json");
+  }
+
+  return;
+};
+
 export const extractToken = ({
   authorization,
 }: {
@@ -31,6 +42,7 @@ export const isAuth = async (ctx: Koa.Context, next: Koa.Next) => {
   const { headers } = ctx;
 
   try {
+    isJson(headers);
     const jwtContent = extractAndVerify(headers);
     ctx.state.jwtContent = jwtContent;
 

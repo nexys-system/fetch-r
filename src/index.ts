@@ -2,6 +2,7 @@ import Koa from "koa";
 import Router from "koa-router";
 import bodyParser from "koa-body";
 import * as Middleware from "./middleware";
+import * as QueryService from "./service";
 
 const app = new Koa();
 const router: Router = new Router();
@@ -20,7 +21,14 @@ router.all(
     // get query
     const { body: query } = ctx.request;
 
-    ctx.body = { msg: "data" };
+    try {
+      const r = await QueryService.run(query);
+
+      ctx.body = r;
+    } catch (err) {
+      ctx.status = 400;
+      ctx.body = { error: err.message };
+    }
   }
 );
 

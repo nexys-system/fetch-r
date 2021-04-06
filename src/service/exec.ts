@@ -38,18 +38,16 @@ const handleReponse = (
   return responseWithEntites;
 };
 
-export const exec = async (mq: T.Query, s: Connection.SQL) => {
+export const exec = async (
+  mq: T.Query,
+  entities: T.Entity[],
+  s: Connection.SQL
+) => {
   const qs = Meta.createQuery(mq, entities);
-
   const sqlScript = qs.map((x) => x.sql).join("\n");
-
-  console.log(sqlScript);
-  console.log(qs.map((x) => x.meta));
 
   // here we cast to RowDataPacket[] but theoreticfally it can also be RowDataPacket, it is checked downstream
   const response = await s.execQuery<RowDataPacket[]>(sqlScript);
-
-  console.log(response);
 
   return handleReponse(
     response,

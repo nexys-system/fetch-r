@@ -1,5 +1,6 @@
 import * as Connection from "./connection";
 import * as Exec from "./exec";
+import { entities as e2 } from "./model";
 import * as T from "./type";
 
 const mq: T.Query = {
@@ -35,7 +36,10 @@ const iq = {
   UserStatus: { insert: { data: { name: "m1!" } } },
 };
 
-export const run = async (): Promise<void> => {
+export const run = async (
+  query: T.Query,
+  entities: T.Entity[] = e2
+): Promise<any> => {
   const s = Connection.init();
 
   s.connection.connect();
@@ -43,8 +47,8 @@ export const run = async (): Promise<void> => {
   //const t = await Exec.mutate(iq, s);
   //console.log(JSON.stringify(t, null, 2));
 
-  const t2 = await Exec.exec(mq2, s);
-  console.log(JSON.stringify(t2));
+  const t2 = await Exec.exec(query, entities, s);
+  //console.log(JSON.stringify(t2));
   //await Exec.execWithTime(mq, s);
   //await Exec.execWithTime(mq2, s);
   //await Exec.execWithTime(mq2, s);
@@ -52,6 +56,8 @@ export const run = async (): Promise<void> => {
   //await Exec.execWithTime({ Instance: {} }, s);
 
   s.connection.end();
+
+  return t2;
 };
 
-run();
+//run();
