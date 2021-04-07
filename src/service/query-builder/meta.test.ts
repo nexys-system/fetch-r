@@ -3,9 +3,9 @@ import * as TT from "./type";
 import * as T from "../type";
 import { RowDataPacket } from "mysql2";
 
-import { get } from "../model";
+import * as ModelService from "../model";
 
-const model = get["124_1"];
+const model = ModelService.getModel({ product: 124, env: 1 });
 
 describe("to meta and to query", () => {
   const q: T.Query = {

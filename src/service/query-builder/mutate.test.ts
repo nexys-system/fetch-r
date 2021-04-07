@@ -1,8 +1,8 @@
 import * as S from "./mutate";
 import * as T from "../type";
-import { get } from "../model";
+import * as ModelService from "../model";
 
-const entities = get["124_1"];
+const entities = ModelService.getModel({ product: 124, env: 1 });
 
 describe("create mutate query", () => {
   test("simple insert", () => {
