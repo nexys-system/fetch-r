@@ -28,8 +28,8 @@ export const runMigrations = async (
   await s.execQuery(U.createMigrationTable);
 
   // get all migrations
-  const r: RowDataPacket[] = await s.execQuery(U.getMigrations);
-  const y = r as T.MigrationRow[];
+  const [r] = await s.execQuery(U.getMigrations);
+  const y = (r as RowDataPacket[]) as T.MigrationRow[];
 
   const lastRow = getLastRow(y);
 
@@ -47,10 +47,10 @@ export const runMigrations = async (
     }
 
     const t1 = new Date().getTime();
-    const rm: OkPacket = await s.execQuery(migration.sql);
+    const [rm] = await s.execQuery(migration.sql);
     const t2 = new Date().getTime();
 
-    const success = rm.serverStatus;
+    const success = (rm as OkPacket).serverStatus;
     const row = U.migrationToRow(
       migration.name,
       version,
