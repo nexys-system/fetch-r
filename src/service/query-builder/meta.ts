@@ -14,7 +14,7 @@ const getModel = (entityName: string, model: T.Entity[]) => {
 
   if (!f) {
     throw Error(
-      "while creating meta query: could not find model: " + entityName
+      "could not find model: " + entityName + " (while creating meta query)"
     );
   }
 

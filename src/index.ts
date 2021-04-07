@@ -58,8 +58,26 @@ router.all(
   }
 );
 
-router.post("/mutate", async (ctx) => {
-  ctx.body = { msg: "mutate" };
+router.post("/mutate", Middleware.isAuth, bodyParser(), async (ctx) => {
+  // get query
+  const { body: query } = ctx.request;
+
+  // get model
+  try {
+    const model = getModel(ctx.state.jwtContent);
+
+    try {
+      ctx.body = await QueryService.mutate(query, model);
+    } catch (err) {
+      ctx.status = 400;
+      ctx.body = { error: err.message };
+      return;
+    }
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { error: "could not find model" };
+    return;
+  }
 });
 
 app.use(router.routes());

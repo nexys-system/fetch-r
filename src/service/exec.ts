@@ -2,8 +2,9 @@ import * as Connection from "./connection";
 import * as T from "./type";
 
 import * as Meta from "./query-builder/meta";
+import * as MutateService from "./query-builder/mutate";
 import * as TT from "./query-builder/type";
-import { RowDataPacket } from "mysql2";
+import { RowDataPacket, OkPacket } from "mysql2";
 
 const isRawDataPacket = (
   response: RowDataPacket[] | RowDataPacket
@@ -55,4 +56,25 @@ export const exec = async (
     response,
     qs.map((x) => x.meta)
   );
+};
+
+// mutate
+const parseMutate = (response: OkPacket): T.MutateResponseInsert => {
+  return {
+    success: typeof response.insertId === "number",
+    uuid: undefined,
+    id: response.insertId,
+    status: response.message,
+  };
+};
+
+export const mutate = async (
+  mq: T.Mutate,
+  entities: T.Entity[],
+  s: Connection.SQL
+) => {
+  const qs = MutateService.createMutateQuery(mq, entities);
+  const response = await s.execQuery<OkPacket>(qs.join("\n"));
+
+  return parseMutate(response);
 };
