@@ -50,10 +50,10 @@ export const exec = async (
   // console.log(qs.map((x) => x.sql));
 
   // here we cast to RowDataPacket[] but theoreticfally it can also be RowDataPacket, it is checked downstream
-  const response = await s.execQuery<RowDataPacket[]>(sqlScript);
+  const [response] = await s.execQuery(sqlScript);
 
   return handleReponse(
-    response,
+    response as RowDataPacket,
     qs.map((x) => x.meta)
   );
 };
@@ -74,7 +74,7 @@ export const mutate = async (
   s: Connection.SQL
 ) => {
   const qs = MutateService.createMutateQuery(mq, entities);
-  const response = await s.execQuery<OkPacket>(qs.join("\n"));
+  const [response] = await s.execQuery(qs.join("\n"));
 
-  return parseMutate(response);
+  return parseMutate(response as OkPacket);
 };

@@ -1,5 +1,17 @@
 import mysql from "mysql2";
 import dotenv from "dotenv";
+import {
+  Pool,
+  OkPacket,
+  ResultSetHeader,
+  RowDataPacket,
+  FieldPacket,
+} from "mysql2/promise";
+
+type Response = [
+  OkPacket | ResultSetHeader | RowDataPacket[] | RowDataPacket[][] | OkPacket[],
+  FieldPacket[]
+];
 
 dotenv.config();
 
@@ -13,7 +25,7 @@ const port: number = Number(PORT) || 3306;
 
 export class SQL {
   //connection: mysql.Connection;
-  pool: mysql.Pool;
+  pool: Pool;
 
   constructor(host: string, user: string, password: string, database: string) {
     const config = {
@@ -25,31 +37,12 @@ export class SQL {
       multipleStatements: true,
     };
 
-    //console.log(config);
     // https://www.npmjs.com/package/mysql2#using-connection-pools
     //this.connection = mysql.createConnection(config);
-    this.pool = mysql.createPool(config);
-
-    //console.log(this.connection);
+    this.pool = mysql.createPool(config).promise();
   }
 
-  execQuery = <
-    A extends
-      | mysql.RowDataPacket[]
-      | mysql.RowDataPacket[][]
-      | mysql.OkPacket
-      | mysql.OkPacket[]
-      | mysql.ResultSetHeader
-  >(
-    query: string
-  ): Promise<A> =>
-    new Promise((r) => {
-      this.pool.query(query, (error, results) => {
-        if (error) throw error;
-
-        r(results as A);
-      });
-    });
+  execQuery = (query: string): Promise<Response> => this.pool.query(query);
 }
 
 export const init = () => new SQL(HOST, DBUSER, PASSWORD, DATABASE);

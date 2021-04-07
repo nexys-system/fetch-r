@@ -37,10 +37,7 @@ const getField = (
       return { name: "uuid", type: "String", optional: false };
     }
     throw Error(
-      "while creating meta query: could not find field: " +
-        fieldName +
-        " from " +
-        entity.name
+      `could not find field: ${fieldName} from ${entity.name} (while creating meta query)`
     );
   }
 
@@ -55,6 +52,9 @@ const getJoin = (modelUnit: T.Entity, field: T.Field) => ({
     optional: field.optional, // determines if JOIN or LEFT JOIN
   },
 });
+
+const getAliasColumn = (tableAlias: string, fieldName: string) =>
+  tableAlias + "_" + fieldName;
 
 export const toMeta = (
   entity: string,
@@ -99,7 +99,7 @@ export const toMeta = (
           field.type,
           typeof value === "boolean" ? {} : value,
           join,
-          aliasIdx + 1 + horizontalIdx
+          aliasIdx + horizontalIdx + 1
         );
         horizontalIdx += 1;
       } else {
@@ -181,9 +181,6 @@ export const toMeta = (
 
   return m.sort((a, b) => (a.alias > b.alias ? 1 : -1));
 };
-
-const getAliasColumn = (tableAlias: string, fieldName: string) =>
-  tableAlias + "_" + fieldName;
 
 export const toQuery = (meta: TT.MetaQueryUnit[]): string[] => {
   const projection: string = meta
