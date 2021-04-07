@@ -5,33 +5,10 @@ import * as Middleware from "./middleware";
 import * as QueryService from "./service";
 import * as ModelService from "./service/model";
 
-interface JwtStructure {
-  instance: string;
-  product: number;
-  env: 1 | 2 | 3;
-}
-
 const app = new Koa();
 const router: Router = new Router();
 
-// get models
-// todo : multiple
-const models = ModelService.get;
-
-router.all("/", async (ctx: Koa.Context) => {
-  ctx.body = { msg: "hello" };
-});
-
-const getModel = (j: JwtStructure) => {
-  const model = models[j.product + "_" + j.env];
-
-  if (!model) {
-    throw Error("could not find model");
-  }
-  return model;
-};
-
-router.all(
+router.post(
   "/data",
   Middleware.isAuth,
   bodyParser(),
@@ -41,7 +18,7 @@ router.all(
 
     // get model
     try {
-      const model = getModel(ctx.state.jwtContent);
+      const model = ModelService.getModel(ctx.state.jwtContent);
 
       try {
         ctx.body = await QueryService.run(query, model);
@@ -64,7 +41,7 @@ router.post("/mutate", Middleware.isAuth, bodyParser(), async (ctx) => {
 
   // get model
   try {
-    const model = getModel(ctx.state.jwtContent);
+    const model = ModelService.getModel(ctx.state.jwtContent);
 
     try {
       ctx.body = await QueryService.mutate(query, model);
@@ -78,6 +55,10 @@ router.post("/mutate", Middleware.isAuth, bodyParser(), async (ctx) => {
     ctx.body = { error: "could not find model" };
     return;
   }
+});
+
+router.all("/", async (ctx: Koa.Context) => {
+  ctx.body = { msg: "fetch-r", version: process.env.GIT_SHA_ENV };
 });
 
 app.use(router.routes());
