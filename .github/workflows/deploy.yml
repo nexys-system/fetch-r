@@ -35,6 +35,6 @@ jobs:
           ssh -o 'StrictHostKeyChecking no' ${{ secrets.USERNAME }}@${{ secrets.HOST }} << EOF
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
             docker pull $DOCKERHUB_URL:master
-            /usr/local/bin/docker-compose -f compose.yml up -d
+            /usr/local/bin/docker-compose --quiet-pull -f compose.yml up -d
             docker exec nginx nginx -s reload
           EOF
