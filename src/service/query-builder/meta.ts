@@ -91,10 +91,9 @@ export const toMeta = (
     const fields: TT.MetaField[] = [];
     projEntries.forEach(([fieldName, value]) => {
       const field = getField(fieldName, modelUnit, modelUnit.fields);
-      console.log(field);
+
       // check foreign
       if (!U.isStandardType(field.type)) {
-        console.log("st");
         const join = getJoin(modelUnit, field);
         addProjection(
           field.type,
@@ -113,7 +112,6 @@ export const toMeta = (
     const table = U.entityToTable(modelUnit);
     const alias = `t${aliasIdx}`;
 
-    console.log({ table, alias });
     r[alias] = { entity, table, alias, filters: [], fields, join };
   };
 
