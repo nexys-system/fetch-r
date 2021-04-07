@@ -3,7 +3,6 @@ name: Deploy to docker
 on: [push]
 
 env:
-  HOST: secrets.HOST
   DOCKERHUB_URL: docker.pkg.github.com/nexys-system/fetch-r/fetchrnode
 
 jobs:
