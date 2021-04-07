@@ -252,9 +252,29 @@ test("implicitly nested query", () => {
       filters: [],
     },
     {
+      alias: "t1",
+      entity: "UserAuthenticationType",
+      fields: [
+        {
+          column: "id",
+          name: "id",
+        },
+      ],
+      filters: [],
+      join: {
+        entity: "UserAuthentication",
+        field: {
+          column: "type_id",
+          name: "type",
+          optional: false,
+        },
+      },
+      table: "user_authentication_type",
+    },
+    {
       entity: "User",
       table: "user",
-      alias: "t1",
+      alias: "t2",
       fields: [{ name: "uuid", column: "uuid" }],
       filters: [],
       join: {

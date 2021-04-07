@@ -45,6 +45,9 @@ export const exec = async (
   const qs = Meta.createQuery(mq, entities);
   const sqlScript = qs.map((x) => x.sql).join("\n");
 
+  // console.log(qs.map((x) => x.meta));
+  // console.log(qs.map((x) => x.sql));
+
   // here we cast to RowDataPacket[] but theoreticfally it can also be RowDataPacket, it is checked downstream
   const response = await s.execQuery<RowDataPacket[]>(sqlScript);
 

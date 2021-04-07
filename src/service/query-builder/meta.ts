@@ -72,6 +72,7 @@ export const toMeta = (
     join?: TT.MetaJoin,
     aliasIdx: number = 0
   ) => {
+    let horizontalIdx = 0; // this is to account for multiple join on the same level
     const modelUnit = getModel(entity, model);
     // turn projection into object
     const projEntries = Object.entries(proj);
@@ -90,26 +91,29 @@ export const toMeta = (
     const fields: TT.MetaField[] = [];
     projEntries.forEach(([fieldName, value]) => {
       const field = getField(fieldName, modelUnit, modelUnit.fields);
-
+      console.log(field);
       // check foreign
       if (!U.isStandardType(field.type)) {
+        console.log("st");
         const join = getJoin(modelUnit, field);
         addProjection(
           field.type,
           typeof value === "boolean" ? {} : value,
           join,
-          aliasIdx + 1
+          aliasIdx + 1 + horizontalIdx
         );
-        return;
-      }
-
-      if (typeof value === "boolean" && value === true) {
-        fields.push({ name: field.name, column: U.fieldToColumn(field) });
+        horizontalIdx += 1;
+      } else {
+        if (typeof value === "boolean" && value === true) {
+          fields.push({ name: field.name, column: U.fieldToColumn(field) });
+        }
       }
     });
 
     const table = U.entityToTable(modelUnit);
     const alias = `t${aliasIdx}`;
+
+    console.log({ table, alias });
     r[alias] = { entity, table, alias, filters: [], fields, join };
   };
 
