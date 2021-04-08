@@ -12,7 +12,15 @@ export const getLimitStatement = ({
     return;
   }
 
-  return `LIMIT ${skip || 0}, ${take || 0}`;
+  if (take < 0) {
+    throw Error("take must be greater than zero");
+  }
+
+  if (skip && skip < 0) {
+    throw Error("skip must be greater than zero");
+  }
+
+  return `LIMIT ${skip || 0}, ${take}`;
 };
 
 export const getOrderStatement = ({ by, desc }: T.QueryOrder) => {
