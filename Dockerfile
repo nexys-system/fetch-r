@@ -7,6 +7,8 @@ COPY package.json package.json
 
 RUN yarn install --production
 
+COPY assets assets
+
 # note the compilation is done outside 
 COPY dist dist
 RUN echo "git sha $GIT_SHA_ENV"
