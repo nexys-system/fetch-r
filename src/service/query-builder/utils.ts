@@ -27,3 +27,18 @@ export const getOrderStatement = ({ by, desc }: T.QueryOrder) => {
   const col = getAliasColumn("t0", by);
   return `ORDER BY ${col} ${desc === true ? "DESC" : "ASC"}`;
 };
+
+export const compareJoins = (
+  join: TT.MetaJoin | undefined,
+  x: { join?: TT.MetaJoin }
+): boolean => {
+  if (join === undefined) {
+    return x.join === undefined;
+  }
+
+  if (!x.join) {
+    return false;
+  }
+
+  return x.join.entity === join.entity && x.join.field.name === join.field.name;
+};

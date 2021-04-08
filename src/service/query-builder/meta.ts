@@ -9,6 +9,7 @@ import * as TT from "./type";
 import * as U from "../utils";
 import * as UU from "./utils";
 import { RowDataPacket } from "mysql2";
+import NUtils from "@nexys/utils";
 
 const getModel = (entityName: string, model: T.Entity[]) => {
   const f = model.find((m) => m.name === entityName);
@@ -60,17 +61,13 @@ export const toMeta = (
   model: T.Entity[]
 ): TT.MetaQuery => {
   // init return object
-  const r: {
-    [alias: string]: TT.MetaQueryUnit;
-  } = {};
+  const ry: Omit<TT.MetaQueryUnit, "alias">[] = [];
 
   const addProjection = (
     entity: string,
     proj: T.QueryProjection,
-    join?: TT.MetaJoin,
-    aliasIdx: number = 0
+    join?: TT.MetaJoin
   ) => {
-    let horizontalIdx = 0; // this is to account for multiple join on the same level
     const modelUnit = getModel(entity, model);
     // turn projection into object
     const projEntries = Object.entries(proj);
@@ -96,10 +93,8 @@ export const toMeta = (
         addProjection(
           field.type,
           typeof value === "boolean" ? {} : value,
-          join,
-          aliasIdx + horizontalIdx + 1
+          join
         );
-        horizontalIdx += 1;
       } else {
         if (typeof value === "boolean" && value === true) {
           fields.push({ name: field.name, column: U.fieldToColumn(field) });
@@ -108,9 +103,16 @@ export const toMeta = (
     });
 
     const table = U.entityToTable(modelUnit);
-    const alias = `t${aliasIdx}`;
 
-    r[alias] = { entity, table, alias, filters: [], fields, join };
+    const unit: Omit<TT.MetaQueryUnit, "alias"> = {
+      entity,
+      table,
+      filters: [],
+      fields,
+      join,
+    };
+
+    ry.push(unit);
   };
 
   //
@@ -136,26 +138,34 @@ export const toMeta = (
           return;
         }
 
-        if (true) {
-          // opposite todo cast to {} for non query filters
-          metaFilters.push({
-            name: field.name,
-            column: U.fieldToColumn(field),
-            value,
-          });
-        }
+        // opposite todo cast to {} for non query filters
+        metaFilters.push({
+          name: field.name,
+          column: U.fieldToColumn(field),
+          value,
+        });
       });
 
-      const table = U.entityToTable(modelUnit);
-      const alias = `t${aliasIdx}`;
-      r[alias] = {
-        entity,
-        table,
-        alias,
-        fields: r[alias]?.fields || [],
-        filters: metaFilters,
-        join,
-      };
+      if (metaFilters.length > 0) {
+        // find an array element with the same join object
+        const fFilter = ry.findIndex((x) => UU.compareJoins(join, x));
+
+        if (fFilter > -1) {
+          ry[fFilter].filters = metaFilters;
+        } else {
+          const table = U.entityToTable(modelUnit);
+
+          const unit: Omit<TT.MetaQueryUnit, "alias"> = {
+            entity,
+            table,
+
+            fields: [],
+            filters: metaFilters,
+            join,
+          };
+          ry.push(unit);
+        }
+      }
     };
 
     //
@@ -163,19 +173,11 @@ export const toMeta = (
     //
   }
 
-  const m: TT.MetaQueryUnit[] = Object.entries(r).map(
-    ([alias, { entity, fields, filters, table, join }]) => {
-      const mu: TT.MetaQueryUnit = {
-        entity,
-        table,
-        alias,
-        fields,
-        filters,
-        join,
-      };
-      return mu;
-    }
-  );
+  const m: TT.MetaQueryUnit[] = ry.reverse().map((x, i) => {
+    // write alias
+    const alias = `t${i}`;
+    return { ...x, alias };
+  });
 
   const units = m.sort((a, b) => (a.alias > b.alias ? 1 : -1));
   return { units, take: query.take, skip: query.skip, order: query.order };
@@ -195,16 +197,16 @@ export const toQuery = (meta: TT.MetaQuery): string[] => {
         .join(", ")
     )
     .join(", ");
-  const filters: string = meta.units
+  const filters: string[] = meta.units
     .map((x, i) => {
       if (x.filters.length === 0) {
-        return "1";
+        return;
       }
       return x.filters
         .map((y) => `t${i}.\`${y.column}\`=${U.escape(y.value)}`)
         .join(" AND ");
     })
-    .join(" AND ");
+    .filter(NUtils.array.notEmpty);
 
   const joins: string[] = meta.units.slice(1).map((x) => {
     const alias = x.alias;
@@ -223,7 +225,7 @@ export const toQuery = (meta: TT.MetaQuery): string[] => {
   ];
 
   joins.forEach((join) => r.push(join));
-  r.push("WHERE " + filters);
+  r.push("WHERE " + (filters.length === 0 ? "1" : filters.join(" AND ")));
 
   if (meta.order) {
     r.push(UU.getOrderStatement(meta.order));
