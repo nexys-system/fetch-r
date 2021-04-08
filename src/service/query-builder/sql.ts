@@ -3,6 +3,22 @@ import * as U from "../utils";
 import * as UU from "./utils";
 import NUtils from "@nexys/utils";
 
+export const toSqQLOperator = (operator: TT.MetaOperator) => {
+  switch (operator) {
+    case "lt":
+      return "<";
+    case "gt":
+      return ">";
+    case "in":
+      return " IN";
+    case "neq":
+      return "<>";
+
+    default:
+      return "=";
+  }
+};
+
 export const toQuery = (meta: TT.MetaQuery): string[] => {
   const projection: string = meta.units
     .map((x) =>
@@ -22,8 +38,14 @@ export const toQuery = (meta: TT.MetaQuery): string[] => {
       if (x.filters.length === 0) {
         return;
       }
+
       return x.filters
-        .map((y) => `t${i}.\`${y.column}\`=${U.escape(y.value)}`)
+        .map(
+          (y) =>
+            `t${i}.\`${y.column}\`` +
+            toSqQLOperator(y.operator) +
+            U.escape(y.value)
+        )
         .join(" AND ");
     })
     .filter(NUtils.array.notEmpty);

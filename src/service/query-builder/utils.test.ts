@@ -23,3 +23,10 @@ test("compare joins", () => {
   const j1 = { entity: "Entity", field: { name: "Field", optional: true } };
   expect(U.compareJoins(j1, { join: j1 }));
 });
+
+test("", () => {
+  expect(U.getValueAndOperator({ $in: [1, 2, 3] })).toEqual({
+    operator: "in",
+    value: [1, 2, 3],
+  });
+});

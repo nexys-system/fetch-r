@@ -20,15 +20,7 @@ interface FiltersNe {
   $ne: null | Value;
 }
 
-export type FilterAttribute =
-  | string
-  | boolean
-  | number
-  | Date
-  | FiltersIn
-  | FiltersNe
-  | null
-  | undefined;
+export type FilterAttribute = Value | FiltersIn | FiltersNe | null | undefined;
 
 export interface References {
   [entity: string]: QueryParams & { joinOn?: string };

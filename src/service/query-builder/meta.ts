@@ -117,20 +117,23 @@ export const toMeta = (
       const modelUnit = UU.getModel(entity, model);
 
       const metaFilters: TT.MetaFilter[] = [];
-      Object.entries(filters).forEach(([fieldName, value]) => {
+      Object.entries(filters).forEach(([fieldName, pvalue]) => {
         const field = getField(fieldName, modelUnit, modelUnit.fields);
         // check foreign
         if (!U.isStandardType(field.type)) {
           const join = getJoin(modelUnit, field);
-          addFilters(field.type, value as T.QueryFilters, join, aliasIdx + 1);
+          addFilters(field.type, pvalue as T.QueryFilters, join, aliasIdx + 1);
           return;
         }
+
+        const { operator, value } = UU.getValueAndOperator(pvalue);
 
         // opposite todo cast to {} for non query filters
         metaFilters.push({
           name: field.name,
           column: U.fieldToColumn(field),
           value,
+          operator,
         });
       });
 

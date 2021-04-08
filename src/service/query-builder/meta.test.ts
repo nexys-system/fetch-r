@@ -32,7 +32,9 @@ describe("to meta and to query", () => {
         { name: "id", column: "id" },
         { name: "name", column: "col_name" },
       ],
-      filters: [{ name: "name", column: "col_name", value: "ok" }],
+      filters: [
+        { name: "name", column: "col_name", value: "ok", operator: "=" },
+      ],
       join: {
         entity: "User",
         field: {
@@ -81,7 +83,7 @@ describe("to meta and to query 2", () => {
         { name: "uuid", column: "uuid" },
         { name: "firstName", column: "first_name" },
       ],
-      filters: [{ name: "uuid", column: "uuid", value: "u3" }],
+      filters: [{ name: "uuid", column: "uuid", value: "u3", operator: "=" }],
     },
     {
       alias: "t1",
@@ -92,8 +94,8 @@ describe("to meta and to query 2", () => {
         { name: "name", column: "col_name" },
       ],
       filters: [
-        { name: "id", column: "id", value: 7 },
-        { name: "name", column: "col_name", value: "ok" },
+        { name: "id", column: "id", value: 7, operator: "=" },
+        { name: "name", column: "col_name", value: "ok", operator: "=" },
       ],
       join: {
         entity: "User",
@@ -187,12 +189,38 @@ test("simple select w projection", () => {
 
 test("simple select w projection and filter", () => {
   const q: T.Query = {
-    UserStatus: { projection: {}, filters: { id: 2, name: "ok" } },
+    UserStatus: {
+      projection: {},
+      filters: {
+        id: 2,
+        name: "ok",
+      },
+    },
   };
   const s = [
     "SELECT t0.`id` AS t0_id, t0.`col_name` AS t0_name",
     "FROM user_status AS t0",
     'WHERE t0.`id`=2 AND t0.`col_name`="ok"',
+  ];
+  const m = M.toMeta("UserStatus", q.UserStatus, model);
+  const r = S.toQuery(m);
+  expect(r).toEqual(s);
+});
+
+test("simple select w projection and filter with operator", () => {
+  const q: T.Query = {
+    UserStatus: {
+      projection: {},
+      filters: {
+        id: 2,
+        name: { $in: ["ok", "pending"] },
+      },
+    },
+  };
+  const s = [
+    "SELECT t0.`id` AS t0_id, t0.`col_name` AS t0_name",
+    "FROM user_status AS t0",
+    'WHERE t0.`id`=2 AND t0.`col_name` IN("ok","pending")',
   ];
   const m = M.toMeta("UserStatus", q.UserStatus, model);
   const r = S.toQuery(m);

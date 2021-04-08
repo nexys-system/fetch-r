@@ -88,7 +88,7 @@ test("2nd level projection", () => {
         entity: "Tag",
         table: "tag",
         alias: "t4",
-        filters: [{ name: "id", column: "id", value: 2 }],
+        filters: [{ name: "id", column: "id", value: 2, operator: "=" }],
         fields: [{ name: "id", column: "id" }],
         join: {
           entity: "Module",

@@ -54,3 +54,29 @@ export const getModel = (entityName: string, model: T.Entity[]) => {
 
   return f;
 };
+
+const toOperator = (op: string): TT.MetaOperator => {
+  switch (op) {
+    case "$in":
+      return "in";
+    case "$gt":
+      return "gt";
+    case "$lt":
+      return "lt";
+  }
+
+  throw Error("could not map operator");
+};
+
+export const getValueAndOperator = (
+  v: any
+): { operator: TT.MetaOperator; value: any } => {
+  if (typeof v === "object") {
+    const [b] = Object.entries(v);
+
+    const operator = toOperator(b[0]);
+    return { operator, value: b[1] };
+  }
+
+  return { operator: "=", value: v };
+};

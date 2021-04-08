@@ -16,6 +16,11 @@ export const isStandardType = (t: string): t is T.Type =>
   types.includes(t as T.Type);
 
 export const escape = (v: any): string | number => {
+  if (Array.isArray(v)) {
+    const s = v.map((x) => escape(x)).join(",");
+
+    return `(${s})`;
+  }
   switch (typeof v) {
     case "number":
       return v;
