@@ -2,10 +2,7 @@ import * as M from "./meta";
 import * as TT from "./type";
 import * as T from "../type";
 import { RowDataPacket } from "mysql2";
-
-import * as ModelService from "../model";
-
-const model = ModelService.getModel({ product: 124, env: 1 });
+import model from "./model-user";
 
 describe("to meta and to query", () => {
   const q: T.Query = {
@@ -57,7 +54,7 @@ describe("to meta and to query", () => {
       "SELECT t0.`uuid` AS t0_uuid, t0.`first_name` AS t0_firstName, t1.`id` AS t1_id, t1.`col_name` AS t1_name",
       "FROM user AS t0",
       "JOIN user_status AS t1 ON t1.id=t0.status_id",
-      'WHERE 1 AND t1.`col_name`="ok"',
+      'WHERE t1.`col_name`="ok"',
     ]);
   });
 });
@@ -212,7 +209,7 @@ test("select w json 2nd level", () => {
     "FROM user_authentication AS t0",
     "JOIN user AS t1 ON t1.id=t0.user_id",
     "JOIN user_status AS t2 ON t2.id=t1.status_id",
-    "WHERE 1 AND 1 AND 1",
+    "WHERE 1",
   ];
 
   const m = M.toMeta("UserAuthentication", q.UserAuthentication, model);
@@ -261,7 +258,18 @@ test("implicitly nested query", () => {
       filters: [],
     },
     {
+      entity: "User",
+      table: "user",
       alias: "t1",
+      fields: [{ name: "uuid", column: "uuid" }],
+      filters: [],
+      join: {
+        entity: "UserAuthentication",
+        field: { name: "user", column: "user_id", optional: false },
+      },
+    },
+    {
+      alias: "t2",
       entity: "UserAuthenticationType",
       fields: [
         {
@@ -279,17 +287,6 @@ test("implicitly nested query", () => {
         },
       },
       table: "user_authentication_type",
-    },
-    {
-      entity: "User",
-      table: "user",
-      alias: "t2",
-      fields: [{ name: "uuid", column: "uuid" }],
-      filters: [],
-      join: {
-        entity: "UserAuthentication",
-        field: { name: "user", column: "user_id", optional: false },
-      },
     },
   ];
 

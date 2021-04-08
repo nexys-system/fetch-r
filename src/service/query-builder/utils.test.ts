@@ -18,3 +18,8 @@ test("getOrderStatement", () => {
     "ORDER BY t0_name ASC"
   );
 });
+
+test("compare joins", () => {
+  const j1 = { entity: "Entity", field: { name: "Field", optional: true } };
+  expect(U.compareJoins(j1, { join: j1 }));
+});
