@@ -54,11 +54,16 @@ export interface QueryFilters {
   [attr: string]: FilterAttribute | QueryFilters;
 }
 
+export interface QueryOrder {
+  by: string;
+  desc?: boolean;
+}
+
 export interface QueryParams {
   projection?: QueryProjection;
   filters?: QueryFilters;
   references?: References;
-  order?: { by: string; desc?: boolean };
+  order?: QueryOrder;
   take?: number;
   skip?: number;
 }

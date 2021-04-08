@@ -54,7 +54,7 @@ export const exec = async (
 
   return handleReponse(
     response as RowDataPacket,
-    qs.map((x) => x.meta)
+    qs.map((x) => x.meta.units)
   );
 };
 

@@ -22,3 +22,11 @@ export interface MetaQueryUnit {
   filters: MetaFilter[];
   join?: MetaJoin;
 }
+
+export interface MetaQuery {
+  units: MetaQueryUnit[];
+  take?: number;
+  skip?: number;
+  order?: T.QueryOrder;
+  references?: any; //todo
+}

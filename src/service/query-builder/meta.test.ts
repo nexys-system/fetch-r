@@ -15,7 +15,7 @@ describe("to meta and to query", () => {
     },
   };
 
-  const meta: TT.MetaQueryUnit[] = [
+  const units: TT.MetaQueryUnit[] = [
     {
       alias: "t0",
       entity: "User",
@@ -46,6 +46,8 @@ describe("to meta and to query", () => {
     },
   ];
 
+  const meta: TT.MetaQuery = { units };
+
   test("to meta", () => {
     expect(M.toMeta("User", q.User, model)).toEqual(meta);
   });
@@ -72,7 +74,7 @@ describe("to meta and to query 2", () => {
     },
   };
 
-  const meta: TT.MetaQueryUnit[] = [
+  const units: TT.MetaQueryUnit[] = [
     {
       alias: "t0",
       entity: "User",
@@ -107,11 +109,11 @@ describe("to meta and to query 2", () => {
   ];
 
   test("to meta", () => {
-    expect(M.toMeta("User", q.User, model)).toEqual(meta);
+    expect(M.toMeta("User", q.User, model).units).toEqual(units);
   });
 
   test("to query", () => {
-    expect(M.toQuery(meta)).toEqual([
+    expect(M.toQuery({ units })).toEqual([
       "SELECT t0.`uuid` AS t0_uuid, t0.`first_name` AS t0_firstName, t1.`id` AS t1_id, t1.`col_name` AS t1_name",
       "FROM user AS t0",
       "JOIN user_status AS t1 ON t1.id=t0.status_id",
@@ -128,7 +130,7 @@ test("simple select + parse", () => {
     "FROM user_status AS t0",
     "WHERE 1",
   ];
-  const mq = M.toQuery(m);
+  const mq = M.toQuery({ units: m.units });
   expect(mq).toEqual(s);
   const r = [
     {
@@ -151,27 +153,30 @@ test("simple select + parse", () => {
     { t0_id: 3, t0_name: "denied" },
   ] as RowDataPacket[];
 
-  expect(M.parse(y as any, m)).toEqual(r);
+  expect(M.parse(y as any, m.units)).toEqual(r);
 });
 
 test("simple select to SQLs", () => {
-  const q: T.Query = { UserStatus: {} };
-  const s = [
-    "SELECT t0.`id` AS t0_id, t0.`col_name` AS t0_name",
-    "FROM user_status AS t0",
-    "WHERE 1;",
-  ].join("\n");
+  const q: T.Query = { UserStatus: { take: 2 } };
+  const s =
+    [
+      "SELECT t0.`id` AS t0_id, t0.`col_name` AS t0_name",
+      "FROM user_status AS t0",
+      "WHERE 1",
+      "LIMIT 0, 2",
+    ].join("\n") + ";";
   const ss = M.createQuery(q, model).map((x) => x.sql);
   expect(ss).toEqual([s]);
 });
 
 test("simple select w projection", () => {
-  const q: T.Query = { UserStatus: { projection: {} } };
+  const q: T.Query = { UserStatus: { projection: {}, take: 4, skip: 8 } };
 
   const s = [
     "SELECT t0.`id` AS t0_id, t0.`col_name` AS t0_name",
     "FROM user_status AS t0",
     "WHERE 1",
+    "LIMIT 8, 4",
   ];
   const m = M.toMeta("UserStatus", q.UserStatus, model);
   const r = M.toQuery(m);
@@ -231,7 +236,7 @@ test("select w json 2nd level", () => {
     },
   ] as RowDataPacket[];
 
-  expect(M.parse(y as any, m)).toEqual(r);
+  expect(M.parse(y as any, m.units)).toEqual(r);
 });
 
 test("implicitly nested query", () => {
@@ -239,7 +244,7 @@ test("implicitly nested query", () => {
   const q: T.Query = {
     [entity]: {},
   };
-  const m = [
+  const m: TT.MetaQueryUnit[] = [
     {
       entity: "UserAuthentication",
       table: "user_authentication",
@@ -286,5 +291,5 @@ test("implicitly nested query", () => {
 
   const em = M.toMeta(entity, q[entity], model);
 
-  expect(m).toEqual(em);
+  expect(m).toEqual(em.units);
 });

@@ -60,7 +60,7 @@ export const toMeta = (
   entity: string,
   query: T.QueryParams,
   model: T.Entity[]
-): TT.MetaQueryUnit[] => {
+): TT.MetaQuery => {
   // init return object
   const r: {
     [alias: string]: TT.MetaQueryUnit;
@@ -179,11 +179,12 @@ export const toMeta = (
     }
   );
 
-  return m.sort((a, b) => (a.alias > b.alias ? 1 : -1));
+  const units = m.sort((a, b) => (a.alias > b.alias ? 1 : -1));
+  return { units, take: query.take, skip: query.skip, order: query.order };
 };
 
-export const toQuery = (meta: TT.MetaQueryUnit[]): string[] => {
-  const projection: string = meta
+export const toQuery = (meta: TT.MetaQuery): string[] => {
+  const projection: string = meta.units
     .map((x) =>
       x.fields
         .map(
@@ -193,7 +194,7 @@ export const toQuery = (meta: TT.MetaQueryUnit[]): string[] => {
         .join(", ")
     )
     .join(", ");
-  const filters: string = meta
+  const filters: string = meta.units
     .map((x, i) => {
       if (x.filters.length === 0) {
         return "1";
@@ -204,9 +205,11 @@ export const toQuery = (meta: TT.MetaQueryUnit[]): string[] => {
     })
     .join(" AND ");
 
-  const joins: string[] = meta.slice(1).map((x) => {
+  const joins: string[] = meta.units.slice(1).map((x) => {
     const alias = x.alias;
-    const parentAlias = meta.findIndex((m) => m.entity === x.join?.entity);
+    const parentAlias = meta.units.findIndex(
+      (m) => m.entity === x.join?.entity
+    );
     return (
       (x.join?.field.optional ? "LEFT " : "") +
       `JOIN ${x.table} AS ${alias} ON ${alias}.id=t${parentAlias}.${x.join?.field.column}`
@@ -215,20 +218,37 @@ export const toQuery = (meta: TT.MetaQueryUnit[]): string[] => {
 
   const r = [
     "SELECT " + projection,
-    "FROM " + meta[0].table + " AS " + meta[0].alias,
+    "FROM " + meta.units[0].table + " AS " + meta.units[0].alias,
   ];
 
   joins.forEach((join) => r.push(join));
   r.push("WHERE " + filters);
+
+  const limitStatement = getLimitStatement(meta);
+  if (limitStatement) {
+    r.push(limitStatement);
+  }
+
   return r;
+};
+
+const getLimitStatement = ({
+  take,
+  skip,
+}: Pick<TT.MetaQuery, "take" | "skip">): string | undefined => {
+  if (!take) {
+    return;
+  }
+
+  return `LIMIT ${skip || 0}, ${take || 0}`;
 };
 
 export const createQuery = (
   query: T.Query,
   model: T.Entity[]
-): { sql: string; meta: TT.MetaQueryUnit[] }[] =>
+): { sql: string; meta: TT.MetaQuery }[] =>
   Object.entries(query).map(([entity, v]) => {
-    const meta = toMeta(entity, v, model);
+    const meta: TT.MetaQuery = toMeta(entity, v, model);
     const pSQL = toQuery(meta);
     const sql = pSQL.join("\n") + ";";
     return { sql, meta };
