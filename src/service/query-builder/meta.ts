@@ -7,6 +7,7 @@
 import * as T from "../type";
 import * as TT from "./type";
 import * as U from "../utils";
+import * as UU from "./utils";
 import { RowDataPacket } from "mysql2";
 
 const getModel = (entityName: string, model: T.Entity[]) => {
@@ -52,9 +53,6 @@ const getJoin = (modelUnit: T.Entity, field: T.Field) => ({
     optional: field.optional, // determines if JOIN or LEFT JOIN
   },
 });
-
-const getAliasColumn = (tableAlias: string, fieldName: string) =>
-  tableAlias + "_" + fieldName;
 
 export const toMeta = (
   entity: string,
@@ -189,7 +187,10 @@ export const toQuery = (meta: TT.MetaQuery): string[] => {
       x.fields
         .map(
           (y) =>
-            `${x.alias}.\`${y.column}\` AS ${getAliasColumn(x.alias, y.name)}`
+            `${x.alias}.\`${y.column}\` AS ${UU.getAliasColumn(
+              x.alias,
+              y.name
+            )}`
         )
         .join(", ")
     )
@@ -225,31 +226,15 @@ export const toQuery = (meta: TT.MetaQuery): string[] => {
   r.push("WHERE " + filters);
 
   if (meta.order) {
-    r.push(getOrderStatement(meta.order));
+    r.push(UU.getOrderStatement(meta.order));
   }
 
-  const limitStatement = getLimitStatement(meta);
+  const limitStatement = UU.getLimitStatement(meta);
   if (limitStatement) {
     r.push(limitStatement);
   }
 
   return r;
-};
-
-const getLimitStatement = ({
-  take,
-  skip,
-}: Pick<TT.MetaQuery, "take" | "skip">): string | undefined => {
-  if (!take) {
-    return;
-  }
-
-  return `LIMIT ${skip || 0}, ${take || 0}`;
-};
-
-const getOrderStatement = ({ by, desc }: T.QueryOrder) => {
-  const col = getAliasColumn("t0", by);
-  return `ORDER BY ${col} ${desc === true ? "DESC" : "ASC"}`;
 };
 
 export const createQuery = (
@@ -266,7 +251,7 @@ export const createQuery = (
 export const parseUnit = (x: RowDataPacket, meta: TT.MetaQueryUnit[]) => {
   const hJoins = (m: TT.MetaQueryUnit, r: { [col: string]: any }) =>
     m.fields.forEach((f) => {
-      const aliasName = getAliasColumn(m.alias, f.name);
+      const aliasName = UU.getAliasColumn(m.alias, f.name);
       r[f.name] = x[aliasName];
     });
 
