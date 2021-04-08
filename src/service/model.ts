@@ -7,7 +7,13 @@ const productIdentifier = (j: Pick<JwtStructure, "product" | "env">) =>
 
 const filepath = "assets/model.json";
 
-export const init = () => JSON.parse(fs.readFileSync(filepath, "utf-8"));
+export const init = (): { [entity: string]: T.Entity[] } => {
+  try {
+    return JSON.parse(fs.readFileSync(filepath, "utf-8"));
+  } catch (err) {
+    return {};
+  }
+};
 
 const models: { [entity: string]: T.Entity[] } = init();
 
