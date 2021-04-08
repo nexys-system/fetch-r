@@ -224,6 +224,10 @@ export const toQuery = (meta: TT.MetaQuery): string[] => {
   joins.forEach((join) => r.push(join));
   r.push("WHERE " + filters);
 
+  if (meta.order) {
+    r.push(getOrderStatement(meta.order));
+  }
+
   const limitStatement = getLimitStatement(meta);
   if (limitStatement) {
     r.push(limitStatement);
@@ -241,6 +245,11 @@ const getLimitStatement = ({
   }
 
   return `LIMIT ${skip || 0}, ${take || 0}`;
+};
+
+const getOrderStatement = ({ by, desc }: T.QueryOrder) => {
+  const col = getAliasColumn("t0", by);
+  return `ORDER BY ${col} ${desc === true ? "DESC" : "ASC"}`;
 };
 
 export const createQuery = (

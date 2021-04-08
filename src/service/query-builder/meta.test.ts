@@ -157,14 +157,18 @@ test("simple select + parse", () => {
 });
 
 test("simple select to SQLs", () => {
-  const q: T.Query = { UserStatus: { take: 2 } };
+  const q: T.Query = {
+    UserStatus: { take: 2, order: { by: "name", desc: true } },
+  };
   const s =
     [
       "SELECT t0.`id` AS t0_id, t0.`col_name` AS t0_name",
       "FROM user_status AS t0",
       "WHERE 1",
+      "ORDER BY t0_name DESC",
       "LIMIT 0, 2",
     ].join("\n") + ";";
+
   const ss = M.createQuery(q, model).map((x) => x.sql);
   expect(ss).toEqual([s]);
 });
