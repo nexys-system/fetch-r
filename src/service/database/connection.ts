@@ -1,5 +1,4 @@
 import mysql from "mysql2";
-import dotenv from "dotenv";
 import {
   Pool,
   OkPacket,
@@ -8,26 +7,24 @@ import {
   FieldPacket,
 } from "mysql2/promise";
 
+import * as Config from "./config";
+
 type Response = [
   OkPacket | ResultSetHeader | RowDataPacket[] | RowDataPacket[][] | OkPacket[],
   FieldPacket[]
 ];
 
-dotenv.config();
-
-const { HOST, DBUSER, PASSWORD, DATABASE, PORT } = process.env;
-
-if (!HOST || !DBUSER || !PASSWORD || !DATABASE) {
-  throw Error("{HOST, USER, PASSWORD, DATABASE} undefined");
-}
-
-const port: number = Number(PORT) || 3306;
-
 export class SQL {
   //connection: mysql.Connection;
   pool: Pool;
 
-  constructor(host: string, user: string, password: string, database: string) {
+  constructor(
+    host: string,
+    user: string,
+    password: string,
+    database: string,
+    port: number
+  ) {
     const config = {
       host,
       user,
@@ -45,4 +42,11 @@ export class SQL {
   execQuery = (query: string): Promise<Response> => this.pool.query(query);
 }
 
-export const init = () => new SQL(HOST, DBUSER, PASSWORD, DATABASE);
+export const init = () =>
+  new SQL(
+    Config.database.host,
+    Config.database.username,
+    Config.database.password,
+    Config.database.database,
+    Config.database.port
+  );

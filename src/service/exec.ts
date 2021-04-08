@@ -1,10 +1,9 @@
-import * as Connection from "./connection";
+import { RowDataPacket, OkPacket } from "mysql2";
+import * as Connection from "./database/connection";
 import * as T from "./type";
-
 import * as Meta from "./query-builder/meta";
 import * as MutateService from "./query-builder/mutate";
 import * as TT from "./query-builder/type";
-import { RowDataPacket, OkPacket } from "mysql2";
 
 const isRawDataPacket = (
   response: RowDataPacket[] | RowDataPacket

@@ -1,6 +1,5 @@
-import * as Connection from "./connection";
+import * as Connection from "./database/connection";
 import * as Exec from "./exec";
-
 import * as T from "./type";
 
 const s = Connection.init();

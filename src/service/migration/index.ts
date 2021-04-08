@@ -1,5 +1,5 @@
 import * as T from "./type";
-import * as Connection from "../connection";
+import * as Connection from "../database/connection";
 import { OkPacket, RowDataPacket } from "mysql2";
 
 import * as U from "./utils";
