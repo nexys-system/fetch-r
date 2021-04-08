@@ -4,18 +4,6 @@ import { OkPacket, RowDataPacket } from "mysql2";
 
 import * as U from "./utils";
 
-const getLastRow = (y: T.MigrationRow[]): { installed_rank: number } => {
-  const l = y.length;
-
-  if (y.length === 0) {
-    return { installed_rank: 0 };
-  }
-
-  const { installed_rank } = y[l - 1];
-
-  return { installed_rank };
-};
-
 // manages migration
 // inspiration from flyway - https://flywaydb.org/
 export const runMigrations = async (
@@ -31,7 +19,7 @@ export const runMigrations = async (
   const [r] = await s.execQuery(U.getMigrations);
   const y = (r as RowDataPacket[]) as T.MigrationRow[];
 
-  const lastRow = getLastRow(y);
+  const lastRow = U.getLastRow(y);
 
   let lastRank = lastRow.installed_rank;
 

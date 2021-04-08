@@ -81,3 +81,10 @@ describe("find previsou migrations", () => {
     }
   });
 });
+
+test("get last row", () => {
+  expect(M.getLastRow([])).toEqual({ installed_rank: 0 });
+  expect(M.getLastRow([{ installed_rank: 1 }, { installed_rank: 2 }])).toEqual({
+    installed_rank: 2,
+  });
+});

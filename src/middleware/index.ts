@@ -23,7 +23,7 @@ export const extractToken = ({
     throw Error("no authorization header");
   }
 
-  return authorization.slice("bearer ".length);
+  return authorization.slice(7); // "bearer ".length
 };
 
 export const verifyToken = (token: string): any =>

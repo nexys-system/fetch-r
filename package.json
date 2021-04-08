@@ -28,6 +28,7 @@
     "mysql2": "^2.2.5"
   },
   "scripts": {
+    "start": "node dist/index.js",
     "build": "tsc",
     "test": "rm -rf dist && jest",
     "watch": "tsc-watch --onSuccess \"node ./dist/index.js\""
