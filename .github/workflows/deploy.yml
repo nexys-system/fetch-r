@@ -26,13 +26,13 @@ jobs:
           docker push $DOCKERHUB_URL:master
       - name: prep SSH
         run: |
-         mkdir -p ~/.ssh
-         echo "${{ secrets.SSH_KEY_PRIVATE }}" > ~/.ssh/id_rsa
-         chmod 600 ~/.ssh/id_rsa
-         echo "${{ secrets.HOST }}" > ~/.ssh/known_hosts
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY_PRIVATE }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo "${{ secrets.HOST }}" > ~/.ssh/known_hosts
       - name: Publish package
         run: |
-          ssh -o 'StrictHostKeyChecking no' ${{ secrets.USERNAME }}@${{ secrets.HOST }} << EOF
+          ssh -q -o 'StrictHostKeyChecking no' ${{ secrets.USERNAME }}@${{ secrets.HOST }} << EOF
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
             docker pull $DOCKERHUB_URL:master
             /usr/local/bin/docker-compose --log-level CRITICAL -f compose.yml up -d
