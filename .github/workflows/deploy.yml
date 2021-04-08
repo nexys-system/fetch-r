@@ -1,6 +1,9 @@
 name: Deploy to docker
 
-on: [push]
+on:
+  push:
+    branches:
+    - master
 
 env:
   DOCKERHUB_URL: docker.pkg.github.com/nexys-system/fetch-r/fetchrnode
