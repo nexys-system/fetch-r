@@ -91,10 +91,27 @@ describe("create mutate query", () => {
   });
 
   test("simple update", () => {
-    const q: T.Mutate = {
+    const q: T.Mutate<UserStatus> = {
       UserStatus: { update: { data: { name: "ok" }, filters: { id: 2 } } },
     };
     const s = ['UPDATE user_status SET col_name="ok" WHERE `id`=2;'];
+    expect(S.createMutateQuery(q, model)).toEqual(s);
+  });
+
+  test("update with fk", () => {
+    const data: Partial<User> = {
+      firstName: "Jane",
+      instance: { uuid: "myuuid" },
+      status: { id: 3 },
+    };
+
+    const q: T.Mutate<User> = {
+      User: { update: { data, filters: { uuid: "useruuid" } } },
+    };
+
+    const s = [
+      'UPDATE user SET first_name="Jane", instance_id=(SELECT id FROM `instance` WHERE uuid="myuuid"), status_id=(SELECT id FROM `user_status` WHERE id=3) WHERE `uuid`="useruuid";',
+    ];
     expect(S.createMutateQuery(q, model)).toEqual(s);
   });
 });

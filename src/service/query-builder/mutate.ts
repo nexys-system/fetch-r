@@ -19,6 +19,23 @@ const getFilters = (modelUnit: T.Entity, filters?: T.QueryFilters): string => {
     .join(" AND ");
 };
 
+const getSubQuery = (field: T.Field, model: T.Entity[], v: any) => {
+  const entity = getModel(field.type, model);
+
+  const idUuid = entity.uuid ? "uuid" : "id";
+  const w = entity.uuid ? U.escape(v.uuid) : Number(v.id);
+
+  // the code can be stopped here for ID
+  /*
+  if (!entity.uuid) {
+    return w;
+  }*/
+
+  const table = U.entityToTable(entity);
+
+  return `(SELECT id FROM \`${table}\` WHERE ${idUuid}=${w})`;
+};
+
 /**
  * generates SQL queries (goes through the different queries)
  * @param params
@@ -29,26 +46,13 @@ const getFilters = (modelUnit: T.Entity, filters?: T.QueryFilters): string => {
 
 const getValuesInsert = (data: any, fields: T.Field[], model: T.Entity[]) => {
   const v = fields
-    .map((x) => {
-      const v = data[x.name];
-      if (!U.isStandardType(x.type)) {
-        const entity = getModel(x.type, model);
-
-        const idUuid = entity.uuid ? "uuid" : "id";
-        const w = entity.uuid ? U.escape(v.uuid) : Number(v.id);
-
-        // the code can be stopped here for ID
-        /*
-        if (!entity.uuid) {
-          return w;
-        }*/
-
-        const table = U.entityToTable(entity);
-
-        return `(SELECT id FROM \`${table}\` WHERE ${idUuid}=${w})`;
+    .map((field) => {
+      const v = data[field.name];
+      if (!U.isStandardType(field.type)) {
+        return getSubQuery(field, model, v);
       }
 
-      switch (x.type) {
+      switch (field.type) {
         case "LocalDateTime":
           return U.escape(new Date(v).toISOString());
         default:
@@ -78,7 +82,8 @@ const toQueryInsert = (entity: T.Entity, data: any, model: T.Entity[]) => {
 const toQueryUpdate = (
   entity: T.Entity,
   data: any,
-  filters: T.QueryFilters
+  filters: T.QueryFilters,
+  model: T.Entity[]
 ) => {
   const filterString = getFilters(entity, filters);
 
@@ -91,6 +96,10 @@ const toQueryUpdate = (
       }
 
       const col = U.fieldToColumn(field);
+
+      if (!U.isStandardType(field.type)) {
+        return col + "=" + getSubQuery(field, model, v);
+      }
 
       return `${col}=${U.escape(v)}`;
     })
@@ -126,7 +135,8 @@ export const createMutateQuery = (
         return toQueryUpdate(
           modelEntity,
           queryParams.update.data,
-          queryParams.update.filters
+          queryParams.update.filters,
+          model
         );
       }
 
