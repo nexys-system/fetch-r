@@ -1,6 +1,5 @@
 import * as M from "./meta";
 import * as TT from "./type";
-import * as T from "../type";
 
 import modelAcademy from "./model-academy";
 test("2nd level projection", () => {
