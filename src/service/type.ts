@@ -27,7 +27,8 @@ export type FilterAttribute =
   | Date
   | FiltersIn
   | FiltersNe
-  | null;
+  | null
+  | undefined;
 
 export interface References {
   [entity: string]: QueryParams & { joinOn?: string };
@@ -46,13 +47,13 @@ export interface Field {
   optional: boolean;
 }
 
-export interface QueryProjection {
-  [field: string]: boolean | QueryProjection;
-}
+export type QueryProjection<A = any> = {
+  [key in keyof A]?: boolean | QueryProjection<any>;
+};
 
-export interface QueryFilters {
-  [attr: string]: FilterAttribute | QueryFilters;
-}
+export type QueryFilters<A = any> = {
+  [key in keyof A]?: FilterAttribute | QueryFilters;
+};
 
 export interface QueryOrder {
   by: string;
@@ -72,10 +73,10 @@ export interface Query {
   [entity: string]: QueryParams;
 }
 
-export interface Mutate {
+export interface Mutate<A = any> {
   [entity: string]: {
-    insert?: { data: any };
-    update?: { data: any; filters: QueryFilters };
+    insert?: { data: Omit<A, "id" | "uuid"> | Omit<A, "id" | "uuid">[] };
+    update?: { data: Partial<A>; filters: QueryFilters };
     delete?: { filters: QueryFilters };
   };
 }

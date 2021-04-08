@@ -1,4 +1,5 @@
 import * as M from "./meta";
+import * as S from "./sql";
 import * as TT from "./type";
 import * as T from "../type";
 import { RowDataPacket } from "mysql2";
@@ -50,7 +51,7 @@ describe("to meta and to query", () => {
   });
 
   test("to query", () => {
-    expect(M.toQuery(meta)).toEqual([
+    expect(S.toQuery(meta)).toEqual([
       "SELECT t0.`uuid` AS t0_uuid, t0.`first_name` AS t0_firstName, t1.`id` AS t1_id, t1.`col_name` AS t1_name",
       "FROM user AS t0",
       "JOIN user_status AS t1 ON t1.id=t0.status_id",
@@ -110,7 +111,7 @@ describe("to meta and to query 2", () => {
   });
 
   test("to query", () => {
-    expect(M.toQuery({ units })).toEqual([
+    expect(S.toQuery({ units })).toEqual([
       "SELECT t0.`uuid` AS t0_uuid, t0.`first_name` AS t0_firstName, t1.`id` AS t1_id, t1.`col_name` AS t1_name",
       "FROM user AS t0",
       "JOIN user_status AS t1 ON t1.id=t0.status_id",
@@ -127,7 +128,7 @@ test("simple select + parse", () => {
     "FROM user_status AS t0",
     "WHERE 1",
   ];
-  const mq = M.toQuery({ units: m.units });
+  const mq = S.toQuery({ units: m.units });
   expect(mq).toEqual(s);
   const r = [
     {
@@ -180,7 +181,7 @@ test("simple select w projection", () => {
     "LIMIT 8, 4",
   ];
   const m = M.toMeta("UserStatus", q.UserStatus, model);
-  const r = M.toQuery(m);
+  const r = S.toQuery(m);
   expect(r).toEqual(s);
 });
 
@@ -194,7 +195,7 @@ test("simple select w projection and filter", () => {
     'WHERE t0.`id`=2 AND t0.`col_name`="ok"',
   ];
   const m = M.toMeta("UserStatus", q.UserStatus, model);
-  const r = M.toQuery(m);
+  const r = S.toQuery(m);
   expect(r).toEqual(s);
 });
 
@@ -213,7 +214,7 @@ test("select w json 2nd level", () => {
   ];
 
   const m = M.toMeta("UserAuthentication", q.UserAuthentication, model);
-  const qs = M.toQuery(m);
+  const qs = S.toQuery(m);
   expect(qs).toEqual(s);
 
   const r = [

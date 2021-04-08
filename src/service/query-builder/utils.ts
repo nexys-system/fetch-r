@@ -42,3 +42,15 @@ export const compareJoins = (
 
   return x.join.entity === join.entity && x.join.field.name === join.field.name;
 };
+
+export const getModel = (entityName: string, model: T.Entity[]) => {
+  const f = model.find((m) => m.name === entityName);
+
+  if (!f) {
+    throw Error(
+      "could not find model: " + entityName + " (while creating meta query)"
+    );
+  }
+
+  return f;
+};

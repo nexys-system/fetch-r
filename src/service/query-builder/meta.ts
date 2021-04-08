@@ -9,19 +9,7 @@ import * as TT from "./type";
 import * as U from "../utils";
 import * as UU from "./utils";
 import { RowDataPacket } from "mysql2";
-import NUtils from "@nexys/utils";
-
-const getModel = (entityName: string, model: T.Entity[]) => {
-  const f = model.find((m) => m.name === entityName);
-
-  if (!f) {
-    throw Error(
-      "could not find model: " + entityName + " (while creating meta query)"
-    );
-  }
-
-  return f;
-};
+import { toQuery } from "./sql";
 
 const getField = (
   fieldName: string,
@@ -68,7 +56,7 @@ export const toMeta = (
     proj: T.QueryProjection,
     join?: TT.MetaJoin
   ) => {
-    const modelUnit = getModel(entity, model);
+    const modelUnit = UU.getModel(entity, model);
     // turn projection into object
     const projEntries = Object.entries(proj);
 
@@ -92,7 +80,7 @@ export const toMeta = (
         const join = getJoin(modelUnit, field);
         addProjection(
           field.type,
-          typeof value === "boolean" ? {} : value,
+          typeof value === "boolean" ? {} : (value as T.QueryProjection),
           join
         );
       } else {
@@ -126,7 +114,7 @@ export const toMeta = (
       join?: TT.MetaJoin,
       aliasIdx: number = 0
     ) => {
-      const modelUnit = getModel(entity, model);
+      const modelUnit = UU.getModel(entity, model);
 
       const metaFilters: TT.MetaFilter[] = [];
       Object.entries(filters).forEach(([fieldName, value]) => {
@@ -181,62 +169,6 @@ export const toMeta = (
 
   const units = m.sort((a, b) => (a.alias > b.alias ? 1 : -1));
   return { units, take: query.take, skip: query.skip, order: query.order };
-};
-
-export const toQuery = (meta: TT.MetaQuery): string[] => {
-  const projection: string = meta.units
-    .map((x) =>
-      x.fields
-        .map(
-          (y) =>
-            `${x.alias}.\`${y.column}\` AS ${UU.getAliasColumn(
-              x.alias,
-              y.name
-            )}`
-        )
-        .join(", ")
-    )
-    .join(", ");
-  const filters: string[] = meta.units
-    .map((x, i) => {
-      if (x.filters.length === 0) {
-        return;
-      }
-      return x.filters
-        .map((y) => `t${i}.\`${y.column}\`=${U.escape(y.value)}`)
-        .join(" AND ");
-    })
-    .filter(NUtils.array.notEmpty);
-
-  const joins: string[] = meta.units.slice(1).map((x) => {
-    const alias = x.alias;
-    const parentAlias = meta.units.findIndex(
-      (m) => m.entity === x.join?.entity
-    );
-    return (
-      (x.join?.field.optional ? "LEFT " : "") +
-      `JOIN ${x.table} AS ${alias} ON ${alias}.id=t${parentAlias}.${x.join?.field.column}`
-    );
-  });
-
-  const r = [
-    "SELECT " + projection,
-    "FROM " + meta.units[0].table + " AS " + meta.units[0].alias,
-  ];
-
-  joins.forEach((join) => r.push(join));
-  r.push("WHERE " + (filters.length === 0 ? "1" : filters.join(" AND ")));
-
-  if (meta.order) {
-    r.push(UU.getOrderStatement(meta.order));
-  }
-
-  const limitStatement = UU.getLimitStatement(meta);
-  if (limitStatement) {
-    r.push(limitStatement);
-  }
-
-  return r;
 };
 
 export const createQuery = (

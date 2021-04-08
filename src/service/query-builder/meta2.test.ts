@@ -1,4 +1,5 @@
 import * as M from "./meta";
+import * as S from "./sql";
 import * as TT from "./type";
 
 import modelAcademy from "./model-academy";
@@ -30,7 +31,7 @@ test("2nd level projection", () => {
   const entity = "ModuleLesson";
 
   const em = M.toMeta(entity, q[entity], modelAcademy);
-  const s = M.toQuery(em);
+  const s = S.toQuery(em);
   const m: TT.MetaQuery = {
     units: [
       {
