@@ -8,7 +8,6 @@ import * as T from "../type";
 import * as TT from "./type";
 import * as U from "../utils";
 import * as UU from "./utils";
-import { RowDataPacket } from "mysql2";
 import { toQuery } from "./sql";
 
 const getField = (
@@ -189,39 +188,3 @@ export const createQuery = (
     const sql = pSQL.join("\n") + ";";
     return { sql, meta };
   });
-
-export const parseUnit = (x: RowDataPacket, meta: TT.MetaQueryUnit[]) => {
-  const hJoins = (m: TT.MetaQueryUnit, r: { [col: string]: any }) =>
-    m.fields.forEach((f) => {
-      const aliasName = UU.getAliasColumn(m.alias, f.name);
-      r[f.name] = x[aliasName];
-    });
-
-  const recur = (parentEntity: string, r: { [col: string]: any }) =>
-    meta
-      .filter((x) => x.join?.entity === parentEntity)
-      .forEach((m) => {
-        if (m.join) {
-          const attrName = m.join.field.name;
-          r[attrName] = {};
-          hJoins(m, r[attrName]);
-
-          recur(m.entity, r[attrName]);
-        }
-      });
-
-  const r: { [col: string]: any } = {};
-  const m = meta[0];
-
-  hJoins(m, r);
-  recur(m.entity, r);
-
-  return r;
-};
-
-export const parse = (x: RowDataPacket, meta: TT.MetaQueryUnit[]) => {
-  if (!Array.isArray(x)) {
-    throw Error("expecting an array");
-  }
-  return x.map((y) => parseUnit(y, meta));
-};

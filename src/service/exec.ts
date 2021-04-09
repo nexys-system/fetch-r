@@ -4,6 +4,7 @@ import * as T from "./type";
 import * as Meta from "./query-builder/meta";
 import * as MutateService from "./query-builder/mutate";
 import * as TT from "./query-builder/type";
+import * as Parse from "./query-builder/parse";
 
 const isRawDataPacket = (
   response: RowDataPacket[] | RowDataPacket
@@ -24,8 +25,10 @@ const handleReponse = (
   }
 
   const responseParsed = response.map((x: RowDataPacket, i: number) =>
-    Meta.parse(x, qs[i])
+    Parse.parse(x, qs[i])
   );
+
+  console.log("parsed");
 
   const responseWithEntites: T.ReturnUnit = {};
 
@@ -44,9 +47,10 @@ export const exec = async (
 ) => {
   const qs = Meta.createQuery(mq, entities);
   const sqlScript = qs.map((x) => x.sql).join("\n");
-
-  console.log(qs.map((x) => x.meta));
-  console.log(qs.map((x) => x.sql));
+  //console.log(sqlScript);
+  //console.log(JSON.stringify(qs, null, 2));
+  //console.log(qs.map((x) => x.meta));
+  //console.log(qs.map((x) => x.sql));
 
   // here we cast to RowDataPacket[] but theoreticfally it can also be RowDataPacket, it is checked downstream
   const [response] = await s.execQuery(sqlScript);

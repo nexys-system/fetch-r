@@ -1,4 +1,5 @@
 import * as M from "./meta";
+import * as P from "./parse";
 import * as S from "./sql";
 import * as TT from "./type";
 import * as T from "../type";
@@ -153,7 +154,7 @@ test("simple select + parse", () => {
     { t0_id: 3, t0_name: "denied" },
   ] as RowDataPacket[];
 
-  expect(M.parse(y as any, m.units)).toEqual(r);
+  expect(P.parse(y as any, m.units)).toEqual(r);
 });
 
 test("simple select to SQLs", () => {
@@ -266,7 +267,7 @@ test("select w json 2nd level", () => {
     },
   ] as RowDataPacket[];
 
-  expect(M.parse(y as any, m.units)).toEqual(r);
+  expect(P.parse(y as any, m.units)).toEqual(r);
 });
 
 test("implicitly nested query", () => {
