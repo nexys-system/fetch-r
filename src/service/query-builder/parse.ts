@@ -9,11 +9,21 @@ import * as UU from "./utils";
 import { RowDataPacket } from "mysql2";
 
 export const parseUnit = (x: RowDataPacket, meta: TT.MetaQueryUnit[]) => {
-  const hJoins = (m: TT.MetaQueryUnit, r: { [col: string]: any }) =>
+  const hJoins = (m: TT.MetaQueryUnit): { [col: string]: any } => {
+    const r: { [col: string]: any } = {};
+
     m.fields.forEach((f) => {
       const aliasName = UU.getAliasColumn(m.alias, f.name);
       r[f.name] = x[aliasName];
     });
+
+    // to account for "LEFT JOINS"
+    if (r["id"] === null) {
+      return null as any;
+    }
+
+    return r;
+  };
 
   const recur = (
     parentEntity: string,
@@ -26,19 +36,14 @@ export const parseUnit = (x: RowDataPacket, meta: TT.MetaQueryUnit[]) => {
         if (m.join) {
           const attrName = m.join.field.name;
           r[attrName] = {};
-          //console.log(m.join);
-          //console.log(r);
-          //console.log("a");
-          hJoins(m, r[attrName]);
-          //console.log("b");
+          r[attrName] = hJoins(m);
           recur(m.entity, m.alias, r[attrName]);
         }
       });
 
-  const r: { [col: string]: any } = {};
-  const m = meta[0];
+  const [m]: TT.MetaQueryUnit[] = meta;
 
-  hJoins(m, r);
+  const r: { [col: string]: any } = hJoins(m);
   recur(m.entity, m.alias, r);
 
   return r;

@@ -28,8 +28,6 @@ const handleReponse = (
     Parse.parse(x, qs[i])
   );
 
-  console.log("parsed");
-
   const responseWithEntites: T.ReturnUnit = {};
 
   responseParsed.forEach((responseEntity, i) => {
