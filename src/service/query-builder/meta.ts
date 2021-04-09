@@ -175,8 +175,21 @@ export const toMeta = (
     .map((x, i) => ({ ...x, alias: `t${i}` }));
 
   const units = m.sort((a, b) => (a.alias > b.alias ? 1 : -1));
-  return { units, take: query.take, skip: query.skip, order: query.order };
+  return {
+    units,
+    take: query.take,
+    skip: query.skip,
+    order: query.order,
+    references: query.references,
+  };
 };
+
+export const toMetas = (query: T.Query, model: T.Entity[]): TT.MetaQuery[] =>
+  Object.entries(query).map(([entity, v]) => {
+    const meta: TT.MetaQuery = toMeta(entity, v, model);
+
+    return meta;
+  });
 
 export const createQuery = (
   query: T.Query,
@@ -188,3 +201,13 @@ export const createQuery = (
     const sql = pSQL.join("\n") + ";";
     return { sql, meta };
   });
+
+export const createSQL = (
+  metas: TT.MetaQuery[]
+): { sql: string; meta: TT.MetaQuery }[] => {
+  return metas.map((meta) => {
+    const pSQL = toQuery(meta);
+    const sql = pSQL.join("\n") + ";";
+    return { sql, meta };
+  });
+};

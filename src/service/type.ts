@@ -22,6 +22,7 @@ interface FiltersNe {
 
 export type FilterAttribute = Value | FiltersIn | FiltersNe | null | undefined;
 
+// same as query but extra `joinOn` params
 export interface References {
   [entity: string]: QueryParams & { joinOn?: string };
 }
