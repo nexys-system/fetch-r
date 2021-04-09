@@ -6,32 +6,32 @@
  *
  * this file handles the parsing
  */
+import * as T from "../type";
 import * as TT from "./type";
 import * as UU from "./utils";
 import { RowDataPacket } from "mysql2";
 
-export const parseUnit = (x: RowDataPacket, meta: TT.MetaQueryUnit[]) => {
-  const hJoins = (m: TT.MetaQueryUnit): { [col: string]: any } => {
-    const r: { [col: string]: any } = {};
+export const parseUnit = (
+  x: RowDataPacket,
+  meta: TT.MetaQueryUnit[]
+): T.ReturnUnit => {
+  const hJoins = (m: TT.MetaQueryUnit): T.ReturnUnit | null => {
+    const r: T.ReturnUnit = {};
 
     m.fields.forEach((f) => {
       const aliasName = UU.getAliasColumn(m.alias, f.name);
       r[f.name] = x[aliasName];
     });
 
-    // to account for "LEFT JOINS"
+    // to account for "LEFT JOINS" / optional dependencies
     if (r["id"] === null) {
-      return null as any;
+      return null;
     }
 
     return r;
   };
 
-  const recur = (
-    parentEntity: string,
-    alias: string,
-    r: { [col: string]: any }
-  ) =>
+  const recur = (parentEntity: string, alias: string, r: T.ReturnUnit) =>
     meta
       .filter((x) => x.join?.entity === parentEntity && alias !== x.alias)
       .forEach((m) => {
@@ -43,17 +43,23 @@ export const parseUnit = (x: RowDataPacket, meta: TT.MetaQueryUnit[]) => {
         }
       });
 
+  // get first entry (main entity)
   const [m]: TT.MetaQueryUnit[] = meta;
 
-  const r: { [col: string]: any } = hJoins(m);
-  recur(m.entity, m.alias, r);
+  const r: T.ReturnUnit | null = hJoins(m);
+  if (r) {
+    recur(m.entity, m.alias, r);
+  }
 
-  return r;
+  return r as T.ReturnUnit; // here explicitly rule out `null` via type casting, more elegant way?
 };
 
-export const parse = (x: RowDataPacket, meta: TT.MetaQueryUnit[]) => {
+export const parse = (x: RowDataPacket, meta: TT.MetaQuery): T.ReturnUnit[] => {
   if (!Array.isArray(x)) {
     throw Error("expecting an array");
   }
-  return x.map((y) => parseUnit(y, meta));
+
+  const mainResult = x.map((y) => parseUnit(y, meta.units));
+
+  return mainResult;
 };

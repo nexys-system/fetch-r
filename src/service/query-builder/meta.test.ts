@@ -154,7 +154,7 @@ test("simple select + parse", () => {
     { t0_id: 3, t0_name: "denied" },
   ] as RowDataPacket[];
 
-  expect(P.parse(y as any, m.units)).toEqual(r);
+  expect(P.parse(y as any, m)).toEqual(r);
 });
 
 test("simple select to SQLs", () => {
@@ -267,7 +267,7 @@ test("select w json 2nd level", () => {
     },
   ] as RowDataPacket[];
 
-  expect(P.parse(y as any, m.units)).toEqual(r);
+  expect(P.parse(y as any, m)).toEqual(r);
 });
 
 test("implicitly nested query", () => {

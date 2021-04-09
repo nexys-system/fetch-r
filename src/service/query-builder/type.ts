@@ -34,5 +34,5 @@ export interface MetaQuery {
   take?: number;
   skip?: number;
   order?: T.QueryOrder;
-  references?: any; //todo
+  references?: T.References;
 }
