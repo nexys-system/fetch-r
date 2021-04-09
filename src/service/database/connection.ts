@@ -1,29 +1,16 @@
 import mysql from "mysql2";
-import {
-  Pool,
-  OkPacket,
-  ResultSetHeader,
-  RowDataPacket,
-  FieldPacket,
-} from "mysql2/promise";
-
-import * as Config from "./config";
-
-type Response = [
-  OkPacket | ResultSetHeader | RowDataPacket[] | RowDataPacket[][] | OkPacket[],
-  FieldPacket[]
-];
+import * as T from "./type";
 
 export class SQL {
   //connection: mysql.Connection;
-  pool: Pool;
+  pool: T.Pool;
 
   constructor(
     host: string,
     user: string,
     password: string,
     database: string,
-    port: number
+    port: number = 3306
   ) {
     const config = {
       host,
@@ -39,14 +26,8 @@ export class SQL {
     this.pool = mysql.createPool(config).promise();
   }
 
-  execQuery = (query: string): Promise<Response> => this.pool.query(query);
+  execQuery = (query: string): Promise<T.Response> => this.pool.query(query);
 }
 
-export const init = () =>
-  new SQL(
-    Config.database.host,
-    Config.database.username,
-    Config.database.password,
-    Config.database.database,
-    Config.database.port
-  );
+// stores all connections in a map, can be called on demand
+export const databases: Map<string, SQL> = new Map();

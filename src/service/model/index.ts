@@ -1,6 +1,6 @@
 import fs from "fs";
-import * as T from "./type";
-import { JwtStructure } from "../middleware/type";
+import * as T from "../type";
+import { JwtStructure } from "../../middleware/type";
 
 const productIdentifier = (j: Pick<JwtStructure, "product" | "env">) =>
   j.product + "_" + j.env;

@@ -10,8 +10,25 @@ Typescript ORM to connect to MySQL database
 
 Typescript port of [Scala version](https://github.com/fetch-r/serverg)
 
-
 [npm-image]: https://img.shields.io/npm/v/@nexys/fetchr.svg
 [npm-url]: https://npmjs.org/package/@nexys/fetchr
 [downloads-image]: https://img.shields.io/npm/dm/@nexys/fetchr.svg
 [downloads-url]: https://npmjs.org/package/@nexys/fetchr.svg
+
+## Model and Databases
+
+The service supports multi models/databases
+
+### Models
+
+- Models can be set using `/model/set`
+- The strcuture is the one descrbied in [`/service/type`](https://github.com/nexys-system/fetch-r/blob/master/src/service/type.ts#L30)
+- Models are stored in `/assets/models.json`
+
+### Databases
+
+- Models can be set using `/database/set`
+- The strcuture is the one descrbied in [`/service/database/type`](https://github.com/nexys-system/fetch-r/blob/master/src/service/database/type.ts)
+- Databases are stored in `/assets/databases.json`
+
+When a query requiring a particular database is called, it will look for an associated connection pool. If none is found, it will create a new one based on the database record (if not found, an error is thrown) and store it in a `Map` object.
