@@ -9,32 +9,41 @@ import * as DatabaseService from "../service/database";
 
 const router: Router = new Router();
 
+const query = async (ctx: Koa.Context) => {
+  // get query
+  const { body: query } = ctx.request;
+
+  // get model
+  try {
+    const model = ModelService.getModel(ctx.state.jwtContent);
+    const connectionPool = DatabaseService.getPool(ctx.state.jwtContent);
+
+    try {
+      ctx.body = await QueryService.run(query, model, connectionPool);
+    } catch (err) {
+      ctx.status = 400;
+      ctx.body = { error: err.message };
+      return;
+    }
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { error: "could not find model" };
+    return;
+  }
+};
+
 router.post(
   "/data",
   Middleware.isAuth,
   bodyParser(),
-  async (ctx: Koa.Context) => {
-    // get query
-    const { body: query } = ctx.request;
+  async (ctx: Koa.Context) => query(ctx)
+);
 
-    // get model
-    try {
-      const model = ModelService.getModel(ctx.state.jwtContent);
-      const connectionPool = DatabaseService.getPool(ctx.state.jwtContent);
-
-      try {
-        ctx.body = await QueryService.run(query, model, connectionPool);
-      } catch (err) {
-        ctx.status = 400;
-        ctx.body = { error: err.message };
-        return;
-      }
-    } catch (err) {
-      ctx.status = 500;
-      ctx.body = { error: "could not find model" };
-      return;
-    }
-  }
+router.post(
+  "/query",
+  Middleware.isAuth,
+  bodyParser(),
+  async (ctx: Koa.Context) => query(ctx)
 );
 
 router.post("/mutate", Middleware.isAuth, bodyParser(), async (ctx) => {

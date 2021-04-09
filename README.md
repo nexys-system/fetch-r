@@ -15,6 +15,40 @@ Typescript port of [Scala version](https://github.com/fetch-r/serverg)
 [downloads-image]: https://img.shields.io/npm/dm/@nexys/fetchr.svg
 [downloads-url]: https://npmjs.org/package/@nexys/fetchr.svg
 
+## Querying
+
+There are 2 endpoints for querying: `/data` and `/mutate`. As their names suggests, the first one retrieves data and the second alters them. This is based on the same philosophy that was adopted by [graphql](https://graphql.org/learn/queries/).
+
+## Data
+
+This is the query endpoint: `/query` (for legacy reason the endpoint `/data` is also available)
+
+The querying language is very easy is straightforward and follows the structure defined [here](https://github.com/nexys-system/fetch-r/blob/master/src/service/type.ts#L65).
+
+Note that the endpoint always returns an object with the different entities queries as keys and the result in the form of an array as values.
+
+### Query Example
+
+- get a list of user from the entity `User`
+
+```
+{User: {}}
+```
+
+- get a list of user belonging to a particulart workspace
+
+```
+{User: {workspace:{id: workspaceId}}}
+```
+
+## Mutate
+
+Available through `/mutate`. The following actions are available
+
+- `insert`
+- `update`
+- `delete`
+
 ## Model and Databases
 
 The service supports multi models/databases
