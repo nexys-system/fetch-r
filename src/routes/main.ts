@@ -5,6 +5,7 @@ import bodyParser from "koa-body";
 import * as Middleware from "../middleware";
 import * as QueryService from "../service";
 import * as ModelService from "../service/model";
+import * as DatabaseService from "../service/database";
 
 const router: Router = new Router();
 
@@ -19,9 +20,10 @@ router.post(
     // get model
     try {
       const model = ModelService.getModel(ctx.state.jwtContent);
+      const connectionPool = DatabaseService.getPool(ctx.state.jwtContent);
 
       try {
-        ctx.body = await QueryService.run(query, model);
+        ctx.body = await QueryService.run(query, model, connectionPool);
       } catch (err) {
         ctx.status = 400;
         ctx.body = { error: err.message };
@@ -42,9 +44,10 @@ router.post("/mutate", Middleware.isAuth, bodyParser(), async (ctx) => {
   // get model
   try {
     const model = ModelService.getModel(ctx.state.jwtContent);
+    const connectionPool = DatabaseService.getPool(ctx.state.jwtContent);
 
     try {
-      ctx.body = await QueryService.mutate(query, model);
+      ctx.body = await QueryService.mutate(query, model, connectionPool);
     } catch (err) {
       ctx.status = 400;
       ctx.body = { error: err.message };

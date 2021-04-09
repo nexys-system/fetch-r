@@ -42,6 +42,8 @@ export class SQL {
   execQuery = (query: string): Promise<Response> => this.pool.query(query);
 }
 
+export const databases: Map<string, SQL> = new Map();
+
 export const init = () =>
   new SQL(
     Config.database.host,
