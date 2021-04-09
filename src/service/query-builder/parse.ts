@@ -2,7 +2,9 @@
  * the system receives a query,
  * the query is transformed into a (linear) meta query,
  * the meta query is transformed into MySQL (or any SQL-like system, grammar to be adjusted)
- * teh result of the query is parsed
+ * the result of the query is parsed
+ *
+ * this file handles the parsing
  */
 import * as TT from "./type";
 import * as UU from "./utils";

@@ -105,6 +105,12 @@ export interface MutateResponse {
   };
 }
 
+export enum MutateType {
+  insert,
+  update,
+  delete,
+}
+
 export interface Join {
   entity: Entity;
   field: Field;

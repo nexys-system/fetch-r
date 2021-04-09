@@ -50,7 +50,7 @@ export const exec = async (
   //console.log(qs.map((x) => x.meta));
   //console.log(qs.map((x) => x.sql));
 
-  // here we cast to RowDataPacket[] but theoreticfally it can also be RowDataPacket, it is checked downstream
+  // here we cast to RowDataPacket[] but theoretically it can also be RowDataPacket, it is checked downstream
   const [response] = await s.execQuery(sqlScript);
 
   return handleReponse(
@@ -59,23 +59,55 @@ export const exec = async (
   );
 };
 
-// mutate
-const parseMutate = (response: OkPacket): T.MutateResponseInsert => {
-  return {
-    success: typeof response.insertId === "number",
-    uuid: undefined,
-    id: response.insertId,
-    status: response.message,
-  };
+const parseMutateInsert = (response: OkPacket): T.MutateResponseInsert => ({
+  success: typeof response.insertId === "number",
+  uuid: undefined,
+  id: response.insertId,
+  status: response.message,
+});
+
+const parseMutateUpdate = (response: OkPacket): T.MutateResponseUpdate => ({
+  success: typeof response.insertId === "number",
+  updated: response.affectedRows,
+});
+
+const parseMutateDelete = (response: OkPacket): T.MutateResponseDelete => ({
+  success: typeof response.insertId === "number",
+  deleted: response.affectedRows,
+});
+
+const getResultBasedOnType = (t: T.MutateType, response: OkPacket) => {
+  switch (t) {
+    case T.MutateType.insert:
+      return { insert: parseMutateInsert(response) };
+    case T.MutateType.update:
+      return { update: parseMutateUpdate(response) };
+    case T.MutateType.delete:
+      return { delete: parseMutateDelete(response) };
+  }
+};
+
+const parseMutate = (
+  qs: { type: T.MutateType; entity: T.Entity }[],
+  response: OkPacket
+): T.MutateResponse => {
+  const r: T.MutateResponse = {};
+
+  qs.forEach(({ entity, type }) => {
+    r[entity.name] = getResultBasedOnType(type, response);
+  });
+
+  return r;
 };
 
 export const mutate = async (
   mq: T.Mutate,
   entities: T.Entity[],
   s: Connection.SQL
-) => {
+): Promise<T.MutateResponse> => {
   const qs = MutateService.createMutateQuery(mq, entities);
-  const [response] = await s.execQuery(qs.join("\n"));
+  console.log(qs.map((x) => x.sql).join("\n"));
+  const [response] = await s.execQuery(qs.map((x) => x.sql).join("\n"));
 
-  return parseMutate(response as OkPacket);
+  return parseMutate(qs, response as OkPacket);
 };

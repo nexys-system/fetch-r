@@ -122,26 +122,38 @@ const toQueryDelete = (
 export const createMutateQuery = (
   query: T.Mutate,
   model: T.Entity[]
-): string[] =>
+): { type: T.MutateType; entity: T.Entity; sql: string }[] =>
   Object.entries(query)
     .map(([entity, queryParams]) => {
       const modelEntity = getModel(entity, model);
 
       if (queryParams.insert) {
-        return toQueryInsert(modelEntity, queryParams.insert.data, model);
+        return {
+          type: T.MutateType.insert,
+          entity: modelEntity,
+          sql: toQueryInsert(modelEntity, queryParams.insert.data, model),
+        };
       }
 
       if (queryParams.update) {
-        return toQueryUpdate(
-          modelEntity,
-          queryParams.update.data,
-          queryParams.update.filters,
-          model
-        );
+        return {
+          type: T.MutateType.update,
+          entity: modelEntity,
+          sql: toQueryUpdate(
+            modelEntity,
+            queryParams.update.data,
+            queryParams.update.filters,
+            model
+          ),
+        };
       }
 
       if (queryParams.delete) {
-        return toQueryDelete(modelEntity, queryParams.delete.filters);
+        return {
+          type: T.MutateType.delete,
+          entity: modelEntity,
+          sql: toQueryDelete(modelEntity, queryParams.delete.filters),
+        };
       }
 
       return;
