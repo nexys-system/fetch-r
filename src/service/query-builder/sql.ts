@@ -32,6 +32,7 @@ export const toQuery = (meta: TT.MetaQuery): string[] => {
         )
         .join(", ")
     )
+    .filter(NUtils.array.notEmpty)
     .join(", ");
   const filters: string[] = meta.units
     .map((x, i) => {

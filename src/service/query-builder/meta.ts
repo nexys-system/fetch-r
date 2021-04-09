@@ -146,15 +146,20 @@ export const toMeta = (
         } else {
           const table = U.entityToTable(modelUnit);
 
+          const idUuid: TT.MetaField = modelUnit.uuid
+            ? { name: "uuid", column: "uuid" }
+            : { name: "id", column: "id" };
+
           const unit: Omit<TT.MetaQueryUnit, "alias"> = {
             entity,
             table,
-
-            fields: [],
+            fields: [idUuid],
             filters: metaFilters,
             join,
           };
-          ry.push(unit);
+
+          // unshift allows not to break the logic that assumes that the main query is the last one, see reverse below
+          ry.unshift(unit);
         }
       }
     };
@@ -164,11 +169,11 @@ export const toMeta = (
     //
   }
 
-  const m: TT.MetaQueryUnit[] = ry.reverse().map((x, i) => {
-    // write alias
-    const alias = `t${i}`;
-    return { ...x, alias };
-  });
+  // reverse list and add alias based on position
+  // STRONG ASSUMPTION: the main entity is at the bottonm of the list due to the way the recurring logic is designed in projection
+  const m: TT.MetaQueryUnit[] = ry
+    .reverse()
+    .map((x, i) => ({ ...x, alias: `t${i}` }));
 
   const units = m.sort((a, b) => (a.alias > b.alias ? 1 : -1));
   return { units, take: query.take, skip: query.skip, order: query.order };
