@@ -106,7 +106,7 @@ export const mutate = async (
   s: Connection.SQL
 ): Promise<T.MutateResponse> => {
   const qs = MutateService.createMutateQuery(mq, entities);
-  console.log(qs.map((x) => x.sql).join("\n"));
+  // console.log(qs.map((x) => x.sql).join("\n"));
   const [response] = await s.execQuery(qs.map((x) => x.sql).join("\n"));
 
   return parseMutate(qs, response as OkPacket);
