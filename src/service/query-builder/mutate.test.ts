@@ -23,7 +23,8 @@ describe("create mutate query", () => {
     const data: Omit<UserStatus, "id"> = { name: "ok" };
     const q: T.Mutate<UserStatus> = { UserStatus: { insert: { data } } };
     const s = ['INSERT INTO user_status (col_name) VALUES ("ok");'];
-    expect(S.createMutateQuery(q, model)).toEqual(s);
+    const sm = S.createMutateQuery(q, model);
+    expect(sm.map((_) => _.sql)).toEqual(s);
   });
 
   test("insert with fk", () => {
@@ -45,7 +46,7 @@ describe("create mutate query", () => {
       `INSERT INTO user (first_name, last_name, email, status_id, log_date_added, instance_id, lang) VALUES ("John", "Doe", "john@doe.com", (SELECT id FROM \`user_status\` WHERE id=3), "2015-11-05T13:29:36.000Z", (SELECT id FROM \`instance\` WHERE uuid="myuuid"), "en");`,
     ];
     const ss = S.createMutateQuery(q, model);
-    expect(ss).toEqual(s);
+    expect(ss.map((_) => _.sql)).toEqual(s);
   });
 
   test("insert with fk multiple", () => {
@@ -81,13 +82,14 @@ describe("create mutate query", () => {
     ].join(" ");
     const ss = S.createMutateQuery(q, model)[0];
 
-    expect(ss).toEqual(s);
+    expect(ss.sql).toEqual(s);
   });
 
   test("simple delete", () => {
     const q: T.Mutate = { UserStatus: { delete: { filters: { id: 2 } } } };
     const s = ["DELETE FROM user_status WHERE `id`=2;"];
-    expect(S.createMutateQuery(q, model)).toEqual(s);
+    const sm = S.createMutateQuery(q, model);
+    expect(sm.map((x) => x.sql)).toEqual(s);
   });
 
   test("simple update", () => {
@@ -95,7 +97,8 @@ describe("create mutate query", () => {
       UserStatus: { update: { data: { name: "ok" }, filters: { id: 2 } } },
     };
     const s = ['UPDATE user_status SET col_name="ok" WHERE `id`=2;'];
-    expect(S.createMutateQuery(q, model)).toEqual(s);
+    const sm = S.createMutateQuery(q, model);
+    expect(sm.map((x) => x.sql)).toEqual(s);
   });
 
   test("update with fk", () => {
@@ -112,6 +115,7 @@ describe("create mutate query", () => {
     const s = [
       'UPDATE user SET first_name="Jane", instance_id=(SELECT id FROM `instance` WHERE uuid="myuuid"), status_id=(SELECT id FROM `user_status` WHERE id=3) WHERE `uuid`="useruuid";',
     ];
-    expect(S.createMutateQuery(q, model)).toEqual(s);
+    const sm = S.createMutateQuery(q, model);
+    expect(sm.map((x) => x.sql)).toEqual(s);
   });
 });
