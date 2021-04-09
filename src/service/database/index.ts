@@ -1,6 +1,5 @@
 import fs from "fs";
 import { JwtStructure } from "../../middleware/type";
-import * as Config from "./config";
 import * as T from "./type";
 import * as Connection from "./connection";
 
@@ -30,13 +29,6 @@ export const set = async (
   await fs.promises.writeFile(filepath, JSON.stringify(databases));
 
   return { message: "database imported" };
-};
-
-export const get2 = (j: Pick<JwtStructure, "product" | "env">) => {
-  console.log(`for: ${productIdentifier(j)}`);
-  const out = Config.database;
-
-  return out;
 };
 
 export const get = (j: Pick<JwtStructure, "product" | "env">) => {
@@ -72,12 +64,3 @@ export const getPool = (
 
   return pool;
 };
-
-/*
-export const set = async (
-  _j: Pick<JwtStructure, "product" | "env">,
-  _database: T.Database
-) => {
-  return { message: "todo" };
-};
-*/

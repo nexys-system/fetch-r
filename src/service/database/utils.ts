@@ -1,7 +1,7 @@
 import * as T from "./type";
 import * as NUtils from "@nexys/utils/dist/typeguard";
 
-export const checkDatabase = (d: T.Database) => {
+export const checkDatabase = (d: any): string[] => {
   const errors: string[] = [];
 
   const attributes = ["database", "username", "password", "host"] as const;
