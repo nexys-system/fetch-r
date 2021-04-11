@@ -122,3 +122,7 @@ The service supports multi models/databases
 - Databases are stored in `/assets/databases.json`
 
 When a query requiring a particular database is called, it will look for an associated connection pool. If none is found, it will create a new one based on the database record (if not found, an error is thrown) and store it in a `Map` object.
+
+### Migrations
+
+The migration engines is largely inspired from flyway. An array of migrations can be passed; each having a unique combination of index and version (e.g. `2.1`, `2.2` etc). Migrations are stored in a separate table with their checksum values.
