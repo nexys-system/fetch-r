@@ -17,6 +17,60 @@ Typescript port of [Scala version](https://github.com/fetch-r/serverg)
 [downloads-image]: https://img.shields.io/npm/dm/@nexys/fetchr.svg
 [downloads-url]: https://npmjs.org/package/@nexys/fetchr.svg
 
+## Get started with the package
+
+### Install
+
+```
+yarn add @nexys/fetchr
+```
+
+### Use
+
+```
+import FetchR from "@nexys/fetchr";
+import { Database } from "@nexys/fetchr/dist/database/type";
+import { Entity } from "@nexys/fetchr/dist/type";
+
+const model: Entity[] = [
+  {
+    name: "User",
+    uuid: false,
+    fields: [
+      { name: "firstName", type: "String", optional: false },
+      { name: "lastName", type: "String", optional: false },
+      { name: "email", type: "String", optional: false },
+    ],
+  },
+];
+
+const dbConfig: Database = {
+  username: "",
+  host: "",
+  password: "",
+  database: "",
+  port: 3306,
+};
+
+const fetchr = new FetchR(dbConfig, model);
+
+fetchr.mutate({
+  User: {
+    insert: {
+      data: { firstName: "john", lastName: "doe", email: "john@doe.com" },
+    },
+  },
+});
+
+// get all users
+fetchr.query({ User: {} });
+
+// get all users' emails whose names are "john"
+fetchr.query({
+  User: { projection: { firstName: true }, filters: { firstName: "John" } },
+});
+```
+
 ## Querying
 
 There are 2 endpoints for querying: `/data` and `/mutate`. As their names suggests, the first one retrieves data and the second alters them. This is based on the same philosophy that was adopted by [graphql](https://graphql.org/learn/queries/).
@@ -68,3 +122,7 @@ The service supports multi models/databases
 - Databases are stored in `/assets/databases.json`
 
 When a query requiring a particular database is called, it will look for an associated connection pool. If none is found, it will create a new one based on the database record (if not found, an error is thrown) and store it in a `Map` object.
+
+## Package
+
+###
