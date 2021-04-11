@@ -37,5 +37,15 @@
     "buildpackage": "rm -rf ./dist;tsc -p tsconfig.package.json",
     "test": "rm -rf dist && jest",
     "watch": "tsc-watch --onSuccess \"node ./dist/index.js\""
-  }
+  },
+  "keywords": [
+    "mysql",
+    "typescript",
+    "orm",
+    "npm-package",
+    "mysql-database",
+    "typesafe",
+    "orm-framework",
+    "migration-tool"
+  ]
 }
