@@ -3,7 +3,7 @@ import Router from "koa-router";
 import bodyParser from "koa-body";
 
 import * as Middleware from "../middleware";
-import * as QueryService from "../service";
+import * as QueryService from "../lib/exec";
 import * as ModelService from "../service/model";
 import * as DatabaseService from "../service/database";
 
@@ -19,7 +19,7 @@ const query = async (ctx: Koa.Context) => {
     const connectionPool = DatabaseService.getPool(ctx.state.jwtContent);
 
     try {
-      ctx.body = await QueryService.run(query, model, connectionPool);
+      ctx.body = await QueryService.exec(query, model, connectionPool);
     } catch (err) {
       ctx.status = 400;
       ctx.body = { error: err.message };

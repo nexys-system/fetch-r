@@ -1,4 +1,4 @@
-import * as T from "./type";
+import * as T from "../../lib/database/type";
 import * as NUtils from "@nexys/utils/dist/typeguard";
 
 export const checkDatabase = (d: any): string[] => {

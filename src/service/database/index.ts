@@ -1,7 +1,7 @@
 import fs from "fs";
 import { JwtStructure } from "../../middleware/type";
-import * as T from "./type";
-import * as Connection from "./connection";
+import * as T from "../../lib/database/type";
+import * as Connection from "../../lib/database/connection";
 
 //
 
