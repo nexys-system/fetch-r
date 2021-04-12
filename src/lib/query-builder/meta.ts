@@ -194,13 +194,22 @@ export const toMetas = (query: T.Query, model: T.Entity[]): TT.MetaQuery[] =>
 export const createQuery = (
   query: T.Query,
   model: T.Entity[]
-): { sql: string; meta: TT.MetaQuery }[] =>
-  Object.entries(query).map(([entity, v]) => {
+): { sql: string; meta: TT.MetaQuery }[] => {
+  const oEntries = Object.entries(query);
+
+  if (oEntries.length === 0) {
+    throw Error(
+      "query empty, this error is also thrown if the references object is given empty"
+    );
+  }
+
+  return oEntries.map(([entity, v]) => {
     const meta: TT.MetaQuery = toMeta(entity, v, model);
     const pSQL = toQuery(meta);
     const sql = pSQL.join("\n") + ";";
     return { sql, meta };
   });
+};
 
 export const createSQL = (
   metas: TT.MetaQuery[]
