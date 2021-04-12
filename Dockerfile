@@ -5,7 +5,7 @@ ENV GIT_SHA_ENV=$GIT_SHA
 
 COPY package.json package.json
 
-RUN yarn install --production
+RUN yarn install
 RUN mkdir assets
 
 # note the compilation is done outside 
