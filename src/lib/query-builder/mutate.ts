@@ -153,6 +153,7 @@ const toQueryUpdate = (
   const filterString = getFilters(entity, filters, model);
 
   const values = Object.entries(data)
+    .filter(([k]) => k !== "id" && k !== "uuid") // here drop id, or uuid, since they can't be updated
     .map(([k, v]) => {
       const field = entity.fields.find((x) => x.name === k);
 
