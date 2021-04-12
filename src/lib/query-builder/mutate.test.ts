@@ -137,6 +137,34 @@ describe("create mutate query", () => {
   });
 });
 
+test("update with 2nd level filter", () => {
+  const query = {
+    ModuleLesson: {
+      update: {
+        data: {
+          isMandatory: 1,
+        },
+        filters: {
+          lesson: {
+            reference: {
+              id: 2495,
+            },
+          },
+          module: {
+            id: 553,
+          },
+        },
+      },
+    },
+  };
+
+  const s: string[] = [
+    "UPDATE module_lesson SET is_mandatory=1 WHERE `lesson_id` IN (SELECT id FROM `lesson` WHERE `ref_id`=2495) AND `module_id`=553;",
+  ];
+  const sm = S.createMutateQuery(query, model2);
+  expect(sm.map((x) => x.sql)).toEqual(s);
+});
+
 describe("get filter unit", () => {
   const modelUnit = model.find((x) => x.name === "User");
   if (!modelUnit) {

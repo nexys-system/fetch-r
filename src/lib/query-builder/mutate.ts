@@ -47,6 +47,20 @@ export const getFilterUnit = (
         modelFk
       )}\` WHERE uuid=${U.escape((value as { uuid: number }).uuid)})`;
     }
+
+    try {
+      const f = getFilters(modelFk, value as any, model);
+
+      return `\`${field.column}\` IN (SELECT id FROM \`${U.entityToTable(
+        modelFk
+      )}\` WHERE ${f})`;
+    } catch (err) {
+      throw Error(
+        `mapping error: ${field.type} - ${field.name} - ${JSON.stringify(
+          value
+        )}`
+      );
+    }
   }
 
   return `\`${field.column}\`=${U.escape(value)}`;
