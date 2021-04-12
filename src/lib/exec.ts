@@ -130,7 +130,8 @@ const handleReponse = async (
               (x: any) => m["id"] === x[fieldUnit.name].id
             );
 
-            m[ref.mainUnit.entity] = filteredSubResult;
+            m[ref.mainUnit.entity] =
+              filteredSubResult === {} ? [] : filteredSubResult;
           });
 
           //  main[ref.entity]
