@@ -102,7 +102,9 @@ const handleReponse = async (
           );
 
           if (!fieldUnit) {
-            throw Error("could not apply joinOn - field misspelt?");
+            throw Error(
+              "could not apply joinOn - field misspelt? joinOn=" + joinOn
+            );
           }
 
           main.map((m) => {
