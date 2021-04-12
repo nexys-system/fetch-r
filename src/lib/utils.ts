@@ -1,4 +1,5 @@
 import NUtils from "@nexys/utils";
+import * as SqlString from "sqlstring";
 import * as T from "./type";
 
 export const types: T.Type[] = [
@@ -16,20 +17,14 @@ export const types: T.Type[] = [
 export const isStandardType = (t: string): t is T.Type =>
   types.includes(t as T.Type);
 
+// see for a discussion on quotes https://stackoverflow.com/questions/11321491/when-to-use-single-quotes-double-quotes-and-backticks-in-mysql
 export const escape = (v: any): string | number => {
   if (Array.isArray(v)) {
     const s = v.map((x) => escape(x)).join(",");
 
     return `(${s})`;
   }
-  switch (typeof v) {
-    case "number":
-      return v;
-    case "string":
-      return '"' + v.replace(/"/g, '\\"') + '"';
-    default:
-      return escape(String(v));
-  }
+  return SqlString.escape(v);
 };
 
 export const entityToTable = (

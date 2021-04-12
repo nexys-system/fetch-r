@@ -6,7 +6,7 @@ test("isstandardtype", () => {
 });
 
 test("escape", () => {
-  const expected = `"a non'safe\\\"string"`;
+  const expected = `'a non\\\'safe\\\"string'`;
   expect(U.escape("a non'safe\"string")).toEqual(expected);
 });
 

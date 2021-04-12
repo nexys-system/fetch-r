@@ -58,7 +58,7 @@ describe("to meta and to query", () => {
       "SELECT t0.`uuid` AS t0_uuid, t0.`first_name` AS t0_firstName, t1.`id` AS t1_id, t1.`col_name` AS t1_name",
       "FROM user AS t0",
       "JOIN user_status AS t1 ON t1.id=t0.status_id",
-      'WHERE t1.`col_name`="ok"',
+      "WHERE t1.`col_name`='ok'",
     ]);
   });
 });
@@ -118,7 +118,7 @@ describe("to meta and to query 2", () => {
       "SELECT t0.`uuid` AS t0_uuid, t0.`first_name` AS t0_firstName, t1.`id` AS t1_id, t1.`col_name` AS t1_name",
       "FROM user AS t0",
       "JOIN user_status AS t1 ON t1.id=t0.status_id",
-      'WHERE t0.`uuid`="u3" AND t1.`id`=7 AND t1.`col_name`="ok"',
+      "WHERE t0.`uuid`='u3' AND t1.`id`=7 AND t1.`col_name`='ok'",
     ]);
   });
 });
@@ -201,7 +201,7 @@ test("simple select w projection and filter", () => {
   const s = [
     "SELECT t0.`id` AS t0_id, t0.`col_name` AS t0_name",
     "FROM user_status AS t0",
-    'WHERE t0.`id`=2 AND t0.`col_name`="ok"',
+    "WHERE t0.`id`=2 AND t0.`col_name`='ok'",
   ];
   const m = M.toMeta("UserStatus", q.UserStatus, model);
   const r = S.toQuery(m);
@@ -221,7 +221,7 @@ test("simple select w projection and filter with operator", () => {
   const s = [
     "SELECT t0.`id` AS t0_id, t0.`col_name` AS t0_name",
     "FROM user_status AS t0",
-    'WHERE t0.`id`>2 AND t0.`col_name` IN("ok","pending")',
+    "WHERE t0.`id`>2 AND t0.`col_name` IN('ok','pending')",
   ];
   const m = M.toMeta("UserStatus", q.UserStatus, model);
   const r = S.toQuery(m);
