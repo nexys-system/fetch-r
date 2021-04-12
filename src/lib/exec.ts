@@ -58,12 +58,24 @@ const handleReponse = async (
           );
 
           if (!observedUnit) {
+            // could not find the block to which the query should refer to
+
+            // todo add refeenced entity to the list of units
+            // by default join on `id`, but it can be overriden with `joinOn`
+            // todo: check that field actually exists
+            // const joinOn: string | undefined = references[mainUnit.entity].joinOn;
+            // const m = //model.g
+
+            console.log(parentEntity);
+            console.log(q.meta.units);
+
             throw Error(
-              "something when wrong when mapping entities with reference block: " +
+              "something went wrong when mapping entities with reference block: " +
                 parentEntity
             );
           }
 
+          // get list of ids to filter with
           // note: for now, does not support uuid
           const ids: number[] = main.map((row) => row.id);
 
