@@ -38,34 +38,41 @@ const handleReponse = async (
       // 3 insert result into current result
       const { references } = meta;
       if (references) {
-        // note: for now, does not support uuid
-        const ids: number[] = main.map((row) => row.id);
-
         // create meta query from reference query
         const qs = Meta.createQuery(references, model);
 
         // adding filter
-        const refs: { entity: string; mainUnit: TT.MetaQueryUnit }[] = qs.map(
-          (q) => {
-            // creating new filter
+        const refs: {
+          entity: string;
+          mainUnit: TT.MetaQueryUnit;
+          ids: number[];
+          joinOn: string;
+        }[] = qs.map((q) => {
+          // creating new filter
 
-            // mainUnit: main entity of ref query
-            const [mainUnit] = q.meta.units;
-            // mainUnit: main entity of parent query
-            const parentEntity = meta.units[0].entity;
-            // get entity in ref that is same as parent
-            const observedUnit = q.meta.units.find(
-              (x) => x.entity === parentEntity
+          // mainUnit: main entity of ref query
+          const [mainUnit] = q.meta.units;
+          // mainUnit: main entity of parent query
+          const parentEntity = meta.units[0].entity;
+          // get entity in ref that is same as parent
+          const observedUnit = q.meta.units.find(
+            (x) => x.entity === parentEntity
+          );
+
+          if (!observedUnit) {
+            throw Error(
+              "something when wrong when mapping entities with reference block: " +
+                parentEntity
             );
+          }
 
-            if (!observedUnit) {
-              throw Error(
-                "something when wrong when mapping entities with reference block: " +
-                  parentEntity
-              );
-            }
+          // by default join on `id`, but it can be overriden with `joinOn`
+          // todo: check that field actually exists
+          const joinOn: string = references[mainUnit.entity].joinOn || "id";
+          // note: for now, does not support uuid
+          const ids: number[] = main.map((row) => row[joinOn]);
 
-            /*const modelUnit = model.find((x) => x.name === mainUnit.entity);
+          /*const modelUnit = model.find((x) => x.name === mainUnit.entity);
 
           if (!modelUnit) {
             throw Error(
@@ -87,23 +94,24 @@ const handleReponse = async (
             );
           }*/
 
-            const metaFilter: TT.MetaFilter = {
-              value: ids,
-              operator: "in",
-              column: "id",
-              name: "id",
-            };
+          const metaFilter: TT.MetaFilter = {
+            value: ids,
+            operator: "in",
+            column: "id",
+            name: "id",
+          };
 
-            observedUnit.filters.push(metaFilter);
-            //console.log("observedUnit");
-            //console.log(JSON.stringify(observedUnit, null, 2));
+          observedUnit.filters.push(metaFilter);
+          //console.log("observedUnit");
+          //console.log(JSON.stringify(observedUnit, null, 2));
 
-            return {
-              entity: observedUnit.entity,
-              mainUnit, // not to be confuised with parent ebnetiy
-            }; //, refField };
-          }
-        );
+          return {
+            entity: observedUnit.entity,
+            mainUnit, // not to be confuised with parent ebnetiy
+            ids,
+            joinOn,
+          }; //, refField };
+        });
 
         // console.log(JSON.stringify(qs, null, 2));
         const qs2 = Meta.createSQL(qs.map((x) => x.meta));
@@ -122,17 +130,13 @@ const handleReponse = async (
             throw Error();
           }
 
-          // by default join on `id`, but it can be overriden with `joinOn`
-          // todo: check that field actually exists
-          const joinOn: string = references[modelUnit.name].joinOn || "id";
-
           subResult[ref.mainUnit.entity].filter((subRow: any) =>
-            ids.includes(subRow.id)
+            ref.ids.includes(subRow.id)
           );
 
           main.map((m) => {
             const filteredSubResult = subResult[ref.mainUnit.entity].filter(
-              (x: any) => m[joinOn] === x[fieldUnit.name].id
+              (x: any) => m[ref.joinOn] === x[fieldUnit.name].id
             );
 
             m[ref.mainUnit.entity] =
