@@ -48,8 +48,12 @@ const handleReponse = async (
         const refs: { entity: string; mainUnit: TT.MetaQueryUnit }[] = qs.map(
           (q) => {
             // creating new filter
+
+            // mainUnit: main entity of ref query
             const [mainUnit] = q.meta.units;
+            // mainUnit: main entity of parent query
             const parentEntity = meta.units[0].entity;
+            // get entity in ref that is same as parent
             const observedUnit = q.meta.units.find(
               (x) => x.entity === parentEntity
             );
@@ -118,27 +122,23 @@ const handleReponse = async (
             throw Error();
           }
 
-          //.fields.find(f => f.)
-          //console.log(ref);
+          // by default join on `id`, but it can be overriden with `joinOn`
+          // todo: check that field actually exists
+          const joinOn: string = references[modelUnit.name].joinOn || "id";
+
           subResult[ref.mainUnit.entity].filter((subRow: any) =>
             ids.includes(subRow.id)
           );
-          //console.log(subResult);
 
           main.map((m) => {
             const filteredSubResult = subResult[ref.mainUnit.entity].filter(
-              (x: any) => m["id"] === x[fieldUnit.name].id
+              (x: any) => m[joinOn] === x[fieldUnit.name].id
             );
 
             m[ref.mainUnit.entity] =
               filteredSubResult === {} ? [] : filteredSubResult;
           });
-
-          //  main[ref.entity]
         });
-
-        //console.log(refs);
-        //console.log(main);
       }
 
       return main;
