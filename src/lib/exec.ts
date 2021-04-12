@@ -5,7 +5,6 @@ import * as Meta from "./query-builder/meta";
 import * as MutateService from "./query-builder/mutate";
 import * as TT from "./query-builder/type";
 import * as Parse from "./query-builder/parse";
-//import * as U from "./utils";
 
 const isRawDataPacket = (
   response: RowDataPacket[] | RowDataPacket
@@ -46,7 +45,6 @@ const handleReponse = async (
           entity: string;
           mainUnit: TT.MetaQueryUnit;
           ids: number[];
-          joinOn: string;
         }[] = qs.map((q) => {
           // creating new filter
 
@@ -66,33 +64,8 @@ const handleReponse = async (
             );
           }
 
-          // by default join on `id`, but it can be overriden with `joinOn`
-          // todo: check that field actually exists
-          const joinOn: string = references[mainUnit.entity].joinOn || "id";
           // note: for now, does not support uuid
-          const ids: number[] = main.map((row) => row[joinOn]);
-
-          /*const modelUnit = model.find((x) => x.name === mainUnit.entity);
-
-          if (!modelUnit) {
-            throw Error(
-              "something when wrong when mapping entities with reference block: " +
-                parentEntity
-            );
-          }
-
-          const refField = modelUnit.fields.find(
-            (f) => f.type === parentEntity
-          );
-
-          if (!refField) {
-            throw Error(
-              "something when wrong when mapping field with reference block" +
-                mainUnit.entity +
-                " and " +
-                parentEntity
-            );
-          }*/
+          const ids: number[] = main.map((row) => row.id);
 
           const metaFilter: TT.MetaFilter = {
             value: ids,
@@ -102,41 +75,41 @@ const handleReponse = async (
           };
 
           observedUnit.filters.push(metaFilter);
-          //console.log("observedUnit");
-          //console.log(JSON.stringify(observedUnit, null, 2));
 
           return {
             entity: observedUnit.entity,
-            mainUnit, // not to be confuised with parent ebnetiy
+            mainUnit, // not to be confused with parent entity
             ids,
-            joinOn,
-          }; //, refField };
+          };
         });
 
-        // console.log(JSON.stringify(qs, null, 2));
         const qs2 = Meta.createSQL(qs.map((x) => x.meta));
         const subResult = await execFromMeta(qs2, model, s);
-        //console.log(JSON.stringify(subResult, null, 1));
-        console.log(Object.keys(subResult));
 
         refs.map((ref) => {
-          const modelUnit = model.find((x) => x.name === ref.mainUnit.entity);
+          const modelUnit = model.find((m) => m.name === ref.mainUnit.entity);
           if (!modelUnit) {
-            throw Error();
+            throw Error("Reference: could not find model for the right entity");
           }
-          const fieldUnit = modelUnit.fields.find((x) => x.type === ref.entity);
+
+          // by default join on `id`, but it can be overriden with `joinOn`
+          // todo: check that field actually exists
+          const joinOn: string | undefined =
+            references[ref.mainUnit.entity].joinOn;
+
+          const fieldUnit = modelUnit.fields.find(
+            (f) => f.type === ref.entity && (!joinOn || f.name === joinOn)
+          );
 
           if (!fieldUnit) {
-            throw Error();
+            throw Error("could not apply joinOn - field misspelt?");
           }
-
-          subResult[ref.mainUnit.entity].filter((subRow: any) =>
-            ref.ids.includes(subRow.id)
-          );
 
           main.map((m) => {
             const filteredSubResult = subResult[ref.mainUnit.entity].filter(
-              (x: any) => m[ref.joinOn] === x[fieldUnit.name].id
+              (x: any) => {
+                return m.id === x[fieldUnit.name].id;
+              }
             );
 
             m[ref.mainUnit.entity] =
@@ -178,10 +151,6 @@ const execFromMeta = async (
   s: Connection.SQL
 ): Promise<T.ReturnUnit> => {
   const sqlScript = qs.map((x) => x.sql).join("\n");
-  //console.log("sql to be exec");
-  //console.log(sqlScript);
-
-  //console.log(JSON.stringify(qs, null, 2));
 
   // here we cast to RowDataPacket[] but theoretically it can also be RowDataPacket, it is checked downstream
   const [response] = await s.execQuery(sqlScript);
