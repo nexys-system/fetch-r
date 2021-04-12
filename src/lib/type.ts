@@ -3,6 +3,7 @@
 export type Type =
   | "String"
   | "Int"
+  | "Long"
   | "Boolean"
   | "BigDecimal"
   | "Float"

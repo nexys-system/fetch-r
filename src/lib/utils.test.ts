@@ -35,5 +35,10 @@ test("find field", () => {
       },
       "MyFieldName"
     )
-  ).toEqual({ name: "MyFieldName", column: "my_column" });
+  ).toEqual({
+    name: "MyFieldName",
+    column: "my_column",
+    optional: false,
+    type: "String",
+  });
 });

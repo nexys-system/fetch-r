@@ -4,6 +4,7 @@ import * as T from "./type";
 export const types: T.Type[] = [
   "String",
   "Int",
+  "Long",
   "Boolean",
   "BigDecimal",
   "Float",
@@ -42,13 +43,13 @@ export const fieldToColumn = (
 export const findField = (
   modelUnit: Pick<T.Entity, "name" | "uuid" | "fields">,
   fieldName: string
-): { name: string; column: string } => {
+): { name: string; column: string; type: string; optional: boolean } => {
   if (fieldName === "id" && !modelUnit.uuid) {
-    return { name: "id", column: "id" };
+    return { name: "id", column: "id", type: "Long", optional: false };
   }
 
   if (fieldName === "uuid" && modelUnit.uuid) {
-    return { name: "uuid", column: "uuid" };
+    return { name: "uuid", column: "uuid", type: "String", optional: false };
   }
   const field = modelUnit.fields.find((x) => x.name === fieldName);
 
@@ -58,5 +59,10 @@ export const findField = (
 
   const column = fieldToColumn(field);
 
-  return { name: field.name, column };
+  return {
+    name: field.name,
+    column,
+    type: field.type,
+    optional: field.optional,
+  };
 };

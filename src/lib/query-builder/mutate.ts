@@ -5,7 +5,11 @@ import * as U from "../utils";
 
 // SQL
 
-const getFilters = (modelUnit: T.Entity, filters?: T.QueryFilters): string => {
+const getFilters = (
+  modelUnit: T.Entity,
+  filters?: T.QueryFilters,
+  model: T.Entity[] = []
+): string => {
   if (!filters) {
     return "1";
   }
@@ -13,6 +17,48 @@ const getFilters = (modelUnit: T.Entity, filters?: T.QueryFilters): string => {
   return Object.entries(filters)
     .map(([col, value]) => {
       const field = U.findField(modelUnit, col);
+
+      // optional case
+      if (!value) {
+        if (field.optional === false) {
+          throw Error(
+            `linked field: "${field.name}" is mandatory, can't be set to NULL`
+          );
+        }
+        return `\`${field.column}\`=NULL`;
+      }
+
+      if (!U.isStandardType(field.type)) {
+        // find associated model
+        const modelFk = getModel(field.type, model);
+
+        // make sure it is an object
+        if (typeof value !== "object") {
+          const exampleFilter = modelFk.uuid ? '{uuid: "myuuid"}' : "{id: xx}";
+
+          throw Error(
+            `linked field: "${field.name}" was assigned a non object value. It should be like ${exampleFilter}`
+          );
+        }
+
+        if (
+          (value as { id: number }).id &&
+          typeof (value as { id: number }).id === "number"
+        ) {
+          return `\`${field.column}\`=${U.escape(
+            (value as { id: number }).id
+          )}`;
+        }
+
+        if (
+          (value as { uuid: number }).uuid &&
+          typeof (value as { uuid: number }).uuid === "string"
+        ) {
+          return `\`${field.column}\`=(SELECT id FROM ${U.entityToTable(
+            modelFk
+          )} WHERE uuid=${U.escape((value as { uuid: number }).uuid)})`;
+        }
+      }
 
       return `\`${field.column}\`=${U.escape(value)}`;
     })
@@ -85,7 +131,7 @@ const toQueryUpdate = (
   filters: T.QueryFilters,
   model: T.Entity[]
 ) => {
-  const filterString = getFilters(entity, filters);
+  const filterString = getFilters(entity, filters, model);
 
   const values = Object.entries(data)
     .map(([k, v]) => {
@@ -111,10 +157,10 @@ const toQueryUpdate = (
 
 const toQueryDelete = (
   entity: T.Entity,
-
-  filters: T.QueryFilters
+  filters: T.QueryFilters,
+  model: T.Entity[]
 ) => {
-  const filterString = getFilters(entity, filters);
+  const filterString = getFilters(entity, filters, model);
 
   return `DELETE FROM ${U.entityToTable(entity)} WHERE ${filterString};`;
 };
@@ -152,7 +198,7 @@ export const createMutateQuery = (
         return {
           type: T.MutateType.delete,
           entity: modelEntity,
-          sql: toQueryDelete(modelEntity, queryParams.delete.filters),
+          sql: toQueryDelete(modelEntity, queryParams.delete.filters, model),
         };
       }
 

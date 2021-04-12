@@ -1,6 +1,7 @@
 import * as S from "./mutate";
 import * as T from "../type";
 import model from "./model-user";
+import model2 from "./model-academy";
 
 interface User {
   uuid: string;
@@ -98,6 +99,22 @@ describe("create mutate query", () => {
     };
     const s = ['UPDATE user_status SET col_name="ok" WHERE `id`=2;'];
     const sm = S.createMutateQuery(q, model);
+    expect(sm.map((x) => x.sql)).toEqual(s);
+  });
+
+  test("simple update FK in filter", () => {
+    const q: T.Mutate = {
+      ModuleLesson: {
+        update: {
+          data: { isMandatory: 0 },
+          filters: { lesson: { id: 2495 }, module: { id: 553 } },
+        },
+      },
+    };
+    const s = [
+      "UPDATE module_lesson SET is_mandatory=0 WHERE `lesson_id`=2495 AND `module_id`=553;",
+    ];
+    const sm = S.createMutateQuery(q, model2);
     expect(sm.map((x) => x.sql)).toEqual(s);
   });
 
