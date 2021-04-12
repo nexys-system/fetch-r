@@ -4,6 +4,53 @@ import * as T from "../type";
 import * as U from "../utils";
 
 // SQL
+export const getFilterUnit = (
+  col: string,
+  value: T.QueryFilters<any> | T.FilterAttribute,
+  modelUnit: T.Entity,
+  model: T.Entity[] = []
+): string => {
+  const field = U.findField(modelUnit, col);
+  // optional case
+  if (!value) {
+    if (field.optional === false) {
+      throw Error(
+        `linked field: "${field.name}" is mandatory, can't be set to NULL`
+      );
+    }
+    return `\`${field.column}\`=NULL`;
+  }
+
+  if (!U.isStandardType(field.type)) {
+    // find associated model
+    const modelFk = getModel(field.type, model);
+
+    // make sure it is an object
+    if (typeof value !== "object") {
+      const exampleFilter = modelFk.uuid ? '{uuid: "myuuid"}' : "{id: xx}";
+      const e = `linked field: "${field.name}" was assigned a non object value. It should be like ${exampleFilter}`;
+      throw Error(e);
+    }
+
+    if (
+      (value as { id: number }).id &&
+      typeof (value as { id: number }).id === "number"
+    ) {
+      return `\`${field.column}\`=${U.escape((value as { id: number }).id)}`;
+    }
+
+    if (
+      (value as { uuid: number }).uuid &&
+      typeof (value as { uuid: number }).uuid === "string"
+    ) {
+      return `\`${field.column}\`=(SELECT id FROM \`${U.entityToTable(
+        modelFk
+      )}\` WHERE uuid=${U.escape((value as { uuid: number }).uuid)})`;
+    }
+  }
+
+  return `\`${field.column}\`=${U.escape(value)}`;
+};
 
 const getFilters = (
   modelUnit: T.Entity,
@@ -15,53 +62,7 @@ const getFilters = (
   }
 
   return Object.entries(filters)
-    .map(([col, value]) => {
-      const field = U.findField(modelUnit, col);
-
-      // optional case
-      if (!value) {
-        if (field.optional === false) {
-          throw Error(
-            `linked field: "${field.name}" is mandatory, can't be set to NULL`
-          );
-        }
-        return `\`${field.column}\`=NULL`;
-      }
-
-      if (!U.isStandardType(field.type)) {
-        // find associated model
-        const modelFk = getModel(field.type, model);
-
-        // make sure it is an object
-        if (typeof value !== "object") {
-          const exampleFilter = modelFk.uuid ? '{uuid: "myuuid"}' : "{id: xx}";
-
-          throw Error(
-            `linked field: "${field.name}" was assigned a non object value. It should be like ${exampleFilter}`
-          );
-        }
-
-        if (
-          (value as { id: number }).id &&
-          typeof (value as { id: number }).id === "number"
-        ) {
-          return `\`${field.column}\`=${U.escape(
-            (value as { id: number }).id
-          )}`;
-        }
-
-        if (
-          (value as { uuid: number }).uuid &&
-          typeof (value as { uuid: number }).uuid === "string"
-        ) {
-          return `\`${field.column}\`=(SELECT id FROM ${U.entityToTable(
-            modelFk
-          )} WHERE uuid=${U.escape((value as { uuid: number }).uuid)})`;
-        }
-      }
-
-      return `\`${field.column}\`=${U.escape(value)}`;
-    })
+    .map(([col, value]) => getFilterUnit(col, value, modelUnit, model))
     .join(" AND ");
 };
 
@@ -82,6 +83,23 @@ const getSubQuery = (field: T.Field, model: T.Entity[], v: any) => {
   return `(SELECT id FROM \`${table}\` WHERE ${idUuid}=${w})`;
 };
 
+const getValueInsertUnit = (v: any, field: T.Field, model: T.Entity[]) => {
+  if (field.optional && !v) {
+    return "NULL";
+  }
+
+  if (!U.isStandardType(field.type)) {
+    return getSubQuery(field, model, v);
+  }
+
+  switch (field.type) {
+    case "LocalDateTime":
+      return U.escape(new Date(v).toISOString());
+    default:
+      return U.escape(v);
+  }
+};
+
 /**
  * generates SQL queries (goes through the different queries)
  * @param params
@@ -89,22 +107,9 @@ const getSubQuery = (field: T.Field, model: T.Entity[], v: any) => {
  * @param model
  * @returns
  */
-
 const getValuesInsert = (data: any, fields: T.Field[], model: T.Entity[]) => {
   const v = fields
-    .map((field) => {
-      const v = data[field.name];
-      if (!U.isStandardType(field.type)) {
-        return getSubQuery(field, model, v);
-      }
-
-      switch (field.type) {
-        case "LocalDateTime":
-          return U.escape(new Date(v).toISOString());
-        default:
-          return U.escape(v);
-      }
-    })
+    .map((field) => getValueInsertUnit(data[field.name], field, model))
     .join(", ");
 
   return "(" + v + ")";

@@ -44,7 +44,7 @@ describe("create mutate query", () => {
     };
 
     const s = [
-      `INSERT INTO user (first_name, last_name, email, status_id, log_date_added, instance_id, lang) VALUES ("John", "Doe", "john@doe.com", (SELECT id FROM \`user_status\` WHERE id=3), "2015-11-05T13:29:36.000Z", (SELECT id FROM \`instance\` WHERE uuid="myuuid"), "en");`,
+      `INSERT INTO user (first_name, last_name, middle_name, email, status_id, log_date_added, instance_id, lang) VALUES ("John", "Doe", NULL, "john@doe.com", (SELECT id FROM \`user_status\` WHERE id=3), "2015-11-05T13:29:36.000Z", (SELECT id FROM \`instance\` WHERE uuid="myuuid"), "en");`,
     ];
     const ss = S.createMutateQuery(q, model);
     expect(ss.map((_) => _.sql)).toEqual(s);
@@ -76,10 +76,10 @@ describe("create mutate query", () => {
     };
 
     const s = [
-      `INSERT INTO user (first_name, last_name, email, status_id, log_date_added, instance_id, lang)`,
+      `INSERT INTO user (first_name, last_name, middle_name, email, status_id, log_date_added, instance_id, lang)`,
       `VALUES`,
-      `("John", "Doe", "john@doe.com", (SELECT id FROM \`user_status\` WHERE id=3), "2015-11-05T13:29:36.000Z", (SELECT id FROM \`instance\` WHERE uuid="myuuid"), "en"),`,
-      `("Jane", "Doe", "jane@doe.com", (SELECT id FROM \`user_status\` WHERE id=2), "2015-11-05T13:29:36.000Z", (SELECT id FROM \`instance\` WHERE uuid="myuuid2"), "de");`,
+      `("John", "Doe", NULL, "john@doe.com", (SELECT id FROM \`user_status\` WHERE id=3), "2015-11-05T13:29:36.000Z", (SELECT id FROM \`instance\` WHERE uuid="myuuid"), "en"),`,
+      `("Jane", "Doe", NULL, "jane@doe.com", (SELECT id FROM \`user_status\` WHERE id=2), "2015-11-05T13:29:36.000Z", (SELECT id FROM \`instance\` WHERE uuid="myuuid2"), "de");`,
     ].join(" ");
     const ss = S.createMutateQuery(q, model)[0];
 
@@ -134,5 +134,31 @@ describe("create mutate query", () => {
     ];
     const sm = S.createMutateQuery(q, model);
     expect(sm.map((x) => x.sql)).toEqual(s);
+  });
+});
+
+describe("get filter unit", () => {
+  const modelUnit = model.find((x) => x.name === "User");
+  if (!modelUnit) {
+    throw Error("");
+  }
+  test("optional value, nut non optional field", () => {
+    try {
+      S.getFilterUnit("firstName", null, modelUnit, model);
+    } catch (err) {
+      expect(typeof err.message).toEqual("string");
+    }
+  });
+
+  test(" simple string value", () => {
+    const r = S.getFilterUnit("firstName", "john", modelUnit, model);
+    expect(r).toEqual('`first_name`="john"');
+  });
+
+  test("fk value", () => {
+    const r = S.getFilterUnit("instance", { uuid: "myuuid" }, modelUnit, model);
+    expect(r).toEqual(
+      '`instance_id`=(SELECT id FROM `instance` WHERE uuid="myuuid")'
+    );
   });
 });

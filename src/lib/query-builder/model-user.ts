@@ -83,6 +83,7 @@ export default [
     fields: [
       { type: "String", name: "firstName", optional: false },
       { type: "String", name: "lastName", optional: false },
+      { type: "String", name: "middleName", optional: true },
       { type: "String", name: "email", optional: false },
       {
         type: "UserStatus",
