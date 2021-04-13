@@ -25,8 +25,6 @@ const query = async (ctx: Koa.Context) => {
       return;
     }
 
-    query(ctx);
-
     try {
       ctx.body = await QueryService.exec(query, model, connectionPool);
     } catch (err) {
