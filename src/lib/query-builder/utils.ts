@@ -63,6 +63,9 @@ const toOperator = (op: string): TT.MetaOperator => {
       return "gt";
     case "$lt":
       return "lt";
+    case "$neq":
+    case "$ne":
+      return "neq";
   }
 
   throw Error("could not map operator");
