@@ -40,7 +40,7 @@
     "start": "node dist/index.js",
     "build": "tsc",
     "buildpackage": "rm -rf ./dist;tsc -p tsconfig.package.json",
-    "test": "rm -rf dist && jest",
+    "test": "rm -rf dist && TZ=UTC jest",
     "watch": "tsc-watch --onSuccess \"node ./dist/index.js\""
   },
   "keywords": [
