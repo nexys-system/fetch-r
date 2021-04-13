@@ -192,6 +192,26 @@ test("update with 2nd level filter", () => {
   expect(sm.map((x) => x.sql)).toEqual(s);
 });
 
+test("update special case when referring to the same table/entity", () => {
+  const q = {
+    Lesson: {
+      update: {
+        data: {
+          reference: {
+            id: 544,
+          },
+        },
+        filters: {
+          id: 720,
+        },
+      },
+    },
+  };
+  const s: string[] = ["UPDATE lesson SET ref_id=544 WHERE `id`=720;"];
+  const sm = S.createMutateQuery(q, model2);
+  expect(sm.map((x) => x.sql)).toEqual(s);
+});
+
 describe("get filter unit", () => {
   const modelUnit = model.find((x) => x.name === "User");
   if (!modelUnit) {

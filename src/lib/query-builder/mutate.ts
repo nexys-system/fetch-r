@@ -164,6 +164,11 @@ const toQueryUpdate = (
       const col = U.fieldToColumn(field);
 
       if (!U.isStandardType(field.type)) {
+        // if same entity, do not link extra table
+        if (field.type === entity.name && (v as { id: number }).id) {
+          return col + "=" + (v as { id: number }).id;
+        }
+
         return col + "=" + getSubQuery(field, model, v);
       }
 
