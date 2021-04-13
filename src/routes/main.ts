@@ -64,12 +64,12 @@ router.post("/mutate", Middleware.isAuth, bodyParser(), async (ctx) => {
 
     const { sqlScript } = ctx.query;
 
-    if (sqlScript) {
-      ctx.body = { sql: QueryService.getSQLMutate(query, model) };
-      return;
-    }
-
     try {
+      if (sqlScript) {
+        ctx.body = { sql: QueryService.getSQLMutate(query, model) };
+        return;
+      }
+
       ctx.body = await QueryService.mutate(query, model, connectionPool);
     } catch (err) {
       ctx.status = 400;
