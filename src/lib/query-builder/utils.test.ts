@@ -30,3 +30,7 @@ test("", () => {
     value: [1, 2, 3],
   });
 });
+
+test("to operator", () => {
+  expect(U.toOperator("$ne")).toEqual("neq");
+});

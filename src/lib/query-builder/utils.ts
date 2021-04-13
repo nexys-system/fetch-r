@@ -55,7 +55,7 @@ export const getModel = (entityName: string, model: T.Entity[]) => {
   return f;
 };
 
-const toOperator = (op: string): TT.MetaOperator => {
+export const toOperator = (op: string): TT.MetaOperator => {
   switch (op) {
     case "$in":
       return "in";
