@@ -156,6 +156,18 @@ export const exec = async (
   return execFromMeta(qs, entities, s);
 };
 
+export const getSQLFromMeta = (
+  qs: {
+    sql: string;
+    meta: TT.MetaQuery;
+  }[]
+): string => qs.map((x) => x.sql).join("\n");
+
+export const getSQL = (mq: T.Query, entities: T.Entity[]) => {
+  const qs = Meta.createQuery(mq, entities);
+  return getSQLFromMeta(qs);
+};
+
 const execFromMeta = async (
   qs: {
     sql: string;
@@ -164,7 +176,7 @@ const execFromMeta = async (
   entities: T.Entity[],
   s: Connection.SQL
 ): Promise<T.ReturnUnit> => {
-  const sqlScript = qs.map((x) => x.sql).join("\n");
+  const sqlScript = getSQLFromMeta(qs);
 
   // here we cast to RowDataPacket[] but theoretically it can also be RowDataPacket, it is checked downstream
   const [response] = await s.execQuery(sqlScript);

@@ -18,6 +18,15 @@ const query = async (ctx: Koa.Context) => {
     const model = ModelService.getModel(ctx.state.jwtContent);
     const connectionPool = DatabaseService.getPool(ctx.state.jwtContent);
 
+    const { sqlScript } = ctx.query;
+
+    if (sqlScript) {
+      ctx.body = { sql: QueryService.getSQL(query, model) };
+      return;
+    }
+
+    query(ctx);
+
     try {
       ctx.body = await QueryService.exec(query, model, connectionPool);
     } catch (err) {
@@ -36,7 +45,7 @@ router.post(
   "/data",
   Middleware.isAuth,
   bodyParser(),
-  async (ctx: Koa.Context) => query(ctx)
+  async (ctx: Koa.Context) => {}
 );
 
 router.post(
