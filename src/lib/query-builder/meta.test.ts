@@ -221,7 +221,7 @@ test("simple select w projection and filter with operator", () => {
   const s = [
     "SELECT t0.`id` AS t0_id, t0.`col_name` AS t0_name",
     "FROM user_status AS t0",
-    "WHERE t0.`id`>2 AND t0.`col_name` IN('ok','pending')",
+    "WHERE t0.`id`>2 AND t0.`col_name` IN ('ok','pending')",
   ];
   const m = M.toMeta("UserStatus", q.UserStatus, model);
   const r = S.toQuery(m);

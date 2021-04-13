@@ -83,3 +83,22 @@ export const getValueAndOperator = (
 
   return { operator: "=", value: v };
 };
+
+export const toSqQLOperator = (operator: TT.MetaOperator, value?: any) => {
+  switch (operator) {
+    case "lt":
+      return "<";
+    case "gt":
+      return ">";
+    case "in":
+      return " IN ";
+    case "neq":
+      if (value === null) {
+        return " IS NOT ";
+      }
+      return "<>";
+
+    default:
+      return "=";
+  }
+};

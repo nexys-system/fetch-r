@@ -34,3 +34,7 @@ test("", () => {
 test("to operator", () => {
   expect(U.toOperator("$ne")).toEqual("neq");
 });
+
+test("to sql operator", () => {
+  expect(U.toSqQLOperator("in")).toEqual(" IN ");
+});
