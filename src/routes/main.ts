@@ -45,7 +45,7 @@ router.post(
   "/data",
   Middleware.isAuth,
   bodyParser(),
-  async (ctx: Koa.Context) => {}
+  async (ctx: Koa.Context) => query(ctx)
 );
 
 router.post(
