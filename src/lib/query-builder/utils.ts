@@ -74,6 +74,10 @@ export const toOperator = (op: string): TT.MetaOperator => {
 export const getValueAndOperator = (
   v: any
 ): { operator: TT.MetaOperator; value: any } => {
+  if (v === null) {
+    return { operator: "is", value: null };
+  }
+
   if (typeof v === "object") {
     const [b] = Object.entries(v);
 
@@ -97,6 +101,9 @@ export const toSqQLOperator = (operator: TT.MetaOperator, value?: any) => {
         return " IS NOT ";
       }
       return "<>";
+
+    case "is":
+      return " IS ";
 
     default:
       return "=";

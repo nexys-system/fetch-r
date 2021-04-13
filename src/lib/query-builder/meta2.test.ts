@@ -137,3 +137,26 @@ test("$neq", () => {
 
   expect(em[0].sql).toEqual(s.join("\n"));
 });
+
+test("is null", () => {
+  const q = {
+    UserCertificate: {
+      filters: {
+        badgeId: null,
+      },
+    },
+  };
+
+  const s = [
+    "SELECT t0.`id` AS t0_id, t0.`issued` AS t0_issued, t0.`printed` AS t0_printed, t0.`score` AS t0_score, t0.`expires` AS t0_expires, t0.`log_date_added` AS t0_logDateAdded, t0.`test_user_id` AS t0_testUserId, t0.`reason` AS t0_reason, t0.`badge_status` AS t0_badgeStatus, t0.`is_log` AS t0_isLog, t0.`badge_id` AS t0_badgeId, t0.`log_comment` AS t0_logComment, t1.`id` AS t1_id, t2.`id` AS t2_id, t3.`id` AS t3_id, t4.`id` AS t4_id",
+    "FROM user_certificate AS t0",
+    "JOIN user_certificate_status AS t1 ON t1.id=t0.status_id",
+    "JOIN cert AS t2 ON t2.id=t0.cert_id",
+    "LEFT JOIN user AS t3 ON t3.id=t0.log_user_id",
+    "JOIN user AS t4 ON t4.id=t0.user_id",
+    "WHERE t0.`badge_id` IS NULL;",
+  ];
+
+  const em = M.createQuery(q, modelAcademy);
+  expect(em[0].sql).toEqual(s.join("\n"));
+});
