@@ -84,6 +84,14 @@ const getSubQuery = (field: T.Field, model: T.Entity[], v: any) => {
   const entity = getModel(field.type, model);
 
   const idUuid = entity.uuid ? "uuid" : "id";
+  const iid = v[idUuid];
+
+  if (!iid) {
+    throw Error(
+      `could not find associated ref for ${field.name} (parent entitiy: ${entity.name}}. Did you forget to add the object: {id: x} instead of x`
+    );
+  }
+
   const w = entity.uuid ? U.escape(v.uuid) : Number(v.id);
 
   // the code can be stopped here for ID
@@ -106,9 +114,13 @@ const getValueInsertUnit = (v: any, field: T.Field, model: T.Entity[]) => {
     return getSubQuery(field, model, v);
   }
 
+  // todo check option set value
+
   switch (field.type) {
     case "LocalDateTime":
-      return U.escape(new Date(v).toISOString());
+    case "LocalTime":
+    case "LocalDate":
+      return U.escape(new Date(v));
     default:
       return U.escape(v);
   }

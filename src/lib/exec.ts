@@ -230,6 +230,11 @@ const parseMutate = (
   return r;
 };
 
+export const getSQLMutate = (mq: T.Mutate, entities: T.Entity[]): string => {
+  const qs = MutateService.createMutateQuery(mq, entities);
+  return qs.map((x) => x.sql).join("\n");
+};
+
 export const mutate = async (
   mq: T.Mutate,
   entities: T.Entity[],
