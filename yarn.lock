@@ -483,6 +483,13 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
+"@nexys/sql-migrations@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@nexys/sql-migrations/-/sql-migrations-0.0.1.tgz#ee23d37609da542d84cf2277252058c184f10289"
+  integrity sha512-pT/ch5/zuYLeQtPNX/kooF3H4NlTk9iUoUOobuOfWA3Qz7GOs9+Ed4wwZhsugLPo4U4WoTIoUjDfb5J8koFAXQ==
+  dependencies:
+    crc-32 "^1.2.0"
+
 "@nexys/utils@^3.9.14":
   version "3.9.14"
   resolved "https://registry.yarnpkg.com/@nexys/utils/-/utils-3.9.14.tgz#db7e3581dd3f15990334842111be35d5aba443ca"

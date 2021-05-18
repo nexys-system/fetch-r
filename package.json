@@ -31,8 +31,8 @@
     "typescript": "^4.2.3"
   },
   "dependencies": {
+    "@nexys/sql-migrations": "^0.0.1",
     "@types/sqlstring": "^2.3.0",
-    "crc-32": "^1.2.0",
     "mysql2": "^2.2.5",
     "sqlstring": "^2.3.2"
   },

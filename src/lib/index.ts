@@ -3,8 +3,7 @@ import * as Connection from "./database/connection";
 import { Database } from "./database/type";
 import * as Exec from "./exec";
 import * as T from "./type";
-import * as MigrationService from "./migration";
-import { Migration } from "./migration/type";
+import * as MigrationService from "@nexys/sql-migrations";
 export { Connection };
 
 export class Main {
@@ -26,8 +25,8 @@ export class Main {
 
   query = (q: T.Query) => Exec.exec(q, this.model, this.s);
 
-  applyMigration = (migrations: Migration[]) =>
-    MigrationService.runMigrations(migrations, this.s);
+  applyMigration = (migrations: MigrationService.Type.Migration[]) =>
+    MigrationService.Migrations.runMigrations(migrations, this.s);
 }
 
 export default Main;
