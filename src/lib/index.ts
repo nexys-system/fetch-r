@@ -4,7 +4,7 @@ import { Database } from "./database/type";
 import * as Exec from "./exec";
 import * as T from "./type";
 import * as MigrationService from "@nexys/sql-migrations";
-export { Connection };
+export { Connection, T };
 
 export class Main {
   s: Connection.SQL;
