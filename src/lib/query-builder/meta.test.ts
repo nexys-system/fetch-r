@@ -228,6 +228,22 @@ test("simple select w projection and filter with operator", () => {
   expect(r).toEqual(s);
 });
 
+test("simple select w projection and filter by null", () => {
+  const q: T.Query = {
+    UserStatus: { projection: {}, filters: { name: null }, take: 4, skip: 8 },
+  };
+
+  const s = [
+    "SELECT t0.`id` AS t0_id, t0.`col_name` AS t0_name",
+    "FROM user_status AS t0",
+    "WHERE t0.`col_name` IS NULL",
+    "LIMIT 8, 4",
+  ];
+  const m = M.toMeta("UserStatus", q.UserStatus, model);
+  const r = S.toQuery(m);
+  expect(r).toEqual(s);
+});
+
 test("select w json 2nd level", () => {
   const q: T.Query = {
     UserAuthentication: {
