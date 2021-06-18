@@ -14,7 +14,15 @@ export const metaOperators = ["=", "gt", "lt", "in", "neq", "is"]; //as const;
 // https://stackoverflow.com/questions/44480644/string-union-to-string-array
 //type MetaOperatorTuple = typeof (metaOperators);
 //export type MetaOperator = MetaOperatorTuple[number]; //
-export type MetaOperator = "=" | "gt" | "lt" | "in" | "neq" | "is"; // see https://dev.mysql.com/doc/refman/8.0/en/non-typed-operators.html
+export type MetaOperator =
+  | "="
+  | "gt"
+  | "lt"
+  | "in"
+  | "neq"
+  | "is"
+  | "lte"
+  | "gte"; // see https://dev.mysql.com/doc/refman/8.0/en/non-typed-operators.html
 export interface MetaFilter extends MetaField {
   value: any;
   operator: MetaOperator;
