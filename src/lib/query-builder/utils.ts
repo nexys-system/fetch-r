@@ -61,8 +61,12 @@ export const toOperator = (op: string): TT.MetaOperator => {
       return "in";
     case "$gt":
       return "gt";
+    case "$gte":
+      return "gte";
     case "$lt":
       return "lt";
+    case "$lte":
+      return "lte";
     case "$neq":
     case "$ne":
       return "neq";
@@ -94,6 +98,10 @@ export const toSqQLOperator = (operator: TT.MetaOperator, value?: any) => {
       return "<";
     case "gt":
       return ">";
+    case "lt":
+      return "<=";
+    case "gt":
+      return ">=";
     case "in":
       return " IN ";
     case "neq":
