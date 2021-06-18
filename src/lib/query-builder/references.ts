@@ -17,8 +17,6 @@ export const prepareRefUnit = (
 ): { entity: string; mainUnit: TT.MetaQueryUnit; ids: number[] } => {
   // creating new filter
 
-  // mainUnit: main entity of ref query
-  const [mainUnit] = q.meta.units;
   // mainUnit: main entity of parent query
   const parentEntity = meta.units[0].entity;
   // get entity in ref that is same as parent
@@ -26,15 +24,8 @@ export const prepareRefUnit = (
 
   if (!observedUnit) {
     // could not find the block to which the query should refer to
-
-    // todo add refeenced entity to the list of units
+    // todo add referenced entity to the list of units
     // by default join on `id`, but it can be overriden with `joinOn`
-    // todo: check that field actually exists
-    // const joinOn: string | undefined = references[mainUnit.entity].joinOn;
-    // const m = //model.g
-
-    // console.log(parentEntity);
-    // console.log(q.meta.units);
 
     throw Error(
       "something went wrong when mapping entities with reference block: " +
@@ -54,6 +45,9 @@ export const prepareRefUnit = (
   };
 
   observedUnit.filters.push(metaFilter);
+
+  // mainUnit: main entity of ref query
+  const [mainUnit] = q.meta.units;
 
   return {
     entity: observedUnit.entity,
@@ -99,7 +93,7 @@ export const prepare = async (
   const qs2 = Meta.createSQL(qs.map((x) => x.meta));
   const subResult: ReturnUnit = await Exec.execFromMeta(qs2, model, s);
 
-  refs.map((ref) => {
+  refs.forEach((ref) => {
     const modelUnit = model.find((m) => m.name === ref.mainUnit.entity);
     if (!modelUnit) {
       throw Error("Reference: could not find model for the right entity");
@@ -111,7 +105,7 @@ export const prepare = async (
       ref.entity
     );
 
-    main.map((m) => {
+    main.forEach((m) => {
       const filteredSubResult = subResult[ref.mainUnit.entity].filter(
         (x: any) => {
           return m.id === x[fieldUnit.name].id;
