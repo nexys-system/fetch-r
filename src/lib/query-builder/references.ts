@@ -65,18 +65,18 @@ export const prepareRefUnit = (
 export const getFieldUnit = (
   { joinOn }: { joinOn?: string },
   modelUnit: Entity,
-  ref: Ref
+  refEntity: string
 ): Field => {
   // by default join on `id`, but it can be overriden with `joinOn`
   // todo: check that field actually exists
 
   const fieldUnit = modelUnit.fields.find(
-    (f) => f.type === ref.entity && (!joinOn || f.name === joinOn)
+    (f) => f.type === refEntity && (!joinOn || f.name === joinOn)
   );
 
   if (!fieldUnit) {
     throw Error(
-      `could not apply joinOn - field misspelt? ref.entity=${ref.entity} joinOn=${joinOn}`
+      `could not apply joinOn - field misspelt? ref.entity=${refEntity} joinOn=${joinOn}`
     );
   }
 
@@ -108,7 +108,7 @@ export const prepare = async (
     const fieldUnit = getFieldUnit(
       references[ref.mainUnit.entity],
       modelUnit,
-      ref
+      ref.entity
     );
 
     main.map((m) => {
