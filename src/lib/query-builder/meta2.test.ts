@@ -3,6 +3,7 @@ import * as S from "./sql";
 import * as TT from "./type";
 
 import modelAcademy from "./model-academy";
+
 test("2nd level projection", () => {
   const q = {
     ModuleLesson: {

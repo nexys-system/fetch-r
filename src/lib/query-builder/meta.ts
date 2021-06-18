@@ -169,7 +169,7 @@ export const toMeta = (
   }
 
   // reverse list and add alias based on position
-  // STRONG ASSUMPTION: the main entity is at the bottonm of the list due to the way the recurring logic is designed in projection
+  // STRONG ASSUMPTION: the main entity is at the bottom of the list due to the way the recurring logic is designed in projection
   const m: TT.MetaQueryUnit[] = ry
     .reverse()
     .map((x, i) => ({ ...x, alias: `t${i}` }));

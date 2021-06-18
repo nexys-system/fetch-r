@@ -66,8 +66,8 @@ const handleReponse = async (
             // const joinOn: string | undefined = references[mainUnit.entity].joinOn;
             // const m = //model.g
 
-            console.log(parentEntity);
-            console.log(q.meta.units);
+            // console.log(parentEntity);
+            // console.log(q.meta.units);
 
             throw Error(
               "something went wrong when mapping entities with reference block: " +
@@ -168,7 +168,7 @@ export const getSQL = (mq: T.Query, entities: T.Entity[]) => {
   return getSQLFromMeta(qs);
 };
 
-const execFromMeta = async (
+export const execFromMeta = async (
   qs: {
     sql: string;
     meta: TT.MetaQuery;
