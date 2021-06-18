@@ -24,10 +24,36 @@ test("compare joins", () => {
   expect(U.compareJoins(j1, { join: j1 }));
 });
 
-test("", () => {
-  expect(U.getValueAndOperator({ $in: [1, 2, 3] })).toEqual({
-    operator: "in",
-    value: [1, 2, 3],
+describe("getValueAndOperator", () => {
+  test("in", () => {
+    expect(U.getValueAndOperator({ $in: [1, 2, 3] })).toEqual([
+      {
+        operator: "in",
+        value: [1, 2, 3],
+      },
+    ]);
+  });
+
+  test("lt", () => {
+    expect(U.getValueAndOperator({ $lt: 23 })).toEqual([
+      {
+        operator: "lt",
+        value: 23,
+      },
+    ]);
+  });
+
+  test("lt and gt", () => {
+    expect(U.getValueAndOperator({ $lt: 23, $gt: 4 })).toEqual([
+      {
+        operator: "lt",
+        value: 23,
+      },
+      {
+        operator: "gt",
+        value: 4,
+      },
+    ]);
   });
 });
 

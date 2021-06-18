@@ -125,14 +125,14 @@ export const toMeta = (
           return;
         }
 
-        const { operator, value } = UU.getValueAndOperator(pvalue);
-
-        // opposite todo cast to {} for non query filters
-        metaFilters.push({
-          name: field.name,
-          column: U.fieldToColumn(field),
-          value,
-          operator,
+        UU.getValueAndOperator(pvalue).map(({ operator, value }) => {
+          // opposite todo cast to {} for non query filters
+          metaFilters.push({
+            name: field.name,
+            column: U.fieldToColumn(field),
+            value,
+            operator,
+          });
         });
       });
 

@@ -77,19 +77,19 @@ export const toOperator = (op: string): TT.MetaOperator => {
 
 export const getValueAndOperator = (
   v: any
-): { operator: TT.MetaOperator; value: any } => {
+): { operator: TT.MetaOperator; value: any }[] => {
   if (v === null) {
-    return { operator: "is", value: null };
+    return [{ operator: "is", value: null }];
   }
 
   if (typeof v === "object") {
-    const [b] = Object.entries(v);
-
-    const operator = toOperator(b[0]);
-    return { operator, value: b[1] };
+    return Object.entries(v).map(([preOp, value]) => {
+      const operator = toOperator(preOp);
+      return { operator, value };
+    });
   }
 
-  return { operator: "=", value: v };
+  return [{ operator: "=", value: v }];
 };
 
 export const toSqQLOperator = (operator: TT.MetaOperator, value?: any) => {
