@@ -1,3 +1,6 @@
+/**
+ * set of helper functions to augment queries so they would return the same results as the old API
+ */
 import * as U from "../utils";
 import * as T from "../type";
 export const allFieldsAreFk = (
@@ -18,7 +21,7 @@ export const augment = (
 
   if (!modelUnit) {
     throw Error(
-      "could not find entity in model, when augmenting query (legacymode)"
+      "could not find entity in model, when augmenting query (legacy mode)"
     );
   }
   if (allFieldsAreFk(modelUnit.fields, projection)) {

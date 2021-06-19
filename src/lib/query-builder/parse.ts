@@ -15,7 +15,12 @@ export const parseUnit = (
   x: RowDataPacket,
   meta: TT.MetaQueryUnit[]
 ): T.ReturnUnit => {
-  const hJoins = (m: TT.MetaQueryUnit): T.ReturnUnit | null => {
+  /**
+   * add the projection values
+   * @param m meta
+   * @returns
+   */
+  const applyProjection = (m: TT.MetaQueryUnit): T.ReturnUnit | null => {
     const r: T.ReturnUnit = {};
 
     m.fields.forEach((f) => {
@@ -28,33 +33,40 @@ export const parseUnit = (
       return null;
     }
 
-    aliases.push(m.alias);
-
     return r;
   };
 
   const recur = (parentEntity: string, alias: string, r: T.ReturnUnit) =>
     meta
-      .filter(
-        (x) => x.join?.entity === parentEntity && alias !== x.alias //&&
-        // !aliases.includes(x.alias)
-      )
+      // get all the meta units that are linked with the observed/parent one.
+      // we filter on:
+      // - child entity = parent entity
+      // - child alias needs to be greater than parent. This comes from the construction of the meta units and how they translate to SQL code. Eery unit is a SQL Join and hence is read only once fron top to bottom. Since alias are t_i we can apply the ">" operator and make sure we dont get trapped in an infinite loop
+      // consider
+      // {
+      //  "User": {
+      //    "projection": {
+      //      "country":{},
+      //      "company":{"logUser":{}}
+      //    },
+      //    "take": 2
+      //  }
+      // }
+      .filter((x) => x.join?.entity === parentEntity && alias < x.alias)
       .forEach((m) => {
         if (m.join) {
           const attrName = m.join.field.name;
           r[attrName] = {};
-          r[attrName] = hJoins(m);
+          r[attrName] = applyProjection(m);
           recur(m.entity, m.alias, r[attrName]);
         }
       });
 
-  // store already "used" aliases
-  const aliases: string[] = [];
-
   // get first entry (main entity)
   const [m]: TT.MetaQueryUnit[] = meta;
 
-  const r: T.ReturnUnit | null = hJoins(m);
+  const r: T.ReturnUnit | null = applyProjection(m);
+  console.log(r);
   if (r) {
     recur(m.entity, m.alias, r);
   }

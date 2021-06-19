@@ -28,9 +28,10 @@ const handleReponse = async (
   }
 
   const pResponseParsed = response.map(
-    async (x: RowDataPacket, metaIdx: number) => {
+    async (responseUnit: RowDataPacket, metaIdx: number) => {
       const meta = qs[metaIdx];
-      const main = Parse.parse(x, meta);
+
+      const main = Parse.parse(responseUnit, meta);
 
       // if references are present
       // 1. get ids of parent result
