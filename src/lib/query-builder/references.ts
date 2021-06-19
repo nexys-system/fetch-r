@@ -17,6 +17,8 @@ export const prepareRefUnit = (
 ): { entity: string; mainUnit: TT.MetaQueryUnit; ids: number[] } => {
   // creating new filter
 
+  // console.log(JSON.stringify(q, null, 2));
+
   // mainUnit: main entity of parent query
   const parentEntity = meta.units[0].entity;
   // get entity in ref that is same as parent
@@ -83,7 +85,7 @@ export const prepare = async (
   references: References,
   model: Entity[],
   s: Connection.SQL
-) => {
+): Promise<ReturnUnit[]> => {
   // create meta query from reference query
   const qs = Meta.createQuery(references, model);
 
@@ -91,9 +93,11 @@ export const prepare = async (
   const refs: Ref[] = qs.map((q) => prepareRefUnit(meta, main, q));
 
   const qs2 = Meta.createSQL(qs.map((x) => x.meta));
+  // console.log("qs2", qs2);
   const subResult: ReturnUnit = await Exec.execFromMeta(qs2, model, s);
 
-  refs.forEach((ref) => {
+  return refs.map((ref) => {
+    //console.log(ref);
     const modelUnit = model.find((m) => m.name === ref.mainUnit.entity);
     if (!modelUnit) {
       throw Error("Reference: could not find model for the right entity");
@@ -105,15 +109,24 @@ export const prepare = async (
       ref.entity
     );
 
-    main.forEach((m) => {
-      const filteredSubResult = subResult[ref.mainUnit.entity].filter(
-        (x: any) => {
-          return m.id === x[fieldUnit.name].id;
-        }
-      );
+    //console.log(fieldUnit);
 
-      m[ref.mainUnit.entity] =
-        filteredSubResult === {} ? [] : filteredSubResult;
+    return main.map((m) => {
+      const entity = ref.mainUnit.entity;
+      //console.log({ entity });
+      //console.log(ref.mainUnit);
+      //console.log(subResult);
+      const subResultEntity = subResult[entity];
+
+      if (subResultEntity) {
+        const filteredSubResult = subResultEntity.filter((x: any) => {
+          return m.id === x[fieldUnit.name].id;
+        });
+
+        m[entity] = filteredSubResult === {} ? [] : filteredSubResult;
+
+        return m;
+      }
     });
   });
 };

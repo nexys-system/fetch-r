@@ -38,7 +38,7 @@ const handleReponse = async (
       // 3 insert result into current result
       const { references } = meta;
       if (references) {
-        prepare(meta, main, references, model, s);
+        await prepare(meta, main, references, model, s);
       }
 
       return main;
