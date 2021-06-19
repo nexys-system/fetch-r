@@ -45,23 +45,41 @@ const getJoin = (modelUnit: T.Entity, field: T.Field) => ({
 export const toMeta = (
   entity: string,
   query: T.QueryParams,
-  model: T.Entity[]
+  model: T.Entity[],
+  legacyMode: boolean = false
 ): TT.MetaQuery => {
   // init return object
   const ry: Omit<TT.MetaQueryUnit, "alias">[] = [];
 
+  let addedFieldsToProjection = false;
+
+  /**
+   *
+   * @param entity
+   * @param proj
+   * @param join
+   * @param depth : join depth: e.g. city (0) => country (1) => continent (2)
+   */
   const addProjection = (
     entity: string,
     proj: T.QueryProjection,
-    join?: TT.MetaJoin
+    join?: TT.MetaJoin,
+    depth: number = 0
   ) => {
+    //console.log({ entity, depth, legacyMode, addedFieldsToProjection });
     const modelUnit = UU.getModel(entity, model);
     // turn projection into object
     const projEntries = Object.entries(proj);
 
     // if there are no attributes in projection, add them all
-    if (projEntries.length === 0 && join === undefined) {
+    if (
+      projEntries.length === 0 &&
+      (join === undefined ||
+        (legacyMode === true && addedFieldsToProjection === false))
+    ) {
+      //console.log("add fields" + addedFieldsToProjection);
       modelUnit.fields.forEach((f) => projEntries.push([f.name, true]));
+      addedFieldsToProjection = true;
     }
 
     // check primary key, if not included in projection, add it
@@ -80,7 +98,8 @@ export const toMeta = (
         addProjection(
           field.type,
           typeof value === "boolean" ? {} : (value as T.QueryProjection),
-          join
+          join,
+          depth + 1
         );
       } else {
         if (typeof value === "boolean" && value === true) {
@@ -105,6 +124,8 @@ export const toMeta = (
   //
   addProjection(entity, query.projection || {});
   //
+
+  //console.log(ry);
 
   if (query.filters) {
     const addFilters = (
@@ -175,6 +196,7 @@ export const toMeta = (
     .map((x, i) => ({ ...x, alias: `t${i}` }));
 
   const units = m.sort((a, b) => (a.alias > b.alias ? 1 : -1));
+
   return {
     units,
     take: query.take,
@@ -193,7 +215,8 @@ export const toMetas = (query: T.Query, model: T.Entity[]): TT.MetaQuery[] =>
 
 export const createQuery = (
   query: T.Query,
-  model: T.Entity[]
+  model: T.Entity[],
+  legacyMode: boolean = false
 ): { sql: string; meta: TT.MetaQuery }[] => {
   const oEntries = Object.entries(query);
 
@@ -204,7 +227,7 @@ export const createQuery = (
   }
 
   return oEntries.map(([entity, v]) => {
-    const meta: TT.MetaQuery = toMeta(entity, v, model);
+    const meta: TT.MetaQuery = toMeta(entity, v, model, legacyMode);
     const pSQL = toQuery(meta);
     const sql = pSQL.join("\n") + ";";
     return { sql, meta };

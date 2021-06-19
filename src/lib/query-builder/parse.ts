@@ -28,12 +28,19 @@ export const parseUnit = (
       return null;
     }
 
+    aliases.push(m.alias);
+
     return r;
   };
 
   const recur = (parentEntity: string, alias: string, r: T.ReturnUnit) =>
     meta
-      .filter((x) => x.join?.entity === parentEntity && alias !== x.alias)
+      .filter(
+        (x) =>
+          x.join?.entity === parentEntity &&
+          alias !== x.alias &&
+          !aliases.includes(x.alias)
+      )
       .forEach((m) => {
         if (m.join) {
           const attrName = m.join.field.name;
@@ -42,6 +49,9 @@ export const parseUnit = (
           recur(m.entity, m.alias, r[attrName]);
         }
       });
+
+  // store already "used" aliases
+  const aliases: string[] = [];
 
   // get first entry (main entity)
   const [m]: TT.MetaQueryUnit[] = meta;

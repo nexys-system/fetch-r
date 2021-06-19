@@ -27,7 +27,7 @@ const handleReponse = async (
     return handleReponse([response], qs, model, s);
   }
 
-  const responseParsed = response.map(
+  const pResponseParsed = response.map(
     async (x: RowDataPacket, metaIdx: number) => {
       const meta = qs[metaIdx];
       const main = Parse.parse(x, meta);
@@ -47,7 +47,8 @@ const handleReponse = async (
 
   const responseWithEntites: T.ReturnUnit = {};
 
-  (await Promise.all(responseParsed)).forEach((responseEntity, i) => {
+  const responseParsed = await Promise.all(pResponseParsed);
+  responseParsed.forEach((responseEntity, i) => {
     const m = qs[i].units[0];
     responseWithEntites[m.entity] = responseEntity;
   });
@@ -58,9 +59,10 @@ const handleReponse = async (
 export const exec = async (
   mq: T.Query,
   entities: T.Entity[],
-  s: Connection.SQL
+  s: Connection.SQL,
+  options: { legacyMode: boolean } = { legacyMode: false }
 ): Promise<T.ReturnUnit> => {
-  const qs = Meta.createQuery(mq, entities);
+  const qs = Meta.createQuery(mq, entities, options.legacyMode);
 
   return execFromMeta(qs, entities, s);
 };
