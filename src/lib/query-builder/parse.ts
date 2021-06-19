@@ -36,10 +36,8 @@ export const parseUnit = (
   const recur = (parentEntity: string, alias: string, r: T.ReturnUnit) =>
     meta
       .filter(
-        (x) =>
-          x.join?.entity === parentEntity &&
-          alias !== x.alias &&
-          !aliases.includes(x.alias)
+        (x) => x.join?.entity === parentEntity && alias !== x.alias //&&
+        // !aliases.includes(x.alias)
       )
       .forEach((m) => {
         if (m.join) {

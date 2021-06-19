@@ -12,6 +12,9 @@ const router: Router = new Router();
 const query = async (ctx: Koa.Context) => {
   // get query
   const { body: query } = ctx.request;
+  const { legacy } = ctx.query;
+
+  const legacyMode: boolean = legacy === "true";
 
   // get model
   try {
@@ -26,7 +29,9 @@ const query = async (ctx: Koa.Context) => {
     }
 
     try {
-      ctx.body = await QueryService.exec(query, model, connectionPool);
+      ctx.body = await QueryService.exec(query, model, connectionPool, {
+        legacyMode,
+      });
     } catch (err) {
       ctx.status = 400;
       ctx.body = { error: err.message };
