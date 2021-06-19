@@ -61,12 +61,3 @@ export const findField = (
     optional: field.optional,
   };
 };
-
-export const allFieldsAreFk = (
-  fs: T.Field[],
-  projection: T.QueryProjection
-): boolean =>
-  fs
-    .filter((x) => !!projection[x.name])
-    .map((x) => !isStandardType(x.type))
-    .reduce((a, b) => a && b, true);

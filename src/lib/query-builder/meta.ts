@@ -9,6 +9,7 @@ import * as TT from "./type";
 import * as U from "../utils";
 import * as UU from "./utils";
 import { toQuery } from "./sql";
+import * as L from "./legacy";
 
 const getField = (
   fieldName: string,
@@ -45,8 +46,7 @@ const getJoin = (modelUnit: T.Entity, field: T.Field) => ({
 export const toMeta = (
   entity: string,
   query: T.QueryParams,
-  model: T.Entity[],
-  _legacyMode: boolean = false
+  model: T.Entity[]
 ): TT.MetaQuery => {
   // init return object
   const ry: Omit<TT.MetaQueryUnit, "alias">[] = [];
@@ -216,8 +216,13 @@ export const createQuery = (
     );
   }
 
-  return oEntries.map(([entity, v]) => {
-    const meta: TT.MetaQuery = toMeta(entity, v, model, legacyMode);
+  return oEntries.map(([entity, params]) => {
+    // here integrate legacy mode
+    if (legacyMode) {
+      L.augment(entity, params.projection || {}, model);
+    }
+
+    const meta: TT.MetaQuery = toMeta(entity, params, model);
     const pSQL = toQuery(meta);
     const sql = pSQL.join("\n") + ";";
     return { sql, meta };
