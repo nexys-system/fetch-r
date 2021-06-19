@@ -42,20 +42,11 @@ const getJoin = (modelUnit: T.Entity, field: T.Field) => ({
   },
 });
 
-const allFieldsAreFk = (
-  fs: T.Field[],
-  projection: T.QueryProjection
-): boolean =>
-  fs
-    .filter((x) => !!projection[x.name])
-    .map((x) => !U.isStandardType(x.type))
-    .reduce((a, b) => a && b, true);
-
 export const toMeta = (
   entity: string,
   query: T.QueryParams,
   model: T.Entity[],
-  legacyMode: boolean = false
+  _legacyMode: boolean = false
 ): TT.MetaQuery => {
   // init return object
   const ry: Omit<TT.MetaQueryUnit, "alias">[] = [];
@@ -70,29 +61,14 @@ export const toMeta = (
   const addProjection = (
     entity: string,
     proj: T.QueryProjection,
-    join?: TT.MetaJoin,
-    depth: number = 0,
-    _allFieldsOverride: boolean = false
+    join?: TT.MetaJoin
   ) => {
-    //console.log({ entity, depth, legacyMode, addedFieldsToProjection });
     const modelUnit = UU.getModel(entity, model);
     // turn projection into object
     const projEntries = Object.entries(proj);
-    //console.log({ entity });
-    //console.log(allFieldsAreFk(modelUnit.fields, proj));
 
     // if there are no attributes in projection, add them all
-    if (
-      (projEntries.length === 0 && join === undefined) ||
-      //allFieldsOverride ||
-      (legacyMode === true &&
-        projEntries.length > 0 &&
-        allFieldsAreFk(modelUnit.fields, proj))
-    ) {
-      //if (entity === "Company") {
-      console.log({ entity, fields: modelUnit.fields });
-      // }
-      //console.log("add fields" + addedFieldsToProjection);
+    if (projEntries.length === 0 && join === undefined) {
       modelUnit.fields.forEach(({ name }) => projEntries.push([name, true]));
     }
 
@@ -105,24 +81,15 @@ export const toMeta = (
     const fields: TT.MetaField[] = [];
     projEntries.forEach(([fieldName, value]) => {
       const field = getField(fieldName, modelUnit, modelUnit.fields);
-      console.log({ field });
+      // console.log({ field });
 
       // check foreign
       if (!U.isStandardType(field.type)) {
-        console.log({
-          entity,
-          tboolean: typeof value === "boolean",
-          l: Object.keys(value as T.QueryProjection).length,
-        });
         const join = getJoin(modelUnit, field);
         addProjection(
           field.type,
           typeof value === "boolean" ? {} : (value as T.QueryProjection),
-          join,
-          depth + 1,
-
-          typeof value !== "boolean" &&
-            Object.keys(value as T.QueryProjection).length === 0
+          join
         );
       } else {
         if (typeof value === "boolean" && value === true) {
