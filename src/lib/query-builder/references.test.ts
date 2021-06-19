@@ -1,5 +1,6 @@
-import { Entity, Field } from "../type";
+import { Entity, Field, References } from "../type";
 import * as R from "./references";
+import model from "../query-builder/model-academy";
 
 describe("get field - joinOn", () => {
   const field1: Field = { name: "logUser", type: "User", optional: false };
@@ -34,4 +35,45 @@ describe("get field - joinOn", () => {
       expect(true).toEqual(true);
     }
   });
+});
+
+test("augment ref query", () => {
+  const references: References = {
+    File: {
+      projection: {
+        type: {
+          name: true,
+        },
+      },
+    },
+    Link: {
+      projection: {
+        type: {
+          name: true,
+        },
+      },
+    },
+  };
+
+  const referencesPost: References = {
+    File: {
+      projection: {
+        type: {
+          name: true,
+        },
+        resource: {},
+      },
+    },
+    Link: {
+      projection: {
+        type: {
+          name: true,
+        },
+        resource: {},
+      },
+    },
+  };
+  R.augmentRefQuery(references, model, "Resource");
+
+  expect(references).toEqual(referencesPost);
 });

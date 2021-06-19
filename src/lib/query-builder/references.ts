@@ -11,7 +11,7 @@ interface Ref {
 }
 
 export const prepareRefUnit = (
-  meta: TT.MetaQuery,
+  parentEntity: string,
   main: ReturnUnit[],
   q: { sql: string; meta: TT.MetaQuery }
 ): { entity: string; mainUnit: TT.MetaQueryUnit; ids: number[] } => {
@@ -20,7 +20,7 @@ export const prepareRefUnit = (
   // console.log(JSON.stringify(q, null, 2));
 
   // mainUnit: main entity of parent query
-  const parentEntity = meta.units[0].entity;
+
   // get entity in ref that is same as parent
   const observedUnit = q.meta.units.find((x) => x.entity === parentEntity);
 
@@ -79,6 +79,43 @@ export const getFieldUnit = (
   return fieldUnit;
 };
 
+/**
+ * add parent entity, in case a custom projection was added
+ * @param references
+ * @param model
+ * @param parentEntity
+ */
+export const augmentRefQuery = (
+  references: References,
+  model: Entity[],
+  parentEntity: string
+) =>
+  Object.entries(references).forEach(([entity, { projection }]) => {
+    // only relevant if projection is defined, else all attributes are added
+    // console.log({ projection, entity });
+    if (projection) {
+      const modelUnit = model.find((x) => x.name === entity);
+
+      if (!modelUnit) {
+        throw Error(
+          "could find the entity that is linked with the main entity"
+        );
+      }
+
+      const fieldRefMain = modelUnit.fields.find(
+        (x) => x.type === parentEntity
+      );
+
+      if (!fieldRefMain) {
+        throw Error(
+          "could find the attribute that is linked with the main entity"
+        );
+      }
+
+      projection[fieldRefMain.name] = {};
+    }
+  });
+
 export const prepare = async (
   meta: TT.MetaQuery,
   main: ReturnUnit[],
@@ -87,10 +124,14 @@ export const prepare = async (
   s: Connection.SQL
 ): Promise<ReturnUnit[]> => {
   // create meta query from reference query
+  const { entity: parentEntity } = meta.units[0];
+
+  augmentRefQuery(references, model, parentEntity);
+
   const qs = Meta.createQuery(references, model);
 
   // adding filter
-  const refs: Ref[] = qs.map((q) => prepareRefUnit(meta, main, q));
+  const refs: Ref[] = qs.map((q) => prepareRefUnit(parentEntity, main, q));
 
   const qs2 = Meta.createSQL(qs.map((x) => x.meta));
   // console.log("qs2", qs2);
