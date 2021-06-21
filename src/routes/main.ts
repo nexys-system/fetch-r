@@ -12,7 +12,7 @@ const router: Router = new Router();
 const query = async (ctx: Koa.Context) => {
   // get query
   const { body: query } = ctx.request;
-  const { legacy } = ctx.query;
+  const { legacy = "true" } = ctx.query;
 
   const legacyMode: boolean = legacy === "true";
 
