@@ -12,7 +12,7 @@ const router: Router = new Router();
 const query = async (ctx: Koa.Context) => {
   // get query
   const { body: query } = ctx.request;
-  const { legacy = "true" } = ctx.query;
+  const { sqlScript, legacy = "true" } = ctx.query;
 
   const legacyMode: boolean = legacy === "true";
 
@@ -20,8 +20,6 @@ const query = async (ctx: Koa.Context) => {
   try {
     const model = ModelService.getModel(ctx.state.jwtContent);
     const connectionPool = DatabaseService.getPool(ctx.state.jwtContent);
-
-    const { sqlScript } = ctx.query;
 
     if (sqlScript) {
       ctx.body = { sql: QueryService.getSQL(query, model) };

@@ -495,6 +495,13 @@
   resolved "https://registry.yarnpkg.com/@nexys/utils/-/utils-3.9.14.tgz#db7e3581dd3f15990334842111be35d5aba443ca"
   integrity sha512-ab+iVapztGguPbHaACoNXtn65iWh+hSqNOoKnIQkmldsQ4yUsRpPhs+Us+x2g5A3/ShwxREAz8DMLp0rpYcWig==
 
+"@nexys/validation@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@nexys/validation/-/validation-2.1.0.tgz#b55d5961ce149f118a9e3ba9bd0737eb37bce653"
+  integrity sha512-go2vyFzWn0V/zGZtEe8hxMcHnKRDnJLYFjczgKkg43NYhfDWSptDPBnERqdG2PERLeF7eQj63rgiBiy7kfUQtw==
+  dependencies:
+    "@nexys/utils" "^3.9.14"
+
 "@sinonjs/commons@^1.7.0":
   version "1.8.3"
   resolved "https://registry.yarnpkg.com/@sinonjs/commons/-/commons-1.8.3.tgz#3802ddd21a50a949b6721ddd72da36e67e7f1b2d"

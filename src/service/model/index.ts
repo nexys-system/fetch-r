@@ -1,5 +1,7 @@
+import { camelToSnakeCase } from "@nexys/utils/dist/string";
 import fs from "fs";
 import * as T from "../../lib/type";
+import { isStandardType } from "../../lib/utils";
 import { JwtStructure } from "../../middleware/type";
 
 const productIdentifier = (j: Pick<JwtStructure, "product" | "env">) =>
@@ -26,10 +28,27 @@ export const getModel = (j: Pick<JwtStructure, "product" | "env">) => {
   return model;
 };
 
+const addColumnsToModel = (es: T.Entity[]) => {
+  es.forEach((entity) => {
+    entity.fields.forEach((field) => {
+      const { column } = field;
+
+      if (!column || column === "") {
+        field.column = camelToSnakeCase(field.name);
+
+        if (!isStandardType(field.type)) {
+          field.column += "_id";
+        }
+      }
+    });
+  });
+};
+
 export const set = async (
   j: Pick<JwtStructure, "product" | "env">,
   model: T.Entity[]
 ) => {
+  addColumnsToModel(model);
   models[productIdentifier(j)] = model;
 
   await fs.promises.writeFile(filepath, JSON.stringify(models));

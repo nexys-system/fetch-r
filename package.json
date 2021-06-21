@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "@nexys/sql-migrations": "^0.0.1",
+    "@nexys/validation": "^2.1.0",
     "@types/sqlstring": "^2.3.0",
     "mysql2": "^2.2.5",
     "sqlstring": "^2.3.2"

@@ -66,7 +66,7 @@ export const parseUnit = (
   const [m]: TT.MetaQueryUnit[] = meta;
 
   const r: T.ReturnUnit | null = applyProjection(m);
-  console.log(r);
+
   if (r) {
     recur(m.entity, m.alias, r);
   }
