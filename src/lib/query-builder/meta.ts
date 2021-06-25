@@ -185,7 +185,7 @@ export const toMeta = (
     .reverse()
     .map((x, i) => ({ ...x, alias: `t${i}` }));
 
-  const units = m.sort((a, b) => (a.alias > b.alias ? 1 : -1));
+  const units = m.sort(sortAlias);
 
   return {
     units,
@@ -195,6 +195,9 @@ export const toMeta = (
     references: query.references,
   };
 };
+
+const sortAlias = (a: { alias: string }, b: { alias: string }): 1 | -1 =>
+  Number(a.alias.slice(1)) > Number(b.alias.slice(1)) ? 1 : -1;
 
 export const toMetas = (query: T.Query, model: T.Entity[]): TT.MetaQuery[] =>
   Object.entries(query).map(([entity, v]) => {
