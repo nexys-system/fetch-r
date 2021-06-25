@@ -32,7 +32,9 @@ export const augment = (
         projection[field.name] = true;
       } else {
         // here add all fields for child entity
-        projection[field.name] = {} as T.QueryProjection;
+        if (!projection[field.name]) {
+          projection[field.name] = {} as T.QueryProjection;
+        }
         augment(field.type, projection[field.name] as T.QueryProjection, model);
       }
     });

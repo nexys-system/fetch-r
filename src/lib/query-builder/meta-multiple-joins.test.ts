@@ -240,7 +240,7 @@ describe("multiple joins", () => {
   test("sql", () => {
     const s0 =
       "t0.`id` AS t0_id, t0.`issued` AS t0_issued, t0.`printed` AS t0_printed, t0.`score` AS t0_score, t0.`expires` AS t0_expires, t0.`log_date_added` AS t0_logDateAdded, t0.`test_user_id` AS t0_testUserId, t0.`reason` AS t0_reason, t0.`badge_status` AS t0_badgeStatus, t0.`is_log` AS t0_isLog, t0.`badge_id` AS t0_badgeId, t0.`log_comment` AS t0_logComment";
-    // const s1 = "t1.`id` AS t1_id";
+    const s1 = "t1.`id` AS t1_id";
     const s10 = "t10.`id` AS t10_id";
     const s2 =
       "t2.`id` AS t2_id, t2.`keyy` AS t2_secretKey, t2.`email` AS t2_email, t2.`first_name` AS t2_firstName, t2.`password_bcrypt` AS t2_password, t2.`log_ip` AS t2_logIp, t2.`simulcation_user_id` AS t2_simulcationUser, t2.`log_date_added` AS t2_logDateAdded, t2.`last_name` AS t2_lastName, t2.`is_admin` AS t2_isAdmin, t2.`status_id` AS t2_status, t2.`language_id` AS t2_language, t2.`kyi_id` AS t2_kyiId";
@@ -254,12 +254,12 @@ describe("multiple joins", () => {
       "t8.`id` AS t8_id, t8.`log_date_added` AS t8_logDateAdded, t8.`badge_id` AS t8_badge, t8.`points` AS t8_points";
     const s9 = "t9.`id` AS t9_id";
 
-    const select = [s0, s2, s3, s4, s5, s6, s7, s8, s9, s10].join(", ");
+    const select = [s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10].join(", ");
 
     const s = [
       "SELECT " + select,
       "FROM user_certificate AS t0",
-      //  "JOIN user_certificate_status AS t1 ON t1.id=t0.status_id",
+      "JOIN user_certificate_status AS t1 ON t1.id=t0.status_id",
       "LEFT JOIN user AS t2 ON t2.id=t0.log_user_id",
       "JOIN country AS t3 ON t3.id=t2.country_id",
       "LEFT JOIN company AS t4 ON t4.id=t2.company_id",
@@ -275,7 +275,7 @@ describe("multiple joins", () => {
 
     const pSQL = S.toQuery(metaExpected);
 
-    console.log(s.join("\n"));
+    // console.log(s.join("\n"));
 
     expect(pSQL).toEqual(s);
   });
