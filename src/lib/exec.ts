@@ -57,7 +57,8 @@ const handleReponse = async (
     const responseEntity = responseParsed[i];
 
     if (!responseEntity) {
-      responseWithEntites[m.entity] = {};
+      // return an empty array
+      responseWithEntites[m.entity] = [];
     } else {
       responseWithEntites[m.entity] = responseEntity;
     }
