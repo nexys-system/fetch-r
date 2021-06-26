@@ -1,5 +1,6 @@
 import * as T from "../type";
 import * as TT from "./type";
+import { escape } from "../utils";
 
 export const getAliasColumn = (tableAlias: string, fieldName: string) =>
   tableAlias + "_" + fieldName;
@@ -115,5 +116,31 @@ export const toSqQLOperator = (operator: TT.MetaOperator, value?: any) => {
 
     default:
       return "=";
+  }
+};
+
+export const formatDateSQL = (v: any): string => {
+  // 1 transform to JS date and then to JSON
+  const d = new Date(v).toJSON();
+
+  // 2 if result of `1` is invalid it returns `null`, error thrown
+  if (d === null) {
+    throw Error("date given was not recognized: " + escape(v));
+  }
+
+  // return 23 first character, to get rid of timezone indications
+  // see https://stackoverflow.com/questions/22806870/incorrect-datetime-value-database-error-number-1292
+  return escape(d.slice(0, 23));
+};
+
+export const formatSQL = (v: any, fieldType: T.Type) => {
+  switch (fieldType) {
+    case "LocalDateTime":
+    case "LocalTime":
+    case "LocalDate": {
+      return formatDateSQL(v);
+    }
+    default:
+      return escape(v);
   }
 };

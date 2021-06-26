@@ -44,7 +44,7 @@ describe("create mutate query", () => {
     };
 
     const s = [
-      `INSERT INTO user (first_name, last_name, middle_name, email, status_id, log_date_added, instance_id, lang) VALUES ('John', 'Doe', NULL, 'john@doe.com', (SELECT id FROM \`user_status\` WHERE id=3), '2015-11-05 13:29:36.000', (SELECT id FROM \`instance\` WHERE uuid='myuuid'), 'en');`,
+      `INSERT INTO user (first_name, last_name, middle_name, email, status_id, log_date_added, instance_id, lang) VALUES ('John', 'Doe', NULL, 'john@doe.com', (SELECT id FROM \`user_status\` WHERE id=3), '2015-11-05T13:29:36.000', (SELECT id FROM \`instance\` WHERE uuid='myuuid'), 'en');`,
     ];
     const ss = S.createMutateQuery(q, model);
     expect(ss.map((_) => _.sql)).toEqual(s);
@@ -78,8 +78,8 @@ describe("create mutate query", () => {
     const s = [
       `INSERT INTO user (first_name, last_name, middle_name, email, status_id, log_date_added, instance_id, lang)`,
       `VALUES`,
-      `('John', 'Doe', NULL, 'john@doe.com', (SELECT id FROM \`user_status\` WHERE id=3), '2015-11-05 13:29:36.000', (SELECT id FROM \`instance\` WHERE uuid='myuuid'), 'en'),`,
-      `('Jane', 'Doe', NULL, 'jane@doe.com', (SELECT id FROM \`user_status\` WHERE id=2), '2015-11-05 13:29:36.000', (SELECT id FROM \`instance\` WHERE uuid='myuuid2'), 'de');`,
+      `('John', 'Doe', NULL, 'john@doe.com', (SELECT id FROM \`user_status\` WHERE id=3), '2015-11-05T13:29:36.000', (SELECT id FROM \`instance\` WHERE uuid='myuuid'), 'en'),`,
+      `('Jane', 'Doe', NULL, 'jane@doe.com', (SELECT id FROM \`user_status\` WHERE id=2), '2015-11-05T13:29:36.000', (SELECT id FROM \`instance\` WHERE uuid='myuuid2'), 'de');`,
     ].join(" ");
     const ss = S.createMutateQuery(q, model)[0];
 

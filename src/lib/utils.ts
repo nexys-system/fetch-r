@@ -18,7 +18,7 @@ export const isStandardType = (t: string): t is T.Type =>
   types.includes(t as T.Type);
 
 // see for a discussion on quotes https://stackoverflow.com/questions/11321491/when-to-use-single-quotes-double-quotes-and-backticks-in-mysql
-export const escape = (v: any): string | number => {
+export const escape = (v: any): string => {
   if (Array.isArray(v)) {
     const s = v.map((x) => escape(x)).join(",");
 

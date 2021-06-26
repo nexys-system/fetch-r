@@ -64,3 +64,11 @@ test("to operator", () => {
 test("to sql operator", () => {
   expect(U.toSqQLOperator("in")).toEqual(" IN ");
 });
+
+describe("format date sql", () => {
+  test("simple", () => {
+    expect(U.formatDateSQL("2021-06-26T15:46:50")).toEqual(
+      "'2021-06-26T15:46:50.000'"
+    );
+  });
+});

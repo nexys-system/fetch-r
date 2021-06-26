@@ -2,6 +2,7 @@ import NUtils from "@nexys/utils";
 import { getModel } from "./utils";
 import * as T from "../type";
 import * as U from "../utils";
+import * as UU from "./utils";
 
 // SQL
 export const getFilterUnit = (
@@ -116,14 +117,7 @@ const getValueInsertUnit = (v: any, field: T.Field, model: T.Entity[]) => {
 
   // todo check option set value
 
-  switch (field.type) {
-    case "LocalDateTime":
-    case "LocalTime":
-    case "LocalDate":
-      return U.escape(new Date(v));
-    default:
-      return U.escape(v);
-  }
+  return UU.formatSQL(v, field.type);
 };
 
 /**
@@ -184,7 +178,7 @@ const toQueryUpdate = (
         return col + "=" + getSubQuery(field, model, v);
       }
 
-      return `${col}=${U.escape(v)}`;
+      return `${col}=${UU.formatSQL(v, field.type)}`;
     })
     .join(", ");
   return `UPDATE ${U.entityToTable(
