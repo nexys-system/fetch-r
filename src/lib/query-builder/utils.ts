@@ -72,7 +72,7 @@ export const toOperator = (op: string): TT.MetaOperator => {
       return "neq";
   }
 
-  throw Error("could not map operator");
+  throw Error("could not map operator: " + JSON.stringify(op));
 };
 
 export const getValueAndOperator = (
