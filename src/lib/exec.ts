@@ -49,9 +49,18 @@ const handleReponse = async (
   const responseWithEntites: T.ReturnUnit = {};
 
   const responseParsed = await Promise.all(pResponseParsed);
-  responseParsed.forEach((responseEntity, i) => {
-    const m = qs[i].units[0];
-    responseWithEntites[m.entity] = responseEntity;
+
+  // loop through meta query, to get all the different queries
+  // note that initially we would loop through the `responseParsed`, but there is an edge case that would then return nothing
+  qs.forEach((q, i) => {
+    const m = q.units[0];
+    const responseEntity = responseParsed[i];
+
+    if (!responseEntity) {
+      responseWithEntites[m.entity] = {};
+    } else {
+      responseWithEntites[m.entity] = responseEntity;
+    }
   });
 
   return responseWithEntites;
