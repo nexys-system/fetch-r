@@ -11,10 +11,7 @@ describe("parseMutateInsert", () => {
       warningStatus: 0,
     };
 
-    const e = {
-      success: true,
-      id: 11,
-    };
+    const e = [11];
     const r = PM.getIdsMutateInsert(response as any);
     expect(r).toEqual([e]);
   });
@@ -29,16 +26,7 @@ describe("parseMutateInsert", () => {
       warningStatus: 0,
     };
 
-    const e = [
-      {
-        success: true,
-        id: 11,
-      },
-      {
-        success: true,
-        id: 12,
-      },
-    ];
+    const e = [11, 12];
 
     const r = PM.getIdsMutateInsert(response as any);
     expect(r).toEqual(e);
