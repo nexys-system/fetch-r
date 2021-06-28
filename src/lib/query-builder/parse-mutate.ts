@@ -1,30 +1,74 @@
-import { OkPacket } from "mysql2";
+import { OkPacket, RowDataPacket } from "mysql2";
+import { Connection } from "..";
 import * as T from "../type";
+import { entityToTable } from "../utils";
 
-export const parseMutateInsert = (
-  response: OkPacket
-): T.MutateResponseInsert | T.MutateResponseInsert[] => {
-  const { affectedRows, insertId, message } = response;
-  const success = typeof response.insertId === "number";
+export const getIdsMutateInsert = ({
+  affectedRows,
+  insertId,
+}: OkPacket): number[] => {
+  // insert multiple
+  if (affectedRows > 0) {
+    const ids: number[] = new Array(affectedRows)
+      .fill(insertId)
+      .map((_x, i) => insertId + i);
 
-  if (affectedRows > 1) {
-    // insert multiple
-    return new Array(affectedRows).fill(insertId).map((_x, i) => {
-      return {
-        success,
-        uuid: undefined,
-        id: insertId + i,
-        status: message,
-      };
-    });
+    return ids.map((_x, i) => insertId + i);
   }
 
-  return {
-    success,
-    uuid: undefined,
-    id: insertId,
-    status: message,
-  };
+  throw Error("no rows affected");
+};
+
+const idsToResponseInsert = (
+  { insertId, message }: OkPacket,
+  id?: number,
+  uuid?: string
+): T.MutateResponseInsert => ({
+  success: typeof insertId === "number",
+  uuid,
+  id,
+  status: message,
+});
+
+export const parseMutateInsert = async (
+  response: OkPacket,
+  entity: T.Entity,
+  s: Connection.SQL
+): Promise<T.MutateResponseInsert | T.MutateResponseInsert[]> => {
+  const { affectedRows } = response;
+  // todo: change this, because an insert multiple with one entry can be done, and an array would still be expected in return
+  const isInsertMultiple = affectedRows > 1;
+
+  const { uuid } = entity;
+
+  const ids: number[] = getIdsMutateInsert(response);
+
+  // special case for uuids
+  if (uuid) {
+    const sql = `SELECT uuid FROM ${entityToTable(
+      entity
+    )} WHERE id IN (${ids.join(", ")})`;
+
+    const [responseUuid] = (await s.execQuery(sql)) as any as [RowDataPacket];
+
+    const uuids: string[] = responseUuid.map(
+      (d: { uuid: string }) => d["uuid"]
+    );
+
+    if (isInsertMultiple) {
+      return uuids.map((uuid) =>
+        idsToResponseInsert(response, undefined, uuid)
+      );
+    }
+
+    return idsToResponseInsert(response, undefined, uuids[0]);
+  }
+
+  if (isInsertMultiple) {
+    return ids.map((id) => idsToResponseInsert(response, id));
+  }
+
+  return idsToResponseInsert(response, ids[0]);
 };
 
 const parseMutateUpdate = (response: OkPacket): T.MutateResponseUpdate => ({
@@ -37,11 +81,16 @@ const parseMutateDelete = (response: OkPacket): T.MutateResponseDelete => ({
   deleted: response.affectedRows,
 });
 
-const getResultBasedOnType = (t: T.MutateType, response: OkPacket) => {
-  console.log(response);
+const getResultBasedOnType = async (
+  t: T.MutateType,
+  response: OkPacket,
+  entity: T.Entity,
+  s: Connection.SQL
+) => {
+  //console.log(response);
   switch (t) {
     case T.MutateType.insert:
-      return { insert: parseMutateInsert(response) };
+      return { insert: await parseMutateInsert(response, entity, s) };
     case T.MutateType.update:
       return { update: parseMutateUpdate(response) };
     case T.MutateType.delete:
@@ -49,15 +98,19 @@ const getResultBasedOnType = (t: T.MutateType, response: OkPacket) => {
   }
 };
 
-export const parseMutate = (
+export const parseMutate = async (
   qs: { type: T.MutateType; entity: T.Entity }[],
-  response: OkPacket
-): T.MutateResponse => {
+  response: OkPacket,
+  s: Connection.SQL
+): Promise<T.MutateResponse> => {
   const r: T.MutateResponse = {};
 
-  qs.forEach(({ entity, type }) => {
-    r[entity.name] = getResultBasedOnType(type, response);
+  const pqs = qs.map(async ({ entity, type }) => {
+    r[entity.name] = await getResultBasedOnType(type, response, entity, s);
+    return true;
   });
+
+  await Promise.all(pqs);
 
   return r;
 };

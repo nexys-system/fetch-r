@@ -15,8 +15,8 @@ describe("parseMutateInsert", () => {
       success: true,
       id: 11,
     };
-    const r = PM.parseMutateInsert(response as any);
-    expect(r).toEqual(e);
+    const r = PM.getIdsMutateInsert(response as any);
+    expect(r).toEqual([e]);
   });
 
   test("insert multiple", () => {
@@ -40,7 +40,7 @@ describe("parseMutateInsert", () => {
       },
     ];
 
-    const r = PM.parseMutateInsert(response as any);
+    const r = PM.getIdsMutateInsert(response as any);
     expect(r).toEqual(e);
   });
 });

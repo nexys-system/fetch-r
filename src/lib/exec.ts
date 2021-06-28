@@ -126,5 +126,5 @@ export const mutate = async (
   // console.log(qs.map((x) => x.sql).join("\n"));
   const [response] = await s.execQuery(qs.map((x) => x.sql).join("\n"));
 
-  return ParseMutate.parseMutate(qs, response as OkPacket);
+  return await ParseMutate.parseMutate(qs, response as OkPacket, s);
 };
