@@ -5,6 +5,7 @@ import * as Meta from "./query-builder/meta";
 import * as MutateService from "./query-builder/mutate";
 import * as TT from "./query-builder/type";
 import * as Parse from "./query-builder/parse";
+import * as ParseMutate from "./query-builder/parse-mutate";
 import { prepare } from "./query-builder/references";
 
 const isRawDataPacket = (
@@ -111,47 +112,6 @@ export const execFromMeta = async (
   );
 };
 
-const parseMutateInsert = (response: OkPacket): T.MutateResponseInsert => ({
-  success: typeof response.insertId === "number",
-  uuid: undefined,
-  id: response.insertId,
-  status: response.message,
-});
-
-const parseMutateUpdate = (response: OkPacket): T.MutateResponseUpdate => ({
-  success: typeof response.insertId === "number",
-  updated: response.affectedRows,
-});
-
-const parseMutateDelete = (response: OkPacket): T.MutateResponseDelete => ({
-  success: typeof response.insertId === "number",
-  deleted: response.affectedRows,
-});
-
-const getResultBasedOnType = (t: T.MutateType, response: OkPacket) => {
-  switch (t) {
-    case T.MutateType.insert:
-      return { insert: parseMutateInsert(response) };
-    case T.MutateType.update:
-      return { update: parseMutateUpdate(response) };
-    case T.MutateType.delete:
-      return { delete: parseMutateDelete(response) };
-  }
-};
-
-const parseMutate = (
-  qs: { type: T.MutateType; entity: T.Entity }[],
-  response: OkPacket
-): T.MutateResponse => {
-  const r: T.MutateResponse = {};
-
-  qs.forEach(({ entity, type }) => {
-    r[entity.name] = getResultBasedOnType(type, response);
-  });
-
-  return r;
-};
-
 export const getSQLMutate = (mq: T.Mutate, entities: T.Entity[]): string => {
   const qs = MutateService.createMutateQuery(mq, entities);
   return qs.map((x) => x.sql).join("\n");
@@ -166,5 +126,5 @@ export const mutate = async (
   // console.log(qs.map((x) => x.sql).join("\n"));
   const [response] = await s.execQuery(qs.map((x) => x.sql).join("\n"));
 
-  return parseMutate(qs, response as OkPacket);
+  return ParseMutate.parseMutate(qs, response as OkPacket);
 };
