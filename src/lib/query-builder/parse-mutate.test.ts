@@ -13,7 +13,7 @@ describe("parseMutateInsert", () => {
 
     const e = [11];
     const r = PM.getIdsMutateInsert(response as any);
-    expect(r).toEqual([e]);
+    expect(r).toEqual(e);
   });
 
   test("insert multiple", () => {
