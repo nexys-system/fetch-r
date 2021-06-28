@@ -127,26 +127,42 @@ const getValueInsertUnit = (v: any, field: T.Field, model: T.Entity[]) => {
  * @param model
  * @returns
  */
-const getValuesInsert = (data: any, fields: T.Field[], model: T.Entity[]) => {
-  const v = fields
-    .map((field) => getValueInsertUnit(data[field.name], field, model))
-    .join(", ");
+const getValuesInsert = (
+  data: any,
+  fields: T.Field[],
+  model: T.Entity[],
+  hasUuid: boolean
+) => {
+  const fieldsArray = fields.map((field) =>
+    getValueInsertUnit(data[field.name], field, model)
+  );
 
-  return "(" + v + ")";
+  if (hasUuid) {
+    fieldsArray.push("UUID()");
+  }
+
+  return "(" + fieldsArray.join(", ") + ")";
 };
 
 const getValuesInsertMultiple = (
   data: any[],
   fields: T.Field[],
-  model: T.Entity[]
-) => data.map((d) => getValuesInsert(d, fields, model)).join(", ");
+  model: T.Entity[],
+  hasUuid: boolean
+) => data.map((d) => getValuesInsert(d, fields, model, hasUuid)).join(", ");
 
 const toQueryInsert = (entity: T.Entity, data: any, model: T.Entity[]) => {
-  const fields = entity.fields.map((x) => U.fieldToColumn(x)).join(", ");
+  const fieldsArray = entity.fields.map((x) => U.fieldToColumn(x));
+
+  if (entity.uuid) {
+    fieldsArray.push("uuid");
+  }
+
+  const fields = fieldsArray.join(", ");
 
   const values = Array.isArray(data)
-    ? getValuesInsertMultiple(data, entity.fields, model)
-    : getValuesInsert(data, entity.fields, model);
+    ? getValuesInsertMultiple(data, entity.fields, model, entity.uuid)
+    : getValuesInsert(data, entity.fields, model, entity.uuid);
   return `INSERT INTO ${U.entityToTable(entity)} (${fields}) VALUES ${values};`;
 };
 

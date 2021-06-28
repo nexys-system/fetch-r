@@ -19,11 +19,26 @@ interface UserStatus {
   name: string;
 }
 
+interface Permission {
+  uuid: string;
+  name: string;
+}
+
 describe("create mutate query", () => {
   test("simple insert", () => {
     const data: Omit<UserStatus, "id"> = { name: "ok" };
     const q: T.Mutate<UserStatus> = { UserStatus: { insert: { data } } };
     const s = ["INSERT INTO user_status (col_name) VALUES ('ok');"];
+    const sm = S.createMutateQuery(q, model);
+    expect(sm.map((_) => _.sql)).toEqual(s);
+  });
+
+  test("simple insert with uuid", () => {
+    const data: Omit<Permission, "uuid"> = { name: "mypermission" };
+    const q: T.Mutate<Permission> = { Permission: { insert: { data } } };
+    const s = [
+      "INSERT INTO permission (name, uuid) VALUES ('mypermission', UUID());",
+    ];
     const sm = S.createMutateQuery(q, model);
     expect(sm.map((_) => _.sql)).toEqual(s);
   });
@@ -44,7 +59,7 @@ describe("create mutate query", () => {
     };
 
     const s = [
-      `INSERT INTO user (first_name, last_name, middle_name, email, status_id, log_date_added, instance_id, lang) VALUES ('John', 'Doe', NULL, 'john@doe.com', (SELECT id FROM \`user_status\` WHERE id=3), '2015-11-05T13:29:36.000', (SELECT id FROM \`instance\` WHERE uuid='myuuid'), 'en');`,
+      `INSERT INTO user (first_name, last_name, middle_name, email, status_id, log_date_added, instance_id, lang, uuid) VALUES ('John', 'Doe', NULL, 'john@doe.com', (SELECT id FROM \`user_status\` WHERE id=3), '2015-11-05T13:29:36.000', (SELECT id FROM \`instance\` WHERE uuid='myuuid'), 'en', UUID());`,
     ];
     const ss = S.createMutateQuery(q, model);
     expect(ss.map((_) => _.sql)).toEqual(s);
@@ -76,10 +91,10 @@ describe("create mutate query", () => {
     };
 
     const s = [
-      `INSERT INTO user (first_name, last_name, middle_name, email, status_id, log_date_added, instance_id, lang)`,
+      `INSERT INTO user (first_name, last_name, middle_name, email, status_id, log_date_added, instance_id, lang, uuid)`,
       `VALUES`,
-      `('John', 'Doe', NULL, 'john@doe.com', (SELECT id FROM \`user_status\` WHERE id=3), '2015-11-05T13:29:36.000', (SELECT id FROM \`instance\` WHERE uuid='myuuid'), 'en'),`,
-      `('Jane', 'Doe', NULL, 'jane@doe.com', (SELECT id FROM \`user_status\` WHERE id=2), '2015-11-05T13:29:36.000', (SELECT id FROM \`instance\` WHERE uuid='myuuid2'), 'de');`,
+      `('John', 'Doe', NULL, 'john@doe.com', (SELECT id FROM \`user_status\` WHERE id=3), '2015-11-05T13:29:36.000', (SELECT id FROM \`instance\` WHERE uuid='myuuid'), 'en', UUID()),`,
+      `('Jane', 'Doe', NULL, 'jane@doe.com', (SELECT id FROM \`user_status\` WHERE id=2), '2015-11-05T13:29:36.000', (SELECT id FROM \`instance\` WHERE uuid='myuuid2'), 'de', UUID());`,
     ].join(" ");
     const ss = S.createMutateQuery(q, model)[0];
 
