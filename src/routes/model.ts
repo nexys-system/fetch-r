@@ -26,6 +26,7 @@ const isNotEmpty = (s: string): V.Type.ErrorOut | undefined => {
 
 const entityShape: V.Type.Shape = {
   name: {},
+  table: { optional: true },
   uuid: { type: "boolean" },
   fields: {
     $array: {
