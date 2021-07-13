@@ -72,3 +72,17 @@ describe("format date sql", () => {
     );
   });
 });
+
+describe("is null", () => {
+  test("optional", () => {
+    expect(U.isNull(true)).toEqual(true);
+  });
+
+  test("non optional - 0", () => {
+    expect(U.isNull(false, 0)).toEqual(false);
+  });
+
+  test("non optional - false", () => {
+    expect(U.isNull(false, false)).toEqual(false);
+  });
+});

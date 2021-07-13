@@ -144,3 +144,12 @@ export const formatSQL = (v: any, fieldType: T.Type) => {
       return escape(v);
   }
 };
+
+/**
+ * make sure the input data is NULL from a data model perspective
+ * @param optional
+ * @param value
+ * @returns boolean
+ */
+export const isNull = (optional: boolean, value?: any): boolean =>
+  optional && value !== 0 && value !== false && !value;
