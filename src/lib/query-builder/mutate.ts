@@ -114,7 +114,7 @@ const getSubQuery = (field: T.Field, model: T.Entity[], v: any) => {
 };
 
 const getValueInsertUnit = (v: any, field: T.Field, model: T.Entity[]) => {
-  if (field.optional && !v) {
+  if (field.optional && !isNaN(v) && !v) {
     return "NULL";
   }
 
