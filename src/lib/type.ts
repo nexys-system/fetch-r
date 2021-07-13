@@ -109,6 +109,7 @@ export interface MutateResponse {
 
 export enum MutateType {
   insert,
+  insertMultiple,
   update,
   delete,
 }

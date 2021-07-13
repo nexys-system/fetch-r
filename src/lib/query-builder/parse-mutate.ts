@@ -33,11 +33,10 @@ const idsToResponseInsert = (
 export const parseMutateInsert = async (
   response: OkPacket,
   entity: T.Entity,
-  s: Connection.SQL
+  s: Connection.SQL,
+  isInsertMultiple: boolean
 ): Promise<T.MutateResponseInsert | T.MutateResponseInsert[]> => {
-  const { affectedRows } = response;
-  // todo: change this, because an insert multiple with one entry can be done, and an array would still be expected in return
-  const isInsertMultiple = affectedRows > 1;
+  //const { affectedRows } = response;
 
   const { uuid } = entity;
 
@@ -89,8 +88,10 @@ const getResultBasedOnType = async (
 ) => {
   //console.log(response);
   switch (t) {
+    case T.MutateType.insertMultiple:
+      return { insert: await parseMutateInsert(response, entity, s, true) };
     case T.MutateType.insert:
-      return { insert: await parseMutateInsert(response, entity, s) };
+      return { insert: await parseMutateInsert(response, entity, s, false) };
     case T.MutateType.update:
       return { update: parseMutateUpdate(response) };
     case T.MutateType.delete:

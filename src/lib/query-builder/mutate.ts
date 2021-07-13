@@ -149,7 +149,8 @@ const getValuesInsertMultiple = (
   fields: T.Field[],
   model: T.Entity[],
   hasUuid: boolean
-) => data.map((d) => getValuesInsert(d, fields, model, hasUuid)).join(", ");
+): string =>
+  data.map((d) => getValuesInsert(d, fields, model, hasUuid)).join(", ");
 
 const toQueryInsert = (entity: T.Entity, data: any, model: T.Entity[]) => {
   const fieldsArray = entity.fields.map((x) => U.fieldToColumn(x));
@@ -221,8 +222,12 @@ export const createMutateQuery = (
       const modelEntity = getModel(entity, model);
 
       if (queryParams.insert) {
+        const type = Array.isArray(queryParams.insert.data)
+          ? T.MutateType.insertMultiple
+          : T.MutateType.insert;
+
         return {
-          type: T.MutateType.insert,
+          type,
           entity: modelEntity,
           sql: toQueryInsert(modelEntity, queryParams.insert.data, model),
         };
