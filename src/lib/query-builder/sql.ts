@@ -28,7 +28,7 @@ export const toQuery = (meta: TT.MetaQuery): string[] => {
         .map(
           (y) =>
             `t${i}.\`${y.column}\`` +
-            UU.toSqQLOperator(y.operator, y.value) +
+            UU.toSQLOperator(y.operator, y.value) +
             U.escape(y.value)
         )
         .join(" AND ");

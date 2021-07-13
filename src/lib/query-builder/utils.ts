@@ -93,7 +93,7 @@ export const getValueAndOperator = (
   return [{ operator: "=", value: v }];
 };
 
-export const toSqQLOperator = (operator: TT.MetaOperator, value?: any) => {
+export const toSQLOperator = (operator: TT.MetaOperator, value?: any) => {
   switch (operator) {
     case "lt":
       return "<";

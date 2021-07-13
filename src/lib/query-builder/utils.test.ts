@@ -62,7 +62,7 @@ test("to operator", () => {
 });
 
 test("to sql operator", () => {
-  expect(U.toSqQLOperator("in")).toEqual(" IN ");
+  expect(U.toSQLOperator("in")).toEqual(" IN ");
 });
 
 describe("format date sql", () => {

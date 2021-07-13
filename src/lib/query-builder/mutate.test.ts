@@ -227,6 +227,17 @@ test("update special case when referring to the same table/entity", () => {
   expect(sm.map((x) => x.sql)).toEqual(s);
 });
 
+test("update with IN operator", () => {
+  const q: T.Mutate<UserStatus> = {
+    UserStatus: {
+      update: { data: { name: "ok" }, filters: { id: { $in: [1, 2, 3] } } },
+    },
+  };
+  const s = ["UPDATE user_status SET col_name='ok' WHERE `id` IN (1,2,3);"];
+  const sm = S.createMutateQuery(q, model);
+  expect(sm.map((x) => x.sql)).toEqual(s);
+});
+
 describe("get filter unit", () => {
   const modelUnit = model.find((x) => x.name === "User");
   if (!modelUnit) {

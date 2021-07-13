@@ -1,5 +1,4 @@
 import Router from "koa-router";
-
 import bodyParser from "koa-body";
 
 import * as Middleware from "../middleware";
@@ -61,7 +60,7 @@ router.all(
       return;
     }
 
-    const errors: { [entity: string]: any } = {};
+    const errors: { [entity: string]: V.Type.ErrorOut | V.Type.Error } = {};
 
     body.forEach((entityUnit) => {
       //   console.log(entityUnit);
