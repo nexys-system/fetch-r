@@ -238,6 +238,17 @@ test("update with IN operator", () => {
   expect(sm.map((x) => x.sql)).toEqual(s);
 });
 
+test("update with IN operator", () => {
+  const q: T.Mutate<UserStatus> = {
+    UserStatus: {
+      update: { data: { name: "ok" }, filters: { id: { $gt: 1 } } },
+    },
+  };
+  const s = ["UPDATE user_status SET col_name='ok' WHERE `id`>1;"];
+  const sm = S.createMutateQuery(q, model);
+  expect(sm.map((x) => x.sql)).toEqual(s);
+});
+
 describe("get filter unit", () => {
   const modelUnit = model.find((x) => x.name === "User");
   if (!modelUnit) {
