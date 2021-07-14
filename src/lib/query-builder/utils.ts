@@ -159,3 +159,21 @@ export const formatSQL = (v: any, fieldType: T.Type) => {
  */
 export const isNull = (optional: boolean, value?: any): boolean =>
   optional && value !== 0 && value !== false && !value;
+
+/**
+ * removes all ids from object, recursively
+ * @param a
+ */
+export const removeId = (a: { [k: string]: any }): void => {
+  const keys = Object.keys(a);
+
+  if (keys.includes("uuid")) {
+    delete a["id"];
+  }
+
+  keys.forEach((k) => {
+    if (typeof a[k] === "object") {
+      removeId(a[k]);
+    }
+  });
+};

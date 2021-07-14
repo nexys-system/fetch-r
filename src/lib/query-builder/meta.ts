@@ -19,11 +19,12 @@ const getField = (
   const field = fields.find((f) => f.name === fieldName);
 
   if (!field) {
-    if (fieldName === "id" && !entity.uuid) {
+    // id always included (needed for references later)
+    if (fieldName === "id") {
       return { name: "id", type: "Int", optional: false };
     }
 
-    if (fieldName === "uuid" && entity.uuid) {
+    if (entity.uuid && fieldName === "uuid") {
       return { name: "uuid", type: "String", optional: false };
     }
     throw Error(
@@ -72,10 +73,16 @@ export const toMeta = (
       modelUnit.fields.forEach(({ name }) => projEntries.push([name, true]));
     }
 
+    // uuid added if entity supports it
+    if (modelUnit.uuid && !proj["uuid"]) {
+      projEntries.unshift(["uuid", true]);
+    }
+
     // check primary key, if not included in projection, add it
-    const primaryKey: "uuid" | "id" = modelUnit.uuid ? "uuid" : "id";
-    if (!proj[primaryKey]) {
-      projEntries.unshift([primaryKey, true]);
+    // id always included
+    // note: this comes after to have ids at the start of the list of fields (use of unshift)
+    if (!proj["id"]) {
+      projEntries.unshift(["id", true]);
     }
 
     const fields: TT.MetaField[] = [];

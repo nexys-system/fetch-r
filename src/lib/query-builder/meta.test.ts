@@ -20,6 +20,7 @@ describe("to meta and to query", () => {
       entity: "User",
       table: "user",
       fields: [
+        { name: "id", column: "id" },
         { name: "uuid", column: "uuid" },
         { name: "firstName", column: "first_name" },
       ],
@@ -55,7 +56,7 @@ describe("to meta and to query", () => {
 
   test("to query", () => {
     expect(S.toQuery(meta)).toEqual([
-      "SELECT t0.`uuid` AS t0_uuid, t0.`first_name` AS t0_firstName, t1.`id` AS t1_id, t1.`col_name` AS t1_name",
+      "SELECT t0.`id` AS t0_id, t0.`uuid` AS t0_uuid, t0.`first_name` AS t0_firstName, t1.`id` AS t1_id, t1.`col_name` AS t1_name",
       "FROM user AS t0",
       "JOIN user_status AS t1 ON t1.id=t0.status_id",
       "WHERE t1.`col_name`='ok'",
@@ -81,6 +82,7 @@ describe("to meta and to query 2", () => {
       entity: "User",
       table: "user",
       fields: [
+        { name: "id", column: "id" },
         { name: "uuid", column: "uuid" },
         { name: "firstName", column: "first_name" },
       ],
@@ -115,7 +117,7 @@ describe("to meta and to query 2", () => {
 
   test("to query", () => {
     expect(S.toQuery({ units })).toEqual([
-      "SELECT t0.`uuid` AS t0_uuid, t0.`first_name` AS t0_firstName, t1.`id` AS t1_id, t1.`col_name` AS t1_name",
+      "SELECT t0.`id` AS t0_id, t0.`uuid` AS t0_uuid, t0.`first_name` AS t0_firstName, t1.`id` AS t1_id, t1.`col_name` AS t1_name",
       "FROM user AS t0",
       "JOIN user_status AS t1 ON t1.id=t0.status_id",
       "WHERE t0.`uuid`='u3' AND t1.`id`=7 AND t1.`col_name`='ok'",
@@ -214,8 +216,9 @@ test("select w json 2nd level", () => {
       projection: { value: true, user: { status: { name: true } } },
     },
   };
+
   const s = [
-    "SELECT t0.`uuid` AS t0_uuid, t0.`value` AS t0_value, t1.`uuid` AS t1_uuid, t2.`id` AS t2_id, t2.`col_name` AS t2_name",
+    "SELECT t0.`id` AS t0_id, t0.`uuid` AS t0_uuid, t0.`value` AS t0_value, t1.`id` AS t1_id, t1.`uuid` AS t1_uuid, t2.`id` AS t2_id, t2.`col_name` AS t2_name",
     "FROM user_authentication AS t0",
     "JOIN user AS t1 ON t1.id=t0.user_id",
     "JOIN user_status AS t2 ON t2.id=t1.status_id",
@@ -261,6 +264,7 @@ test("implicitly nested query", () => {
       table: "user_authentication",
       alias: "t0",
       fields: [
+        { name: "id", column: "id" },
         { name: "uuid", column: "uuid" },
         { name: "value", column: "value" },
         { name: "isEnabled", column: "is_enabled" },
@@ -271,7 +275,10 @@ test("implicitly nested query", () => {
       entity: "User",
       table: "user",
       alias: "t1",
-      fields: [{ name: "uuid", column: "uuid" }],
+      fields: [
+        { name: "id", column: "id" },
+        { name: "uuid", column: "uuid" },
+      ],
       filters: [],
       join: {
         entity: "UserAuthentication",
