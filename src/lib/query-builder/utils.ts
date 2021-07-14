@@ -108,11 +108,14 @@ export const toSQLOperator = (operator: TT.MetaOperator, value?: any) => {
     case "in":
       return " IN ";
     case "neq":
-      if (value === null) {
+      if (value === null || value === undefined) {
         return " IS NOT ";
       }
-      return "<>";
 
+      if (Array.isArray(value)) {
+        return " IS NOT IN ";
+      }
+      return "<>";
     case "is":
       return " IS ";
     case "regexp":

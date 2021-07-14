@@ -18,7 +18,7 @@ interface FiltersIn {
 }
 
 interface FiltersNe {
-  $ne: null | Value;
+  $ne: null | Value | Value[];
 }
 
 interface FiltersRegex {
