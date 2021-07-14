@@ -86,3 +86,38 @@ describe("is null", () => {
     expect(U.isNull(false, false)).toEqual(false);
   });
 });
+
+test("remove id", () => {
+  const a = {
+    User: [
+      {
+        id: 1,
+        uuid: "u1",
+        name: "pablo",
+        ob: { id: 3, uuid: "u3", occupation: "Dealer" },
+        myArray: [
+          { id: 4, uuid: "u4", i: 1 },
+          { id: 5, uuid: "u5", i: 2 },
+        ],
+      },
+    ],
+  };
+
+  const b = {
+    User: [
+      {
+        uuid: "u1",
+        name: "pablo",
+        ob: { uuid: "u3", occupation: "Dealer" },
+        myArray: [
+          { uuid: "u4", i: 1 },
+          { uuid: "u5", i: 2 },
+        ],
+      },
+    ],
+  };
+
+  U.removeId(a);
+
+  expect(a).toEqual(b);
+});

@@ -6,7 +6,8 @@ import * as MutateService from "./query-builder/mutate";
 import * as TT from "./query-builder/type";
 import * as Parse from "./query-builder/parse";
 import * as ParseMutate from "./query-builder/parse-mutate";
-import { prepare } from "./query-builder/references";
+import * as ReferenceService from "./query-builder/references";
+import * as U from "./query-builder/utils";
 
 const isRawDataPacket = (
   response: RowDataPacket[] | RowDataPacket
@@ -40,7 +41,7 @@ const handleReponse = async (
       // 3 insert result into current result
       const { references } = meta;
       if (references) {
-        await prepare(meta, main, references, model, s);
+        await ReferenceService.prepare(meta, main, references, model, s);
       }
 
       return main;
@@ -76,7 +77,12 @@ export const exec = async (
 ): Promise<T.ReturnUnit> => {
   const qs = Meta.createQuery(mq, entities, options.legacyMode);
 
-  return execFromMeta(qs, entities, s);
+  const r = await execFromMeta(qs, entities, s);
+
+  // this is the last step before output, remove ids where not needed
+  U.removeId(r);
+
+  return r;
 };
 
 export const getSQLFromMeta = (

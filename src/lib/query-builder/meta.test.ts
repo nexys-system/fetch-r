@@ -20,6 +20,7 @@ describe("to meta and to query", () => {
       entity: "User",
       table: "user",
       fields: [
+        { name: "id", column: "id" },
         { name: "uuid", column: "uuid" },
         { name: "firstName", column: "first_name" },
       ],
@@ -55,7 +56,7 @@ describe("to meta and to query", () => {
 
   test("to query", () => {
     expect(S.toQuery(meta)).toEqual([
-      "SELECT t0.`uuid` AS t0_uuid, t0.`first_name` AS t0_firstName, t1.`id` AS t1_id, t1.`col_name` AS t1_name",
+      "SELECT t0.`id` AS t0_id, t0.`uuid` AS t0_uuid, t0.`first_name` AS t0_firstName, t1.`id` AS t1_id, t1.`col_name` AS t1_name",
       "FROM user AS t0",
       "JOIN user_status AS t1 ON t1.id=t0.status_id",
       "WHERE t1.`col_name`='ok'",
@@ -81,6 +82,7 @@ describe("to meta and to query 2", () => {
       entity: "User",
       table: "user",
       fields: [
+        { name: "id", column: "id" },
         { name: "uuid", column: "uuid" },
         { name: "firstName", column: "first_name" },
       ],
@@ -115,7 +117,7 @@ describe("to meta and to query 2", () => {
 
   test("to query", () => {
     expect(S.toQuery({ units })).toEqual([
-      "SELECT t0.`uuid` AS t0_uuid, t0.`first_name` AS t0_firstName, t1.`id` AS t1_id, t1.`col_name` AS t1_name",
+      "SELECT t0.`id` AS t0_id, t0.`uuid` AS t0_uuid, t0.`first_name` AS t0_firstName, t1.`id` AS t1_id, t1.`col_name` AS t1_name",
       "FROM user AS t0",
       "JOIN user_status AS t1 ON t1.id=t0.status_id",
       "WHERE t0.`uuid`='u3' AND t1.`id`=7 AND t1.`col_name`='ok'",
@@ -208,86 +210,15 @@ test("simple select w projection and filter", () => {
   expect(r).toEqual(s);
 });
 
-test("simple select w projection and filter with operator", () => {
-  const q: T.Query = {
-    UserStatus: {
-      projection: {},
-      filters: {
-        id: { $gt: 2, $lt: 10 },
-        name: { $in: ["ok", "pending"] },
-      },
-    },
-  };
-  const s = [
-    "SELECT t0.`id` AS t0_id, t0.`col_name` AS t0_name",
-    "FROM user_status AS t0",
-    "WHERE t0.`id`>2 AND t0.`id`<10 AND t0.`col_name` IN ('ok','pending')",
-  ];
-  const m = M.toMeta("UserStatus", q.UserStatus, model);
-  const r = S.toQuery(m);
-  expect(r).toEqual(s);
-});
-
-test("simple select w regex operator", () => {
-  const q: T.Query = {
-    UserStatus: {
-      filters: {
-        name: { $regex: "^aregexstring$" },
-      },
-    },
-  };
-  const s = [
-    "SELECT t0.`id` AS t0_id, t0.`col_name` AS t0_name",
-    "FROM user_status AS t0",
-    "WHERE t0.`col_name` REGEXP '^aregexstring$'",
-  ];
-  const m = M.toMeta("UserStatus", q.UserStatus, model);
-  const r = S.toQuery(m);
-  expect(r).toEqual(s);
-});
-
-test("simple select w NOT IN operator", () => {
-  const q: T.Query = {
-    UserStatus: {
-      filters: {
-        name: { $ne: ["active", "inactive"] },
-      },
-    },
-  };
-  const s = [
-    "SELECT t0.`id` AS t0_id, t0.`col_name` AS t0_name",
-    "FROM user_status AS t0",
-    "WHERE t0.`col_name` IS NOT IN ('active','inactive')",
-  ];
-  const m = M.toMeta("UserStatus", q.UserStatus, model);
-  const r = S.toQuery(m);
-  expect(r).toEqual(s);
-});
-
-test("simple select w projection and filter by null", () => {
-  const q: T.Query = {
-    UserStatus: { projection: {}, filters: { name: null }, take: 4, skip: 8 },
-  };
-
-  const s = [
-    "SELECT t0.`id` AS t0_id, t0.`col_name` AS t0_name",
-    "FROM user_status AS t0",
-    "WHERE t0.`col_name` IS NULL",
-    "LIMIT 8, 4",
-  ];
-  const m = M.toMeta("UserStatus", q.UserStatus, model);
-  const r = S.toQuery(m);
-  expect(r).toEqual(s);
-});
-
 test("select w json 2nd level", () => {
   const q: T.Query = {
     UserAuthentication: {
       projection: { value: true, user: { status: { name: true } } },
     },
   };
+
   const s = [
-    "SELECT t0.`uuid` AS t0_uuid, t0.`value` AS t0_value, t1.`uuid` AS t1_uuid, t2.`id` AS t2_id, t2.`col_name` AS t2_name",
+    "SELECT t0.`id` AS t0_id, t0.`uuid` AS t0_uuid, t0.`value` AS t0_value, t1.`id` AS t1_id, t1.`uuid` AS t1_uuid, t2.`id` AS t2_id, t2.`col_name` AS t2_name",
     "FROM user_authentication AS t0",
     "JOIN user AS t1 ON t1.id=t0.user_id",
     "JOIN user_status AS t2 ON t2.id=t1.status_id",
@@ -333,6 +264,7 @@ test("implicitly nested query", () => {
       table: "user_authentication",
       alias: "t0",
       fields: [
+        { name: "id", column: "id" },
         { name: "uuid", column: "uuid" },
         { name: "value", column: "value" },
         { name: "isEnabled", column: "is_enabled" },
@@ -343,7 +275,10 @@ test("implicitly nested query", () => {
       entity: "User",
       table: "user",
       alias: "t1",
-      fields: [{ name: "uuid", column: "uuid" }],
+      fields: [
+        { name: "id", column: "id" },
+        { name: "uuid", column: "uuid" },
+      ],
       filters: [],
       join: {
         entity: "UserAuthentication",
