@@ -172,7 +172,7 @@ export const removeId = (a: { [k: string]: any }): void => {
   }
 
   keys.forEach((k) => {
-    if (typeof a[k] === "object") {
+    if (typeof a[k] === "object" && a[k] !== null) {
       removeId(a[k]);
     }
   });

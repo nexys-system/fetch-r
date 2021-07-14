@@ -122,8 +122,6 @@ export const toMeta = (
   addProjection(entity, query.projection || {});
   //
 
-  //console.log(ry);
-
   if (query.filters) {
     const addFilters = (
       entity: string,
@@ -137,7 +135,7 @@ export const toMeta = (
       Object.entries(filters).forEach(([fieldName, pvalue]) => {
         const field = getField(fieldName, modelUnit, modelUnit.fields);
         // check foreign
-        if (!U.isStandardType(field.type)) {
+        if (!U.isStandardType(field.type) && pvalue !== null) {
           const join = getJoin(modelUnit, field);
           addFilters(field.type, pvalue as T.QueryFilters, join, aliasIdx + 1);
           return;
