@@ -22,7 +22,8 @@ export type MetaOperator =
   | "neq"
   | "is"
   | "lte"
-  | "gte"; // see https://dev.mysql.com/doc/refman/8.0/en/non-typed-operators.html
+  | "gte"
+  | "regexp"; // see https://dev.mysql.com/doc/refman/8.0/en/non-typed-operators.html
 export interface MetaFilter extends MetaField {
   value: any;
   operator: MetaOperator;

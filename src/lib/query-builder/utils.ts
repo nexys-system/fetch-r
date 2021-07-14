@@ -71,6 +71,8 @@ export const toOperator = (op: string): TT.MetaOperator => {
     case "$neq":
     case "$ne":
       return "neq";
+    case "$regex":
+      return "regexp";
   }
 
   throw Error("could not map operator: " + JSON.stringify(op));
@@ -113,7 +115,8 @@ export const toSQLOperator = (operator: TT.MetaOperator, value?: any) => {
 
     case "is":
       return " IS ";
-
+    case "regexp":
+      return " REGEXP "; // https://dev.mysql.com/doc/refman/8.0/en/regexp.html#operator_regexp
     default:
       return "=";
   }

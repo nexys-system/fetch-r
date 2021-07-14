@@ -21,7 +21,17 @@ interface FiltersNe {
   $ne: null | Value;
 }
 
-export type FilterAttribute = Value | FiltersIn | FiltersNe | null | undefined;
+interface FiltersRegex {
+  $regex: string;
+}
+
+export type FilterAttribute =
+  | Value
+  | FiltersIn
+  | FiltersNe
+  | FiltersRegex
+  | null
+  | undefined;
 
 // same as query but extra `joinOn` params
 export interface References {
