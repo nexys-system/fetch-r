@@ -25,6 +25,7 @@ export const parseUnit = (
 
     m.fields.forEach((f) => {
       const aliasName = UU.getAliasColumn(m.alias, f.name);
+
       r[f.name] = x[aliasName];
     });
 
@@ -56,9 +57,14 @@ export const parseUnit = (
       .forEach((m) => {
         if (m.join) {
           const attrName = m.join.field.name;
+          //console.log(attrName, r[attrName], r);
           r[attrName] = {};
           r[attrName] = applyProjection(m);
-          recur(m.entity, m.alias, r[attrName]);
+          // console.log(r[attrName]);
+
+          if (r[attrName] !== null) {
+            recur(m.entity, m.alias, r[attrName]);
+          }
         }
       });
 

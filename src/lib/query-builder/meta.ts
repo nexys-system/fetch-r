@@ -35,12 +35,16 @@ const getField = (
   return field;
 };
 
-const getJoin = (modelUnit: T.Entity, field: T.Field) => ({
+const getJoin = (
+  modelUnit: T.Entity,
+  field: T.Field,
+  isParentOptional: boolean = false
+) => ({
   entity: modelUnit.name, // name of the parent entity
   field: {
     name: field.name, // the name of the child field
     column: field.column,
-    optional: field.optional, // determines if JOIN or LEFT JOIN
+    optional: field.optional || isParentOptional, // determines if JOIN or LEFT JOIN
   },
 });
 
@@ -92,11 +96,14 @@ export const toMeta = (
 
       // check foreign
       if (!U.isStandardType(field.type)) {
-        const join = getJoin(modelUnit, field);
+        // this is a trick and important statement: if the parent join was optional, the current one must be optional as well. Else we will rule out expected results
+        const isParentJoinOptional = join ? join.field.optional : false;
+        const currentJoin = getJoin(modelUnit, field, isParentJoinOptional);
+
         addProjection(
           field.type,
           typeof value === "boolean" ? {} : (value as T.QueryProjection),
-          join
+          currentJoin
         );
       } else {
         if (typeof value === "boolean" && value === true) {
@@ -137,6 +144,7 @@ export const toMeta = (
         // check foreign
         if (!U.isStandardType(field.type) && pvalue !== null) {
           const join = getJoin(modelUnit, field);
+
           addFilters(field.type, pvalue as T.QueryFilters, join, aliasIdx + 1);
           return;
         }

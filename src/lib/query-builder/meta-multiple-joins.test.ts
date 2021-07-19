@@ -81,7 +81,7 @@ const u3 = {
   fields: [{ name: "id", column: "id" }],
   join: {
     entity: "User",
-    field: { name: "country", column: "country_id", optional: false },
+    field: { name: "country", column: "country_id", optional: true },
   },
   alias: "t3",
 };
@@ -261,7 +261,7 @@ describe("multiple joins", () => {
       "FROM user_certificate AS t0",
       "JOIN user_certificate_status AS t1 ON t1.id=t0.status_id",
       "LEFT JOIN user AS t2 ON t2.id=t0.log_user_id",
-      "JOIN country AS t3 ON t3.id=t2.country_id",
+      "LEFT JOIN country AS t3 ON t3.id=t2.country_id", // here there is a left join because the parent join is optional. See `isParentJoinOptional` in code
       "LEFT JOIN company AS t4 ON t4.id=t2.company_id",
       "JOIN user AS t5 ON t5.id=t0.user_id",
       "JOIN country AS t6 ON t6.id=t2.country_id",
