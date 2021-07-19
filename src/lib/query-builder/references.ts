@@ -13,7 +13,8 @@ interface Ref {
 export const prepareRefUnit = (
   parentEntity: string,
   main: ReturnUnit[],
-  q: { sql: string; meta: TT.MetaQuery }
+  q: { sql: string; meta: TT.MetaQuery },
+  joinOn?: string
 ): { entity: string; mainUnit: TT.MetaQueryUnit; ids: number[] } => {
   // creating new filter
 
@@ -22,7 +23,10 @@ export const prepareRefUnit = (
   // mainUnit: main entity of parent query
 
   // get entity in ref that is same as parent
-  const observedUnit = q.meta.units.find((x) => x.entity === parentEntity);
+  const observedUnit = q.meta.units.find(
+    (x) =>
+      x.entity === parentEntity && (!joinOn || x.join?.field.name === joinOn)
+  );
 
   if (!observedUnit) {
     // could not find the block to which the query should refer to
@@ -131,10 +135,17 @@ export const prepare = async (
   const qs = Meta.createQuery(references, model);
 
   // adding filter
-  const refs: Ref[] = qs.map((q) => prepareRefUnit(parentEntity, main, q));
+  const refs: Ref[] = qs.map((q) => {
+    // need to find the entity to match the joinOn in references
+    const { entity: refEntity } = q.meta.units[0];
+    const { joinOn } = references[refEntity];
+    return prepareRefUnit(parentEntity, main, q, joinOn);
+  });
 
-  const qs2 = Meta.createSQL(qs.map((x) => x.meta));
-  // console.log("qs2", qs2);
+  const metas = qs.map((x) => x.meta);
+
+  const qs2 = Meta.createSQL(metas);
+  //console.log("qs2", qs2);
   const subResult: ReturnUnit = await Exec.execFromMeta(qs2, model, s);
 
   return refs.map((ref) => {

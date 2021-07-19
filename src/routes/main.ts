@@ -22,7 +22,9 @@ const query = async (ctx: Koa.Context) => {
     const connectionPool = DatabaseService.getPool(ctx.state.jwtContent);
 
     if (sqlScript) {
-      ctx.body = { sql: QueryService.getSQL(query, model) };
+      const sql = QueryService.getSQL(query, model);
+
+      ctx.body = { sql };
       return;
     }
 
