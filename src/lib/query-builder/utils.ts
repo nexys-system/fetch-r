@@ -35,27 +35,27 @@ export const prepareOrderStatement = (metaQuery: TT.MetaQuery) => {
   const { by, desc } = order;
   const byOrderArray = by.split(".");
 
-  switch (byOrderArray.length) {
-    case 1: {
-      return getOrderStatement(by, desc);
-    }
-    case 2: {
-      const [entityOrder, fieldOrder] = byOrderArray;
-      const unit = metaQuery.units.find((x) => x.entity === entityOrder);
+  const byOrderArrayLength = byOrderArray.length;
 
-      if (!unit) {
-        throw Error(
-          "could not find entity for order: " + byOrderArray.join(".")
-        );
-      }
-
-      const { alias } = unit;
-
-      return getOrderStatement(fieldOrder, desc, alias);
-    }
-    default:
-      throw Error("could not figure out the order statement: " + by);
+  if (byOrderArrayLength === 1) {
+    return getOrderStatement(by, desc);
   }
+
+  if (byOrderArrayLength > 1) {
+    const entityOrder = byOrderArray[byOrderArrayLength - 2];
+    const fieldOrder = byOrderArray[byOrderArrayLength - 1];
+    const unit = metaQuery.units.find((x) => x.entity === entityOrder);
+
+    if (!unit) {
+      throw Error("could not find entity for order: " + byOrderArray.join("."));
+    }
+
+    const { alias } = unit;
+
+    return getOrderStatement(fieldOrder, desc, alias);
+  }
+
+  throw Error("could not figure out the order statement: " + by);
 };
 
 /**
