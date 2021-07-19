@@ -10,13 +10,9 @@ test("getLimitStatement", () => {
 });
 
 test("getOrderStatement", () => {
-  expect(U.getOrderStatement({ by: "name" })).toEqual("ORDER BY t0_name ASC");
-  expect(U.getOrderStatement({ by: "name", desc: true })).toEqual(
-    "ORDER BY t0_name DESC"
-  );
-  expect(U.getOrderStatement({ by: "name", desc: false })).toEqual(
-    "ORDER BY t0_name ASC"
-  );
+  expect(U.getOrderStatement("name")).toEqual("ORDER BY t0_name ASC");
+  expect(U.getOrderStatement("name", true)).toEqual("ORDER BY t0_name DESC");
+  expect(U.getOrderStatement("name", false)).toEqual("ORDER BY t0_name ASC");
 });
 
 test("compare joins", () => {

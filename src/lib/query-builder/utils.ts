@@ -24,9 +24,53 @@ export const getLimitStatement = ({
   return `LIMIT ${skip || 0}, ${take}`;
 };
 
-export const getOrderStatement = ({ by, desc }: T.QueryOrder) => {
-  const col = getAliasColumn("t0", by);
-  return `ORDER BY ${col} ${desc === true ? "DESC" : "ASC"}`;
+export const prepareOrderStatement = (metaQuery: TT.MetaQuery) => {
+  const { order } = metaQuery;
+
+  if (!order) {
+    // this code should be unattainable since we check for this upstream
+    throw Error("order is not defined");
+  }
+
+  const { by, desc } = order;
+  const byOrderArray = by.split(".");
+
+  switch (byOrderArray.length) {
+    case 1: {
+      return getOrderStatement(by, desc);
+    }
+    case 2: {
+      const [entityOrder, fieldOrder] = byOrderArray;
+      const unit = metaQuery.units.find((x) => x.entity === entityOrder);
+
+      if (!unit) {
+        throw Error(
+          "could not find entity for order: " + byOrderArray.join(".")
+        );
+      }
+
+      const { alias } = unit;
+
+      return getOrderStatement(fieldOrder, desc, alias);
+    }
+    default:
+      throw Error("could not figure out the order statement: " + by);
+  }
+};
+
+/**
+ * @param fieldOrder: `by` statement
+ * @param desc: order direction: {true:desc, false:ASC}
+ * @param alias: table alias (needs to be linked with an already defined unit
+ */
+export const getOrderStatement = (
+  fieldOrder: string,
+  desc?: boolean,
+  alias: string = "t0"
+): string => {
+  const col = getAliasColumn(alias, fieldOrder);
+  const direction: "DESC" | "ASC" = desc === true ? "DESC" : "ASC";
+  return `ORDER BY ${col} ${direction}`;
 };
 
 export const compareJoins = (

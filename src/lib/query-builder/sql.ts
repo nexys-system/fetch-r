@@ -55,7 +55,7 @@ export const toQuery = (meta: TT.MetaQuery): string[] => {
   r.push("WHERE " + (filters.length === 0 ? "1" : filters.join(" AND ")));
 
   if (meta.order) {
-    r.push(UU.getOrderStatement(meta.order));
+    r.push(UU.prepareOrderStatement(meta));
   }
 
   const limitStatement = UU.getLimitStatement(meta);
