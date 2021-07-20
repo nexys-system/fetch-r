@@ -2,7 +2,7 @@ import * as T from "../type";
 
 export interface MetaJoin {
   entity: string;
-  entityRef?: EntityRef;
+  entityRef: EntityRef;
   field: Pick<T.Field, "name" | "column" | "optional">;
 }
 

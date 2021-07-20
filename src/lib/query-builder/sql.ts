@@ -36,7 +36,7 @@ export const toQuery = (meta: TT.MetaQuery): string[] => {
     .filter(NUtils.array.notEmpty);
 
   const joins: string[] = meta.units.slice(1).map((x) => {
-    const parentAlias = meta.units.findIndex((m) => findUnit(x, m));
+    const parentAlias = meta.units.findIndex((m) => UU.findUnit(x, m));
 
     return (
       (x.join?.field.optional ? "LEFT " : "") +
@@ -63,16 +63,3 @@ export const toQuery = (meta: TT.MetaQuery): string[] => {
 
   return r;
 };
-
-const compareIdx = (a: TT.EntityRef, b: TT.EntityRef): boolean =>
-  a[1] === b[1] && a[0] === b[0];
-
-/**
- * finds unit that is linked
- * note:that the comparison needs to happen at entity, and entityref levels. Some entityrefs are sometimes not unique
- */
-const findUnit = (x: TT.MetaQueryUnit, m: TT.MetaQueryUnit) =>
-  x.join &&
-  m.entity === x.join.entity &&
-  x.join.entityRef &&
-  compareIdx(m.idx, x.join.entityRef);

@@ -1,3 +1,4 @@
+import { MetaJoin } from "./type";
 import * as U from "./utils";
 
 test("getAliasColumn", () => {
@@ -16,7 +17,11 @@ test("getOrderStatement", () => {
 });
 
 test("compare joins", () => {
-  const j1 = { entity: "Entity", field: { name: "Field", optional: true } };
+  const j1: MetaJoin = {
+    entity: "Entity",
+    entityRef: [0, 0],
+    field: { name: "Field", optional: true },
+  };
   expect(U.compareJoins(j1, { join: j1 }));
 });
 

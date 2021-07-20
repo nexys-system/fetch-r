@@ -221,3 +221,16 @@ export const removeId = (a: { [k: string]: any }): void => {
     }
   });
 };
+
+export const compareIdx = (a: TT.EntityRef, b: TT.EntityRef): boolean =>
+  a[1] === b[1] && a[0] === b[0];
+
+/**
+ * finds unit that is linked
+ * note:that the comparison needs to happen at entity, and entityref levels. Some entityrefs are sometimes not unique
+ */
+export const findUnit = (
+  x: { join?: { entityRef: TT.EntityRef; entity: string } },
+  m: { idx: TT.EntityRef; entity: string }
+): boolean =>
+  !!x.join && m.entity === x.join.entity && compareIdx(m.idx, x.join.entityRef);

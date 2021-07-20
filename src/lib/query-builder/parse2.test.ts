@@ -23,10 +23,11 @@ const meta: MetaQuery = {
       fields: [{ name: "id", column: "id" }],
       join: {
         entity: "User",
+        entityRef: [0, 0],
         field: { name: "company", column: "company_id", optional: true },
       },
       alias: "t1",
-      idx: [0, 0],
+      idx: [0, 1],
     },
     {
       entity: "User",
@@ -35,10 +36,11 @@ const meta: MetaQuery = {
       fields: [{ name: "id", column: "id" }],
       join: {
         entity: "Company",
+        entityRef: [0, 1],
         field: { name: "logUser", column: "log_user_id", optional: true },
       },
       alias: "t2",
-      idx: [0, 0],
+      idx: [0, 2],
     },
   ],
   take: 2,

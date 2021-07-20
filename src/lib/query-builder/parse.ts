@@ -37,7 +37,11 @@ export const parseUnit = (
     return r;
   };
 
-  const recur = (parentEntity: string, alias: string, r: T.ReturnUnit) =>
+  const recur = (
+    parentEntity: string,
+    entityRef: TT.EntityRef,
+    r: T.ReturnUnit
+  ) =>
     meta
       // get all the meta units that are linked with the observed/parent one.
       // we filter on:
@@ -53,7 +57,7 @@ export const parseUnit = (
       //    "take": 2
       //  }
       // }
-      .filter((x) => x.join?.entity === parentEntity && alias < x.alias)
+      .filter((x) => UU.findUnit(x, { entity: parentEntity, idx: entityRef }))
       .forEach((m) => {
         if (m.join) {
           const attrName = m.join.field.name;
@@ -63,7 +67,7 @@ export const parseUnit = (
           // console.log(r[attrName]);
 
           if (r[attrName] !== null) {
-            recur(m.entity, m.alias, r[attrName]);
+            recur(m.entity, m.idx, r[attrName]);
           }
         }
       });
@@ -74,7 +78,7 @@ export const parseUnit = (
   const r: T.ReturnUnit | null = applyProjection(m);
 
   if (r) {
-    recur(m.entity, m.alias, r);
+    recur(m.entity, m.idx, r);
   }
 
   return r as T.ReturnUnit; // here explicitly rule out `null` via type casting, more elegant way?

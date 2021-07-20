@@ -108,6 +108,7 @@ export const execFromMeta = async (
   const sqlScript = getSQLFromMeta(qs);
 
   // here we cast to RowDataPacket[] but theoretically it can also be RowDataPacket, it is checked downstream
+  // raw response
   const [response] = await s.execQuery(sqlScript);
 
   return handleReponse(
