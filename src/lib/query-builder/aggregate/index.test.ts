@@ -10,17 +10,17 @@ const sql = [
 ];
 
 // see https://github.com/nexys-system/fetch-r-scala/blob/master/demo/aggregation.ipynb
-const q: T.Query = {
-  UserLesson: {
-    projection: {
-      userModule: true,
-      passed: { $aggregate: { sumPassed: "$sum" } },
-      //# use aggregation without aliasing
-      id: { $aggregate: "$count" },
-    },
-    filters: { userModule: { $neq: null } },
+const params: T.Params = {
+  projection: {
+    userModule: true,
+    passed: { $aggregate: { sumPassed: "$sum" } },
+    //# use aggregation without aliasing
+    id: { $aggregate: "$count" },
   },
+  filters: { userModule: { $neq: null } },
 };
+
+const entity = "UserLesson";
 
 const model: Entity[] = [
   {
@@ -39,5 +39,5 @@ const model: Entity[] = [
 ];
 
 test("to SQL", () => {
-  expect(I.toSQL(q, model)[0]).toEqual(sql.join(" "));
+  expect(I.toSQL(entity, params, model)).toEqual(sql.join(" "));
 });

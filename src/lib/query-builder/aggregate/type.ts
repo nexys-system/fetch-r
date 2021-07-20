@@ -12,6 +12,11 @@ export interface ProjectionAggregate {
       };
 }
 
+export interface Params {
+  projection: ProjectionAggregate;
+  filters: QueryFilters;
+}
+
 export interface Query {
-  [entity: string]: { projection: ProjectionAggregate; filters: QueryFilters };
+  [entity: string]: Params;
 }
