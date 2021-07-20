@@ -123,7 +123,7 @@ export const toOperator = (op: string): TT.MetaOperator => {
 };
 
 export const getValueAndOperator = (
-  v: any
+  v: T.FilterAttribute
 ): { operator: TT.MetaOperator; value: any }[] => {
   if (v === null) {
     return [{ operator: "is", value: null }];
@@ -138,6 +138,13 @@ export const getValueAndOperator = (
 
   return [{ operator: "=", value: v }];
 };
+
+export const getFilterString = (value: T.FilterAttribute) =>
+  getValueAndOperator(value)
+    .map(
+      ({ operator, value }) => toSQLOperator(operator, value) + escape(value)
+    )
+    .join(" && ");
 
 export const toSQLOperator = (operator: TT.MetaOperator, value?: any) => {
   switch (operator) {

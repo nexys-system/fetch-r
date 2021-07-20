@@ -5,6 +5,7 @@ import * as T from "./type";
 const sql = [
   "SELECT user_module_id, SUM(passed) as sumPassed, COUNT(id) as count_id",
   "FROM user_lesson",
+  "WHERE user_module_id IS NOT NULL",
   "GROUP BY user_module_id",
 ];
 
@@ -17,6 +18,7 @@ const q: T.Query = {
       //# use aggregation without aliasing
       id: { $aggregate: "$count" },
     },
+    filters: { userModule: { $neq: null } },
   },
 };
 
@@ -35,24 +37,6 @@ const model: Entity[] = [
     ],
   },
 ];
-
-describe("getOperator", () => {
-  test("true", () => {
-    expect(I.getOperator("my_column", true)).toEqual("my_column");
-  });
-
-  test("count", () => {
-    expect(I.getOperator("my_column", { $aggregate: "$count" })).toEqual(
-      "COUNT(my_column) as count_my_column"
-    );
-  });
-
-  test("count with alias", () => {
-    expect(
-      I.getOperator("my_column", { $aggregate: { myCount: "$count" } })
-    ).toEqual("COUNT(my_column) as myCount");
-  });
-});
 
 test("to SQL", () => {
   expect(I.toSQL(q, model)[0]).toEqual(sql.join(" "));

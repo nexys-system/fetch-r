@@ -6,8 +6,30 @@ import * as Middleware from "../middleware";
 import * as QueryService from "../lib/exec";
 import * as ModelService from "../service/model";
 import * as DatabaseService from "../service/database";
+import * as AggregateService from "../lib/query-builder/aggregate";
 
 const router: Router = new Router();
+
+const aggregate = async (ctx: Koa.Context) => {
+  const { body: query } = ctx.request;
+  // get model
+  try {
+    const model = ModelService.getModel(ctx.state.jwtContent);
+    const connectionPool = DatabaseService.getPool(ctx.state.jwtContent);
+
+    try {
+      ctx.body = await AggregateService.exec(query, model, connectionPool);
+    } catch (err) {
+      ctx.status = 400;
+      ctx.body = { error: err.message };
+      return;
+    }
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { error: "could not find model" };
+    return;
+  }
+};
 
 const query = async (ctx: Koa.Context) => {
   // get query
@@ -43,6 +65,13 @@ const query = async (ctx: Koa.Context) => {
     return;
   }
 };
+
+router.post(
+  "/aggregate",
+  Middleware.isAuth,
+  bodyParser(),
+  async (ctx: Koa.Context) => aggregate(ctx)
+);
 
 router.post(
   "/data",

@@ -64,12 +64,7 @@ export const getFilterUnit = (
     }
   }
 
-  const filterValue = UU.getValueAndOperator(value)
-    .map(
-      ({ operator, value }) =>
-        UU.toSQLOperator(operator, value) + U.escape(value)
-    )
-    .join(" && ");
+  const filterValue = UU.getFilterString(value as T.FilterAttribute);
 
   return `\`${field.column}\`${filterValue}`;
 };

@@ -1,23 +1,16 @@
-import * as T from "./type";
 // very first version
-// const q = {aggregate:{'userModule':true}, projection:{$count:['passed'], $sum: ['passed']}}
-
+import * as T from "./type";
 import { camelToSnakeCase } from "@nexys/utils/dist/string";
-import { Entity } from "../../type";
+import { Entity, Field } from "../../type";
+import * as U from "./utils";
+import { SQL } from "../../database/connection";
+import { getFilterString } from "../utils";
 
-const toSQLOperator = (input: T.AggregateOperator): T.SQLAggregatorOperator => {
-  switch (input) {
-    case "$count":
-      return "COUNT";
-    case "$sum":
-      return "SUM";
-    case "$avg":
-      return "AVG";
-    case "$min":
-      return "MIN";
-    case "$max":
-      return "MAX";
-  }
+const idField: Field = {
+  name: "id",
+  type: "number",
+  column: "id",
+  optional: false,
 };
 
 export const toSQL = (q: T.Query, model: Entity[]) =>
@@ -39,7 +32,7 @@ export const toSQL = (q: T.Query, model: Entity[]) =>
           throw Error("AGGREGATE: could not find field unit: " + field);
         }
 
-        return fieldUnit.column || camelToSnakeCase(fieldUnit.name);
+        return U.toColumn(fieldUnit);
       });
 
     const groupsByStr = groupByFields.join(", ");
@@ -48,51 +41,42 @@ export const toSQL = (q: T.Query, model: Entity[]) =>
       .map(([field, value]) => {
         const fieldUnit =
           modelUnit.fields.find((y) => field === y.name) ||
-          (field === "id" && { name: "id", column: "id", optional: false });
+          (field === "id" && idField);
 
         if (!fieldUnit) {
           throw Error("AGGREGATE: could not find field unit: " + field);
         }
 
-        const column = fieldUnit.column || camelToSnakeCase(fieldUnit.name);
+        const column = U.toColumn(fieldUnit);
 
-        return getOperator(column, value);
+        return U.getOperator(column, value);
       })
       .join(", ");
 
+    const filtersString = params.filters
+      ? Object.entries(params.filters)
+          .map(([field, v]) => {
+            const fieldUnit =
+              modelUnit.fields.find((y) => field === y.name) ||
+              (field === "id" && idField);
+
+            if (!fieldUnit) {
+              throw Error("AGGREGATE: could not find field unit: " + field);
+            }
+            const column = U.toColumn(fieldUnit);
+            const op = getFilterString(v as any);
+
+            return column + op;
+          })
+          .join(" && ")
+      : "1";
+
     return `SELECT ${fieldStrings} FROM ${
       modelUnit.table || camelToSnakeCase(modelUnit.name)
-    } GROUP BY ${groupsByStr}`;
+    } WHERE ${filtersString} GROUP BY ${groupsByStr}`;
   });
 
-export const getOperator = (
-  column: string,
-  value:
-    | boolean
-    | {
-        $aggregate:
-          | T.AggregateOperator
-          | { [alias: string]: T.AggregateOperator };
-      }
-): string => {
-  if (typeof value === "boolean") {
-    return column;
-  }
-
-  const agg = value.$aggregate;
-
-  if (typeof agg === "string") {
-    const alias: string = agg.slice(1) + "_" + column;
-    return getOperatorUnit(agg, column, alias);
-  }
-
-  return Object.entries(agg)
-    .map(([alias, operator]) => getOperatorUnit(operator, column, alias))
-    .join(", ");
+export const exec = (query: T.Query, model: Entity[], s: SQL) => {
+  const [sql] = toSQL(query, model);
+  return s.execQuery(sql);
 };
-
-export const getOperatorUnit = (
-  operator: T.AggregateOperator,
-  column: string,
-  alias: string
-) => toSQLOperator(operator) + `(${column}) as ${alias}`;

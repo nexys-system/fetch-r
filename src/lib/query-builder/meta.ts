@@ -174,15 +174,17 @@ export const toMeta = (
           return;
         }
 
-        UU.getValueAndOperator(pvalue).map(({ operator, value }) => {
-          // opposite todo cast to {} for non query filters
-          metaFilters.push({
-            name: field.name,
-            column: U.fieldToColumn(field),
-            value,
-            operator,
-          });
-        });
+        UU.getValueAndOperator(pvalue as T.FilterAttribute).map(
+          ({ operator, value }) => {
+            // opposite todo cast to {} for non query filters
+            metaFilters.push({
+              name: field.name,
+              column: U.fieldToColumn(field),
+              value,
+              operator,
+            });
+          }
+        );
       });
 
       if (metaFilters.length > 0) {

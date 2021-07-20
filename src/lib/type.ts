@@ -30,6 +30,8 @@ export type FilterAttribute =
   | FiltersIn
   | FiltersNe
   | FiltersRegex
+  | { $lt: number }
+  | { $gt: number }
   | null
   | undefined;
 
