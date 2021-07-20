@@ -17,6 +17,8 @@ describe("to meta and to query", () => {
   const units: TT.MetaQueryUnit[] = [
     {
       alias: "t0",
+      idx: [0, 0],
+
       entity: "User",
       table: "user",
       fields: [
@@ -28,6 +30,7 @@ describe("to meta and to query", () => {
     },
     {
       alias: "t1",
+      idx: [0, 1],
       entity: "UserStatus",
       table: "user_status",
       fields: [
@@ -39,6 +42,7 @@ describe("to meta and to query", () => {
       ],
       join: {
         entity: "User",
+        entityRef: [0, 0],
         field: {
           name: "status",
           column: "status_id",
@@ -79,6 +83,7 @@ describe("to meta and to query 2", () => {
   const units: TT.MetaQueryUnit[] = [
     {
       alias: "t0",
+      idx: [0, 0],
       entity: "User",
       table: "user",
       fields: [
@@ -90,6 +95,7 @@ describe("to meta and to query 2", () => {
     },
     {
       alias: "t1",
+      idx: [0, 1],
       entity: "UserStatus",
       table: "user_status",
       fields: [
@@ -102,6 +108,7 @@ describe("to meta and to query 2", () => {
       ],
       join: {
         entity: "User",
+        entityRef: [0, 0],
         field: {
           name: "status",
           column: "status_id",
@@ -263,6 +270,7 @@ test("implicitly nested query", () => {
       entity: "UserAuthentication",
       table: "user_authentication",
       alias: "t0",
+      idx: [0, 0],
       fields: [
         { name: "id", column: "id" },
         { name: "uuid", column: "uuid" },
@@ -271,22 +279,10 @@ test("implicitly nested query", () => {
       ],
       filters: [],
     },
+
     {
-      entity: "User",
-      table: "user",
       alias: "t1",
-      fields: [
-        { name: "id", column: "id" },
-        { name: "uuid", column: "uuid" },
-      ],
-      filters: [],
-      join: {
-        entity: "UserAuthentication",
-        field: { name: "user", column: "user_id", optional: false },
-      },
-    },
-    {
-      alias: "t2",
+      idx: [0, 1],
       entity: "UserAuthenticationType",
       fields: [
         {
@@ -297,6 +293,7 @@ test("implicitly nested query", () => {
       filters: [],
       join: {
         entity: "UserAuthentication",
+        entityRef: [0, 0],
         field: {
           column: "type_id",
           name: "type",
@@ -304,6 +301,22 @@ test("implicitly nested query", () => {
         },
       },
       table: "user_authentication_type",
+    },
+    {
+      entity: "User",
+      table: "user",
+      alias: "t2",
+      idx: [1, 1],
+      fields: [
+        { name: "id", column: "id" },
+        { name: "uuid", column: "uuid" },
+      ],
+      filters: [],
+      join: {
+        entity: "UserAuthentication",
+        entityRef: [0, 0],
+        field: { name: "user", column: "user_id", optional: false },
+      },
     },
   ];
 

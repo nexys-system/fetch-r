@@ -1,11 +1,12 @@
 import * as P from "./parse";
 import { RowDataPacket } from "mysql2";
+import { MetaQuery } from "./type";
 
 const response: RowDataPacket = [
   { t0_id: 11, t1_id: 138, t2_id: 1681 },
   { t0_id: 12, t1_id: 2, t2_id: 1681 },
 ] as RowDataPacket;
-const meta = {
+const meta: MetaQuery = {
   units: [
     {
       entity: "User",
@@ -13,6 +14,7 @@ const meta = {
       filters: [],
       fields: [{ name: "id", column: "id" }],
       alias: "t0",
+      idx: [0, 0],
     },
     {
       entity: "Company",
@@ -24,6 +26,7 @@ const meta = {
         field: { name: "company", column: "company_id", optional: true },
       },
       alias: "t1",
+      idx: [0, 0],
     },
     {
       entity: "User",
@@ -35,6 +38,7 @@ const meta = {
         field: { name: "logUser", column: "log_user_id", optional: true },
       },
       alias: "t2",
+      idx: [0, 0],
     },
   ],
   take: 2,

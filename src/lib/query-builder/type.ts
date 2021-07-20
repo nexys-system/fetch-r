@@ -2,6 +2,7 @@ import * as T from "../type";
 
 export interface MetaJoin {
   entity: string;
+  entityRef?: EntityRef;
   field: Pick<T.Field, "name" | "column" | "optional">;
 }
 
@@ -35,6 +36,7 @@ export interface MetaQueryUnit {
   table: string;
   fields: MetaField[];
   filters: MetaFilter[];
+  idx: EntityRef;
   join?: MetaJoin;
 }
 
@@ -45,3 +47,5 @@ export interface MetaQuery {
   order?: T.QueryOrder;
   references?: T.References;
 }
+
+export type EntityRef = [number, number];

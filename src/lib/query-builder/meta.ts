@@ -38,9 +38,11 @@ const getField = (
 const getJoin = (
   modelUnit: T.Entity,
   field: T.Field,
+  entityRef: TT.EntityRef,
   isParentOptional: boolean = false
-) => ({
+): TT.MetaJoin => ({
   entity: modelUnit.name, // name of the parent entity
+  entityRef,
   field: {
     name: field.name, // the name of the child field
     column: field.column,
@@ -66,7 +68,9 @@ export const toMeta = (
   const addProjection = (
     entity: string,
     proj: T.QueryProjection,
-    join?: TT.MetaJoin
+    join?: TT.MetaJoin,
+    aliasIdx: number = 0,
+    depth: number = 0
   ) => {
     const modelUnit = UU.getModel(entity, model);
     // turn projection into object
@@ -90,6 +94,7 @@ export const toMeta = (
     }
 
     const fields: TT.MetaField[] = [];
+    let aaIdx = aliasIdx;
     projEntries.forEach(([fieldName, value]) => {
       const field = getField(fieldName, modelUnit, modelUnit.fields);
       // console.log({ field });
@@ -98,13 +103,23 @@ export const toMeta = (
       if (!U.isStandardType(field.type)) {
         // this is a trick and important statement: if the parent join was optional, the current one must be optional as well. Else we will rule out expected results
         const isParentJoinOptional = join ? join.field.optional : false;
-        const currentJoin = getJoin(modelUnit, field, isParentJoinOptional);
+        //console.log(modelUnit.name, join);
+        const currentJoin = getJoin(
+          modelUnit,
+          field,
+          toEntityRef(aliasIdx, depth),
+          isParentJoinOptional
+        );
 
         addProjection(
           field.type,
           typeof value === "boolean" ? {} : (value as T.QueryProjection),
-          currentJoin
+          currentJoin,
+          aaIdx,
+          depth + 1
         );
+
+        aaIdx++;
       } else {
         if (typeof value === "boolean" && value === true) {
           fields.push({ name: field.name, column: U.fieldToColumn(field) });
@@ -119,6 +134,7 @@ export const toMeta = (
       table,
       filters: [],
       fields,
+      idx: [aliasIdx, depth],
       join,
     };
 
@@ -134,18 +150,27 @@ export const toMeta = (
       entity: string,
       filters: T.QueryFilters,
       join?: TT.MetaJoin,
-      aliasIdx: number = 0
+      aliasIdx: number = 0,
+      depth: number = 0
     ) => {
       const modelUnit = UU.getModel(entity, model);
 
       const metaFilters: TT.MetaFilter[] = [];
+      let aaIdx = aliasIdx;
       Object.entries(filters).forEach(([fieldName, pvalue]) => {
         const field = getField(fieldName, modelUnit, modelUnit.fields);
         // check foreign
         if (!U.isStandardType(field.type) && pvalue !== null) {
-          const join = getJoin(modelUnit, field);
+          const join = getJoin(modelUnit, field, toEntityRef(aliasIdx, depth));
 
-          addFilters(field.type, pvalue as T.QueryFilters, join, aliasIdx + 1);
+          addFilters(
+            field.type,
+            pvalue as T.QueryFilters,
+            join,
+            aaIdx,
+            depth + 1
+          );
+          aaIdx++;
           return;
         }
 
@@ -178,6 +203,7 @@ export const toMeta = (
             table,
             fields: [idUuid],
             filters: metaFilters,
+            idx: [aliasIdx, depth],
             join,
           };
 
@@ -195,10 +221,14 @@ export const toMeta = (
   // reverse list and add alias based on position
   // STRONG ASSUMPTION: the main entity is at the bottom of the list due to the way the recurring logic is designed in projection
   const m: TT.MetaQueryUnit[] = ry
-    .reverse()
+    //.reverse()
+    .sort(sortUnit)
     .map((x, i) => ({ ...x, alias: `t${i}` }));
 
   const units = m.sort(sortAlias);
+
+  // console log all the different units, this is crucial to debug queries
+  //units.map((x) => console.log(x));
 
   return {
     units,
@@ -208,6 +238,14 @@ export const toMeta = (
     references: query.references,
   };
 };
+
+const sortUnit = (a: { idx: TT.EntityRef }, b: { idx: TT.EntityRef }): number =>
+  a.idx[0] * 1000 + a.idx[1] - b.idx[0] * 1000 - b.idx[1];
+
+const toEntityRef = (aIdx: number, depth: number): TT.EntityRef => [
+  aIdx,
+  depth,
+];
 
 const sortAlias = (a: { alias: string }, b: { alias: string }): 1 | -1 =>
   Number(a.alias.slice(1)) > Number(b.alias.slice(1)) ? 1 : -1;
