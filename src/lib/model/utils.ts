@@ -1,6 +1,6 @@
 import { camelToSnakeCase } from "@nexys/utils/dist/string";
-import * as T from "../../lib/type";
-import { isStandardType } from "../../lib/utils";
+import * as T from "../type";
+import { isStandardType } from "../utils";
 
 export const addColumnsToModel = (es: T.Entity[]) => {
   es.forEach((entity) => {
