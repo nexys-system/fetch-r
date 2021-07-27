@@ -1,7 +1,6 @@
-import { camelToSnakeCase } from "@nexys/utils/dist/string";
 import fs from "fs";
+import { addColumnsToModel } from "../../lib/model/utils";
 import * as T from "../../lib/type";
-import { isStandardType } from "../../lib/utils";
 import { JwtStructure } from "../../middleware/type";
 
 const productIdentifier = (j: Pick<JwtStructure, "product" | "env">) =>
@@ -26,22 +25,6 @@ export const getModel = (j: Pick<JwtStructure, "product" | "env">) => {
     throw Error("could not find model");
   }
   return model;
-};
-
-const addColumnsToModel = (es: T.Entity[]) => {
-  es.forEach((entity) => {
-    entity.fields.forEach((field) => {
-      const { column } = field;
-
-      if (!column || column === "") {
-        field.column = camelToSnakeCase(field.name);
-
-        if (!isStandardType(field.type)) {
-          field.column += "_id";
-        }
-      }
-    });
-  });
 };
 
 export const set = async (

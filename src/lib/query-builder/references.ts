@@ -2,7 +2,7 @@ import * as Meta from "../query-builder/meta";
 import * as TT from "../query-builder/type";
 import * as Exec from "../exec";
 import { Entity, Field, References, ReturnUnit } from "../type";
-import { Connection } from "../index";
+import * as Connection from "../database/connection";
 
 interface Ref {
   entity: string;

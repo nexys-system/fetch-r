@@ -1,5 +1,6 @@
 // this file is used for the package. The server should use the other files directly
-export * as Connection from "./database/connection";
+export * as Database from "./database";
+export * as Model from "./model";
 export * as Exec from "./exec";
 export * as Type from "./type";
 export * as QueryBuilder from "./query-builder";
