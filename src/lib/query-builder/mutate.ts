@@ -111,14 +111,18 @@ const getSubQuery = (field: T.Field, model: T.Entity[], v: any) => {
 const getValueInsertUnit = (
   v: any,
   field: T.Field,
-  _model: T.Entity[]
+  model: T.Entity[]
 ): string => {
   if (UU.isNull(field.optional, v)) {
     return "NULL";
   }
 
   if (!U.isStandardType(field.type)) {
-    return UU.formatSQL(v.uuid || v.id, "Long"); // getSubQuery(field, model, v);
+    if (v.id && typeof v.id === "number") {
+      return UU.formatSQL(v.id, "Long");
+    }
+
+    return getSubQuery(field, model, v);
   }
 
   // todo check option set value
