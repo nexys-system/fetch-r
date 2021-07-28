@@ -4,6 +4,7 @@ import { Database } from "./database/type";
 import * as Exec from "./exec";
 import * as T from "./type";
 import * as MigrationService from "@nexys/sql-migrations";
+import { addColumnsToModel } from "./model/utils";
 
 export class Main {
   s: Connection.SQL;
@@ -17,6 +18,8 @@ export class Main {
       c.database,
       c.port
     );
+
+    addColumnsToModel(model);
     this.model = model;
   }
 
