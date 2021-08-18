@@ -79,12 +79,14 @@ export interface Query {
   [entity: string]: QueryParams;
 }
 
+export interface MutateParams<A = any> {
+  insert?: { data: Omit<A, "id" | "uuid"> | Omit<A, "id" | "uuid">[] };
+  update?: { data: Partial<A>; filters: QueryFilters };
+  delete?: { filters: QueryFilters };
+}
+
 export interface Mutate<A = any> {
-  [entity: string]: {
-    insert?: { data: Omit<A, "id" | "uuid"> | Omit<A, "id" | "uuid">[] };
-    update?: { data: Partial<A>; filters: QueryFilters };
-    delete?: { filters: QueryFilters };
-  };
+  [entity: string]: MutateParams<A>;
 }
 
 export interface MutateResponseInsert {
