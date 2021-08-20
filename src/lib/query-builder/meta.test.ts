@@ -275,7 +275,7 @@ test("implicitly nested query", () => {
         { name: "id", column: "id" },
         { name: "uuid", column: "uuid" },
         { name: "value", column: "value" },
-        { name: "isEnabled", column: "is_enabled" },
+        { name: "isEnabled", column: "is_enabled", type: "Boolean" },
       ],
       filters: [],
     },

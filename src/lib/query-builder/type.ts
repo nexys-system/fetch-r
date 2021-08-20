@@ -9,12 +9,13 @@ export interface MetaJoin {
 export interface MetaField {
   name: string;
   column: string;
+  type?: T.Type; // needed to cast
 }
 
 export const metaOperators = ["=", "gt", "lt", "in", "neq", "is"]; //as const;
 // https://stackoverflow.com/questions/44480644/string-union-to-string-array
-//type MetaOperatorTuple = typeof (metaOperators);
-//export type MetaOperator = MetaOperatorTuple[number]; //
+// type MetaOperatorTuple = typeof (metaOperators);
+// export type MetaOperator = MetaOperatorTuple[number]; //
 export type MetaOperator =
   | "="
   | "gt"
