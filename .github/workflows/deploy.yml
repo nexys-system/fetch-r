@@ -6,7 +6,7 @@ on:
       - v*
 
 env:
-  DOCKERHUB_URL: ghcr.io/tss-helpdesk/nexys-system/fetch-r/fetchrnode
+  DOCKERHUB_URL: ghcr.io/nexys-system/fetch-r/fetchrnode
 
 jobs:
   test:
