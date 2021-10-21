@@ -1,9 +1,7 @@
 name: Build and Test Package
 
 on:
-  push:
-    branches-ignore:
-      - master
+  [push]
 
 jobs:
   test:
