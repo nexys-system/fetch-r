@@ -12,8 +12,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Login to DockerHub Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
@@ -21,6 +19,8 @@ jobs:
       - run: yarn
       - run: APP_TOKEN=token HOST=host PRODUCT_HOST=host2 yarn test
       - run: yarn build
+      - name: Login to DockerHub Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: create docker container
         run: docker build --build-arg GIT_SHA=$GITHUB_SHA --build-arg GIT_VERSION=${GITHUB_REF##*/} --tag $DOCKERHUB_URL:latest --tag $DOCKERHUB_URL:master  --tag $DOCKERHUB_URL:${GITHUB_REF##*/} .
       - name: Push
