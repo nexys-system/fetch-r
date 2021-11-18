@@ -169,7 +169,7 @@ const toQueryInsert = (entity: T.Entity, data: any, model: T.Entity[]) => {
     fieldsArray.push("uuid");
   }
 
-  const fields = fieldsArray.join(", ");
+  const fields = fieldsArray.map((x) => "`" + x + "`").join(", ");
 
   const values = Array.isArray(data)
     ? getValuesInsertMultiple(data, entity.fields, model, entity.uuid)
