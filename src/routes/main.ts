@@ -118,7 +118,7 @@ router.post("/mutate", Middleware.isAuth, bodyParser(), async (ctx) => {
 });
 
 router.all("/", async (ctx: Koa.Context) => {
-  ctx.body = { msg: "fetch-r", version: process.env.GIT_SHA_ENV };
+  ctx.body = { msg: "fetch-r", sha: process.env.GIT_SHA_ENV, version: process.env.GIT_VERSION_ENV };
 });
 
 export default router.routes();

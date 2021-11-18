@@ -86,7 +86,17 @@ const getFilters = (
 const getSubQuery = (field: T.Field, model: T.Entity[], v: any) => {
   const entity = getModel(field.type, model);
 
+  // if the value is NULL and the field is optional, return "NULL"
+  if (v === null) {
+    if (field.optional === true) {
+      return "NULL";
+    }
+
+    throw "value is null/undefined, even though the field is not optional";
+  }
+
   const idUuid = entity.uuid ? "uuid" : "id";
+
   const iid = v[idUuid];
 
   if (!iid) {

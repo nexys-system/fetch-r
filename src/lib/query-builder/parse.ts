@@ -11,6 +11,29 @@ import * as TT from "./type";
 import * as UU from "./utils";
 import { RowDataPacket } from "mysql2";
 
+/**
+ * parse to the right javascript value
+ * typically relevant for boolean. MySql does not have boolean types and returns [0,1+]
+ * @see https://www.mysqltutorial.org/mysql-boolean/
+ * @see https://dba.stackexchange.com/questions/12569/how-to-cast-an-integer-to-a-boolean-in-a-mysql-select-clause
+ */
+export const getParsedValue = (
+  x: RowDataPacket,
+  aliasName: string,
+  type?: T.Type
+) => {
+  // get value
+  const v = x[aliasName];
+  // console.log({ v, aliasName, type });
+
+  // if expected type is boolean and returned type is number, cast to boolean
+  if (type && type === "Boolean" && typeof v === "number") {
+    return Boolean(v > 0); // note that false == 0 and true is any positive integer
+  }
+
+  return v;
+};
+
 export const parseUnit = (
   x: RowDataPacket,
   meta: TT.MetaQueryUnit[]
@@ -26,7 +49,7 @@ export const parseUnit = (
     m.fields.forEach((f) => {
       const aliasName = UU.getAliasColumn(m.alias, f.name);
 
-      r[f.name] = x[aliasName];
+      r[f.name] = getParsedValue(x, aliasName, f.type);
     });
 
     // to account for "LEFT JOINS" / optional dependencies

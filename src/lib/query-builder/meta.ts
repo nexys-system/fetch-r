@@ -122,7 +122,11 @@ export const toMeta = (
         aaIdx++;
       } else {
         if (typeof value === "boolean" && value === true) {
-          fields.push({ name: field.name, column: U.fieldToColumn(field) });
+          fields.push({
+            name: field.name,
+            column: U.fieldToColumn(field),
+            type: field.type === "Boolean" ? "Boolean" : undefined, // todo, for now only boolean, add all types in the future? if yes, tests will need to be adjusted
+          });
         }
       }
     });

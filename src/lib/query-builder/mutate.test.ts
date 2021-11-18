@@ -258,7 +258,7 @@ describe("get filter unit", () => {
     try {
       S.getFilterUnit("firstName", null, modelUnit, model);
     } catch (err) {
-      expect(typeof err.message).toEqual("string");
+      expect(typeof (err as any).message).toEqual("string");
     }
   });
 
@@ -272,5 +272,53 @@ describe("get filter unit", () => {
     expect(r).toEqual(
       "`instance_id`=(SELECT id FROM `instance` WHERE uuid='myuuid')"
     );
+  });
+});
+
+describe("update with null", () => {
+  test("update a value to null", () => {
+    const q = {
+      Module: {
+        update: {
+          data: {
+            points: 30,
+            tag: null,
+            externalId: 6000,
+          },
+          filters: {
+            id: 516,
+          },
+        },
+      },
+    };
+
+    const [t] = S.createMutateQuery(q, model2);
+
+    expect(t.sql).toEqual(
+      "UPDATE module SET points=30, tag_id=NULL, external_id=6000 WHERE `id`=516;"
+    );
+  });
+
+  test("update a value to null, forbidden", () => {
+    const q = {
+      Module: {
+        update: {
+          data: {
+            status: null,
+          },
+          filters: {
+            id: 516,
+          },
+        },
+      },
+    };
+
+    try {
+      S.createMutateQuery(q, model2);
+    } catch (err) {
+      expect(err).toEqual(
+        "value is null/undefined, even though the field is not optional"
+      );
+    }
   });
 });

@@ -1,43 +1,27 @@
-name: Deploy to docker
+name: Deploy Docker
 
 on:
   push:
-    branches:
-    - master
+    tags:
+      - v*
 
 env:
-  DOCKERHUB_URL: docker.pkg.github.com/nexys-system/fetch-r/fetchrnode
+  DOCKERHUB_URL: ghcr.io/nexys-system/fetch-r/fetchrnode
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Login to DockerHub Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
-          node-version: 13
+          node-version: 14
       - run: yarn
-      - run: yarn test
+      - run: APP_TOKEN=token HOST=host PRODUCT_HOST=host2 yarn test
       - run: yarn build
+      - name: Login to DockerHub Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: create docker container
-        run: docker build --build-arg GIT_SHA=$GITHUB_SHA  --tag $DOCKERHUB_URL:latest --tag $DOCKERHUB_URL:master .
+        run: docker build --build-arg GIT_SHA=$GITHUB_SHA --build-arg GIT_VERSION=${GITHUB_REF##*/} --tag $DOCKERHUB_URL:latest --tag $DOCKERHUB_URL:master  --tag $DOCKERHUB_URL:${GITHUB_REF##*/} .
       - name: Push
-        run: |
-          docker push $DOCKERHUB_URL:latest
-          docker push $DOCKERHUB_URL:master
-      - name: prep SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY_PRIVATE }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          echo "${{ secrets.HOST }}" > ~/.ssh/known_hosts
-      - name: Publish package
-        run: |
-          ssh -q -o 'StrictHostKeyChecking no' ${{ secrets.USERNAME }}@${{ secrets.HOST }} << EOF
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
-            docker pull $DOCKERHUB_URL:master
-            /usr/local/bin/docker-compose --log-level CRITICAL -f compose.yml up -d
-            docker exec nginx nginx -s reload
-          EOF
+        run: docker push --all-tags $DOCKERHUB_URL
