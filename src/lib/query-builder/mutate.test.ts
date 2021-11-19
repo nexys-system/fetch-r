@@ -112,7 +112,7 @@ describe("create mutate query", () => {
     const q: T.Mutate<UserStatus> = {
       UserStatus: { update: { data: { name: "ok" }, filters: { id: 2 } } },
     };
-    const s = ["UPDATE user_status SET col_name='ok' WHERE `id`=2;"];
+    const s = ["UPDATE user_status SET `col_name`='ok' WHERE `id`=2;"];
     const sm = S.createMutateQuery(q, model);
     expect(sm.map((x) => x.sql)).toEqual(s);
   });
@@ -123,7 +123,7 @@ describe("create mutate query", () => {
         update: { data: { id: 1, name: "ok" }, filters: { id: 2 } },
       },
     };
-    const s = ["UPDATE user_status SET col_name='ok' WHERE `id`=2;"];
+    const s = ["UPDATE user_status SET `col_name`='ok' WHERE `id`=2;"];
     const sm = S.createMutateQuery(q, model);
     expect(sm.map((x) => x.sql)).toEqual(s);
   });
@@ -138,7 +138,7 @@ describe("create mutate query", () => {
       },
     };
     const s = [
-      "UPDATE module_lesson SET is_mandatory=0 WHERE `lesson_id`=2495 AND `module_id`=553;",
+      "UPDATE module_lesson SET `is_mandatory`=0 WHERE `lesson_id`=2495 AND `module_id`=553;",
     ];
     const sm = S.createMutateQuery(q, model2);
     expect(sm.map((x) => x.sql)).toEqual(s);
@@ -154,7 +154,7 @@ describe("create mutate query", () => {
       },
     };
     const s = [
-      "UPDATE module_lesson SET is_mandatory=0 WHERE `lesson_id`=2495 AND `module_id`=553;",
+      "UPDATE module_lesson SET `is_mandatory`=0 WHERE `lesson_id`=2495 AND `module_id`=553;",
     ];
     const sm = S.createMutateQuery(q, model2);
     expect(sm.map((x) => x.sql)).toEqual(s);
@@ -172,7 +172,7 @@ describe("create mutate query", () => {
     };
 
     const s = [
-      "UPDATE user SET first_name='Jane', instance_id=(SELECT id FROM `instance` WHERE uuid='myuuid'), status_id=(SELECT id FROM `user_status` WHERE id=3) WHERE `uuid`='useruuid';",
+      "UPDATE user SET `first_name`='Jane', `instance_id`=(SELECT id FROM `instance` WHERE uuid='myuuid'), `status_id`=(SELECT id FROM `user_status` WHERE id=3) WHERE `uuid`='useruuid';",
     ];
     const sm = S.createMutateQuery(q, model);
     expect(sm.map((x) => x.sql)).toEqual(s);
@@ -201,7 +201,7 @@ test("update with 2nd level filter", () => {
   };
 
   const s: string[] = [
-    "UPDATE module_lesson SET is_mandatory=1 WHERE `lesson_id` IN (SELECT id FROM `lesson` WHERE `ref_id`=2495) AND `module_id`=553;",
+    "UPDATE module_lesson SET `is_mandatory`=1 WHERE `lesson_id` IN (SELECT id FROM `lesson` WHERE `ref_id`=2495) AND `module_id`=553;",
   ];
   const sm = S.createMutateQuery(query, model2);
   expect(sm.map((x) => x.sql)).toEqual(s);
@@ -222,7 +222,7 @@ test("update special case when referring to the same table/entity", () => {
       },
     },
   };
-  const s: string[] = ["UPDATE lesson SET ref_id=544 WHERE `id`=720;"];
+  const s: string[] = ["UPDATE lesson SET `ref_id`=544 WHERE `id`=720;"];
   const sm = S.createMutateQuery(q, model2);
   expect(sm.map((x) => x.sql)).toEqual(s);
 });
@@ -233,7 +233,7 @@ test("update with IN operator", () => {
       update: { data: { name: "ok" }, filters: { id: { $in: [1, 2, 3] } } },
     },
   };
-  const s = ["UPDATE user_status SET col_name='ok' WHERE `id` IN (1,2,3);"];
+  const s = ["UPDATE user_status SET `col_name`='ok' WHERE `id` IN (1,2,3);"];
   const sm = S.createMutateQuery(q, model);
   expect(sm.map((x) => x.sql)).toEqual(s);
 });
@@ -244,7 +244,7 @@ test("update with IN operator", () => {
       update: { data: { name: "ok" }, filters: { id: { $gt: 1 } } },
     },
   };
-  const s = ["UPDATE user_status SET col_name='ok' WHERE `id`>1;"];
+  const s = ["UPDATE user_status SET `col_name`='ok' WHERE `id`>1;"];
   const sm = S.createMutateQuery(q, model);
   expect(sm.map((x) => x.sql)).toEqual(s);
 });
@@ -295,7 +295,7 @@ describe("update with null", () => {
     const [t] = S.createMutateQuery(q, model2);
 
     expect(t.sql).toEqual(
-      "UPDATE module SET points=30, tag_id=NULL, external_id=6000 WHERE `id`=516;"
+      "UPDATE module SET `points`=30, `tag_id`=NULL, `external_id`=6000 WHERE `id`=516;"
     );
   });
 

@@ -204,7 +204,7 @@ const toQueryUpdate = (
         throw Error(`update: cannot find ${entity.name}.${k}`);
       }
 
-      const col = U.fieldToColumn(field);
+      const col = "`" + U.fieldToColumn(field) + "`";
 
       if (!U.isStandardType(field.type)) {
         // if same entity, do not link extra table
