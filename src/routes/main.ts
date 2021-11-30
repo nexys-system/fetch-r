@@ -21,7 +21,7 @@ const aggregate = async (ctx: Koa.Context) => {
       ctx.body = await AggregateService.exec(query, model, connectionPool);
     } catch (err) {
       ctx.status = 400;
-      ctx.body = { error: err.message };
+      ctx.body = { error: (err as any).message };
       return;
     }
   } catch (err) {
@@ -56,7 +56,7 @@ const query = async (ctx: Koa.Context) => {
       });
     } catch (err) {
       ctx.status = 400;
-      ctx.body = { error: err.message };
+      ctx.body = { error: (err as any).message };
       return;
     }
   } catch (err) {
@@ -107,7 +107,7 @@ router.post("/mutate", Middleware.isAuth, bodyParser(), async (ctx) => {
       ctx.body = await QueryService.mutate(query, model, connectionPool);
     } catch (err) {
       ctx.status = 400;
-      ctx.body = { error: err.message };
+      ctx.body = { error: (err as any).message };
       return;
     }
   } catch (err) {
@@ -118,7 +118,11 @@ router.post("/mutate", Middleware.isAuth, bodyParser(), async (ctx) => {
 });
 
 router.all("/", async (ctx: Koa.Context) => {
-  ctx.body = { msg: "fetch-r", sha: process.env.GIT_SHA_ENV, version: process.env.GIT_VERSION_ENV };
+  ctx.body = {
+    msg: "fetch-r",
+    sha: process.env.GIT_SHA_ENV,
+    version: process.env.GIT_VERSION_ENV,
+  };
 });
 
 export default router.routes();

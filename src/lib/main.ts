@@ -5,15 +5,23 @@ import * as Exec from "./exec";
 import * as T from "./type";
 import * as MigrationService from "@nexys/sql-migrations";
 import { addColumnsToModel } from "./model/utils";
+import { Query as AQuery } from "./query-builder/aggregate/type";
+import { Aggregate } from "./query-builder";
 
-interface Options{ legacyMode: boolean }
+interface Options {
+  legacyMode: boolean;
+}
 
 export class Main {
   s: Connection.SQL;
   model: T.Entity[];
-  options: Options
+  options: Options;
 
-  constructor(c: Database, model: T.Entity[], options: Options = { legacyMode: false }) {
+  constructor(
+    c: Database,
+    model: T.Entity[],
+    options: Options = { legacyMode: false }
+  ) {
     this.s = new Connection.SQL(
       c.host,
       c.username,
@@ -30,6 +38,8 @@ export class Main {
   mutate = (m: T.Mutate) => Exec.mutate(m, this.model, this.s);
 
   query = (q: T.Query) => Exec.exec(q, this.model, this.s, this.options);
+
+  aggregate = (q: AQuery) => Aggregate.exec(q, this.model, this.s);
 
   applyMigration = (migrations: MigrationService.Type.Migration[]) =>
     MigrationService.Migrations.runMigrations(migrations, this.s);
