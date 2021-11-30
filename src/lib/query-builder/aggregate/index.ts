@@ -75,16 +75,12 @@ export const toSQL = (entity: string, params: T.Params, model: Entity[]) => {
   } WHERE ${filtersString} GROUP BY ${groupsByStr}`;
 };
 
-interface Out {
-  [entity: string]: any;
-}
-
 export const exec = async (
   query: T.Query,
   model: Entity[],
   s: SQL
-): Promise<Out> => {
-  const r: Out = {};
+): Promise<T.ResponseAggregate> => {
+  const r: T.ResponseAggregate = {};
 
   const p = Object.entries(query).map(async ([entity, params]) => {
     const sql = toSQL(entity, params, model);

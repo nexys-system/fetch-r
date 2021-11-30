@@ -20,3 +20,8 @@ export interface Params {
 export interface Query {
   [entity: string]: Params;
 }
+
+// todo, be more precise in def
+export interface ResponseAggregate {
+  [entity: string]: any;
+}
