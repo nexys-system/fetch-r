@@ -3,7 +3,6 @@ import * as Connection from "./database/connection";
 import { Database } from "./database/type";
 import * as Exec from "./exec";
 import * as T from "./type";
-import * as MigrationService from "@nexys/sql-migrations";
 import { addColumnsToModel } from "./model/utils";
 import { Query as AQuery } from "./query-builder/aggregate/type";
 import { Aggregate } from "./query-builder";
@@ -40,9 +39,6 @@ export class Main {
   query = (q: T.Query) => Exec.exec(q, this.model, this.s, this.options);
 
   aggregate = (q: AQuery) => Aggregate.exec(q, this.model, this.s);
-
-  applyMigration = (migrations: MigrationService.Type.Migration[]) =>
-    MigrationService.Migrations.runMigrations(migrations, this.s);
 }
 
 export default Main;
