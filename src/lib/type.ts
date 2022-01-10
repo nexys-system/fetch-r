@@ -96,13 +96,6 @@ export interface MutateResponseInsert {
   status?: string;
 }
 
-export interface MutateResponseInsert {
-  success: boolean;
-  uuid?: string;
-  id?: number;
-  status?: string;
-}
-
 export interface MutateResponseUpdate {
   success: boolean;
   updated: number;
