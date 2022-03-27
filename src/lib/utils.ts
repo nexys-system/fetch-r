@@ -12,6 +12,7 @@ export const types: T.Type[] = [
   "LocalDate",
   "LocalDateTime",
   "LocalTime",
+  "Double"
 ];
 
 export const isStandardType = (t: string): t is T.Type =>
