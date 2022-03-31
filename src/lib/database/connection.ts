@@ -5,6 +5,15 @@ import * as T from "./type";
 // see: https://dev.mysql.com/doc/mysql-port-reference/en/mysql-ports-reference-tables.html#mysql-client-server-ports
 const mysqlDefaultPort = 3306;
 
+export interface ConnectionOptions {
+  host: string;
+  user: string;
+  password: string;
+  database: string;
+  port: number;
+  ssl?: string | SslOptions;
+}
+
 export class SQL {
   //connection: mysql.Connection;
   pool: T.Pool;
@@ -16,14 +25,7 @@ export class SQL {
     database,
     port = mysqlDefaultPort,
     ssl,
-  }: {
-    host: string;
-    user: string;
-    password: string;
-    database: string;
-    port: number;
-    ssl?: string | SslOptions;
-  }) {
+  }: ConnectionOptions) {
     const config: PoolOptions = {
       host,
       user,

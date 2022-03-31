@@ -1,6 +1,5 @@
 // this file is used for the package. The server should use the other files directly
 import * as Connection from "./database/connection";
-import { Database } from "./database/type";
 import * as Exec from "./exec";
 import * as T from "./type";
 import { addColumnsToModel } from "./model/utils";
@@ -17,17 +16,11 @@ export class Main {
   options: Options;
 
   constructor(
-    c: Database,
+    c: Connection.ConnectionOptions,
     model: T.Entity[],
     options: Options = { legacyMode: false }
   ) {
-    this.s = new Connection.SQL(
-      c.host,
-      c.username,
-      c.password,
-      c.database,
-      c.port
-    );
+    this.s = new Connection.SQL(c);
 
     addColumnsToModel(model);
     this.model = model;

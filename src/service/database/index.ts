@@ -50,13 +50,15 @@ export const getPool = (
   const pool = Connection.databases.get(pid);
 
   if (!pool) {
-    const pool = new Connection.SQL(
-      db.host,
-      db.username,
-      db.password,
-      db.database,
-      db.port
-    );
+    const connection = {
+      host: db.host,
+      user: db.username,
+      password: db.password,
+      port: db.port,
+      database: db.database,
+    };
+
+    const pool = new Connection.SQL(connection);
     Connection.databases.set(pid, pool);
 
     return pool;
