@@ -1,4 +1,5 @@
 import mysql from "mysql2";
+import { PoolOptions, SslOptions } from "mysql2/typings/mysql";
 import * as T from "./type";
 
 // see: https://dev.mysql.com/doc/mysql-port-reference/en/mysql-ports-reference-tables.html#mysql-client-server-ports
@@ -8,20 +9,29 @@ export class SQL {
   //connection: mysql.Connection;
   pool: T.Pool;
 
-  constructor(
-    host: string,
-    user: string,
-    password: string,
-    database: string,
-    port: number = mysqlDefaultPort
-  ) {
-    const config = {
+  constructor({
+    host,
+    user,
+    password,
+    database,
+    port = mysqlDefaultPort,
+    ssl,
+  }: {
+    host: string;
+    user: string;
+    password: string;
+    database: string;
+    port: number;
+    ssl?: string | SslOptions;
+  }) {
+    const config: PoolOptions = {
       host,
       user,
       password,
       database,
       port,
       multipleStatements: true,
+      ssl,
     };
 
     // https://www.npmjs.com/package/mysql2#using-connection-pools
