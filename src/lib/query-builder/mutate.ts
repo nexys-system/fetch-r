@@ -184,7 +184,9 @@ const toQueryInsert = (entity: T.Entity, data: any, model: T.Entity[]) => {
   const values = Array.isArray(data)
     ? getValuesInsertMultiple(data, entity.fields, model, entity.uuid)
     : getValuesInsert(data, entity.fields, model, entity.uuid);
-  return `INSERT INTO ${U.entityToTable(entity)} (${fields}) VALUES ${values};`;
+  const table = U.entityToTable(entity);
+  const tableEscaped = table.includes('-') ? "`" + table + "`" : table;
+  return `INSERT INTO ${tableEscaped} (${fields}) VALUES ${values};`;
 };
 
 const toQueryUpdate = (
