@@ -220,9 +220,11 @@ const toQueryUpdate = (
       return `${col}=${UU.formatSQL(v, field.type)}`;
     })
     .join(", ");
-  return `UPDATE ${U.entityToTable(
-    entity
-  )} SET ${values} WHERE ${filterString};`;
+  
+  const table = U.entityToTable(entity);
+  const tableEscaped = table.includes('-') ? "`" + table + "`" : table;
+  
+  return `UPDATE ${tableEscaped} SET ${values} WHERE ${filterString};`;
 };
 
 const toQueryDelete = (
@@ -232,7 +234,9 @@ const toQueryDelete = (
 ) => {
   const filterString = getFilters(entity, filters, model);
 
-  return `DELETE FROM ${U.entityToTable(entity)} WHERE ${filterString};`;
+  const table = U.entityToTable(entity);
+  const tableEscaped = table.includes('-') ? "`" + table + "`" : table;
+  return `DELETE FROM ${tableEscaped} WHERE ${filterString};`;
 };
 
 export const createMutateQuery = (
