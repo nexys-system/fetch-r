@@ -46,7 +46,7 @@ export const toQuery = (meta: TT.MetaQuery): string[] => {
 
   const r = [
     "SELECT " + projection,
-    "FROM " + meta.units[0].table + " AS " + meta.units[0].alias,
+    "FROM `" + meta.units[0].table + "` AS " + meta.units[0].alias,
   ];
 
   joins.forEach((join) => r.push(join));
