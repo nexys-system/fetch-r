@@ -43,10 +43,14 @@ export const toQuery = (meta: TT.MetaQuery): string[] => {
       `JOIN ${x.table} AS ${x.alias} ON ${x.alias}.id=t${parentAlias}.${x.join?.field.column}`
     );
   });
+  
+  const { table } = meta.units[0];
+  // add backticks if the table contains weird symbols, ideally it should alwasy be here but tests need to be fixed
+  const tableEscaped = table.includes("-") ? "`" + table + "`" : table;
 
   const r = [
     "SELECT " + projection,
-    "FROM `" + meta.units[0].table + "` AS " + meta.units[0].alias,
+    "FROM " + tableEscaped + " AS " + meta.units[0].alias,
   ];
 
   joins.forEach((join) => r.push(join));
