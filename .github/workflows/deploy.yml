@@ -17,7 +17,7 @@ jobs:
         with:
           node-version: 14
       - run: yarn
-      - run: APP_TOKEN=token HOST=host PRODUCT_HOST=host2 yarn test
+      - run: yarn test
       - run: yarn build
       - name: Login to DockerHub Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
