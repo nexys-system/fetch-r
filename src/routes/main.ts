@@ -34,7 +34,7 @@ const aggregate = async (ctx: Koa.Context) => {
 const query = async (ctx: Koa.Context) => {
   // get query
   const { body: query } = ctx.request;
-  const { sqlScript, legacy = "true" } = ctx.query;
+  const { sqlScript, legacy } = ctx.query;
 
   const legacyMode: boolean = legacy === "true";
 
