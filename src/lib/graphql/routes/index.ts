@@ -8,7 +8,6 @@ import * as ErrorHandler from "./error-handler";
 
 const getRouter = <Permission>(
   schemas: Schema<Permission>,
-
   roleMap: Map<string, Permission>
 ) => {
   const router = new Router();
