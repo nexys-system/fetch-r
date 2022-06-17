@@ -1,7 +1,6 @@
 name: Build and Test Package
 
-on:
-  [push]
+on: [push]
 
 jobs:
   test:

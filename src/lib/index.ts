@@ -4,6 +4,7 @@ export * as Model from "./model";
 export * as Exec from "./exec";
 export * as Type from "./type";
 export * as QueryBuilder from "./query-builder";
+export * as GraphQL from "./graphql";
 
 import Main from "./main";
 
