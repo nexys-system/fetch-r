@@ -1,6 +1,6 @@
 import { Field } from "../../type";
+import { camelToSnakeCase } from "../../utils";
 import * as T from "./type";
-import { camelToSnakeCase } from "@nexys/utils/dist/string";
 
 export const toSQLOperator = (
   input: T.AggregateOperator

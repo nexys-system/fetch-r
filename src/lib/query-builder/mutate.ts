@@ -1,4 +1,3 @@
-import NUtils from "@nexys/utils";
 import { getModel } from "./utils";
 import * as T from "../type";
 import * as U from "../utils";
@@ -185,7 +184,7 @@ const toQueryInsert = (entity: T.Entity, data: any, model: T.Entity[]) => {
     ? getValuesInsertMultiple(data, entity.fields, model, entity.uuid)
     : getValuesInsert(data, entity.fields, model, entity.uuid);
   const table = U.entityToTable(entity);
-  const tableEscaped = table.includes('-') ? "`" + table + "`" : table;
+  const tableEscaped = table.includes("-") ? "`" + table + "`" : table;
   return `INSERT INTO ${tableEscaped} (${fields}) VALUES ${values};`;
 };
 
@@ -220,10 +219,10 @@ const toQueryUpdate = (
       return `${col}=${UU.formatSQL(v, field.type)}`;
     })
     .join(", ");
-  
+
   const table = U.entityToTable(entity);
-  const tableEscaped = table.includes('-') ? "`" + table + "`" : table;
-  
+  const tableEscaped = table.includes("-") ? "`" + table + "`" : table;
+
   return `UPDATE ${tableEscaped} SET ${values} WHERE ${filterString};`;
 };
 
@@ -235,7 +234,7 @@ const toQueryDelete = (
   const filterString = getFilters(entity, filters, model);
 
   const table = U.entityToTable(entity);
-  const tableEscaped = table.includes('-') ? "`" + table + "`" : table;
+  const tableEscaped = table.includes("-") ? "`" + table + "`" : table;
   return `DELETE FROM ${tableEscaped} WHERE ${filterString};`;
 };
 
@@ -282,4 +281,4 @@ export const createMutateQuery = (
 
       return;
     })
-    .filter(NUtils.array.notEmpty);
+    .filter(U.arrayNotEmpty);

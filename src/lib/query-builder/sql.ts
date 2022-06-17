@@ -1,7 +1,6 @@
 import * as TT from "./type";
 import * as U from "../utils";
 import * as UU from "./utils";
-import NUtils from "@nexys/utils";
 
 export const toQuery = (meta: TT.MetaQuery): string[] => {
   const projection: string = meta.units
@@ -16,7 +15,7 @@ export const toQuery = (meta: TT.MetaQuery): string[] => {
         )
         .join(", ")
     )
-    .filter(NUtils.array.notEmpty)
+    .filter(U.arrayNotEmpty)
     .join(", ");
   const filters: string[] = meta.units
     .map((x, i) => {
@@ -33,7 +32,7 @@ export const toQuery = (meta: TT.MetaQuery): string[] => {
         )
         .join(" AND ");
     })
-    .filter(NUtils.array.notEmpty);
+    .filter(U.arrayNotEmpty);
 
   const joins: string[] = meta.units.slice(1).map((x) => {
     const parentAlias = meta.units.findIndex((m) => UU.findUnit(x, m));
@@ -43,7 +42,7 @@ export const toQuery = (meta: TT.MetaQuery): string[] => {
       `JOIN ${x.table} AS ${x.alias} ON ${x.alias}.id=t${parentAlias}.${x.join?.field.column}`
     );
   });
-  
+
   const { table } = meta.units[0];
   // add backticks if the table contains weird symbols, ideally it should alwasy be here but tests need to be fixed
   const tableEscaped = table.includes("-") ? "`" + table + "`" : table;

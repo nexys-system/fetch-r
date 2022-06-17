@@ -1,4 +1,3 @@
-import NUtils from "@nexys/utils";
 import * as SqlString from "sqlstring";
 import * as T from "./type";
 
@@ -29,11 +28,11 @@ export const escape = (v: any): string => {
 
 export const entityToTable = (
   entity: Pick<T.Entity, "name" | "table">
-): string => entity.table || NUtils.string.camelToSnakeCase(entity.name);
+): string => entity.table || camelToSnakeCase(entity.name);
 
 export const fieldToColumn = (
   field: Pick<T.Field, "name" | "column">
-): string => field.column || NUtils.string.camelToSnakeCase(field.name);
+): string => field.column || camelToSnakeCase(field.name);
 
 export const findField = (
   modelUnit: Pick<T.Entity, "name" | "uuid" | "fields">,
@@ -61,3 +60,14 @@ export const findField = (
     optional: field.optional,
   };
 };
+
+// taken from https://github.com/Nexysweb/utils/blob/7a2aa1ab6ce29b6b079fd77eebec5af2201611ae/src/string.ts#L208
+export const camelToSnakeCase = (str: string): string =>
+  str.replace(/([a-z1-9])\.?(?=[A-Z]+)/g, "$1_").toLowerCase();
+
+// taken from https://github.com/Nexysweb/utils/blob/7a2aa1ab6ce29b6b079fd77eebec5af2201611ae/src/array.ts#L303
+export function arrayNotEmpty<TValue>(
+  value: TValue | null | undefined
+): value is TValue {
+  return value !== null && value !== undefined;
+}

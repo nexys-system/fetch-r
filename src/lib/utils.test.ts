@@ -43,3 +43,22 @@ test("find field", () => {
     type: "String",
   });
 });
+
+test("camelToSnakeCase", () => {
+  expect(U.camelToSnakeCase("isCamelCase")).toEqual("is_camel_case");
+});
+
+test("array filter null and undefined using predicate", () => {
+  const a: (string | undefined | null)[] = [
+    "a",
+    null,
+    "b",
+    undefined,
+    "c",
+    null,
+  ];
+  const b: string[] = ["a", "b", "c"];
+  const c: string[] = a.filter(U.arrayNotEmpty);
+
+  expect(c).toEqual(b);
+});

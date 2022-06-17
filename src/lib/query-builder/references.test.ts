@@ -31,7 +31,7 @@ describe("get field - joinOn", () => {
     try {
       R.getFieldUnit({ joinOn: "doesnotexist" }, modelUnit, "User");
     } catch (err) {
-      console.log(err.message);
+      console.log((err as Error).message);
       expect(true).toEqual(true);
     }
   });

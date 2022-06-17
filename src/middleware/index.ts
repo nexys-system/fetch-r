@@ -49,6 +49,6 @@ export const isAuth = async (ctx: Koa.Context, next: Koa.Next) => {
     await next();
   } catch (err) {
     ctx.status = 401;
-    ctx.body = { error: err.message };
+    ctx.body = { error: (err as Error).message };
   }
 };

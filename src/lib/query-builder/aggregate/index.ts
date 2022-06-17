@@ -1,10 +1,11 @@
 // very first version
 import * as T from "./type";
-import { camelToSnakeCase } from "@nexys/utils/dist/string";
+
 import { Entity, Field } from "../../type";
 import * as U from "./utils";
 import { SQL } from "../../database/connection";
 import { getFilterString } from "../utils";
+import { camelToSnakeCase } from "../../utils";
 
 const idField: Field = {
   name: "id",
