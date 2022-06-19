@@ -1,9 +1,10 @@
 // this file is actualy not referenced elsewhere in the code (except for tests)
+import { Entity, Field } from "../type";
 import * as T from "./type";
 import * as U from "./utils";
 
 // not used
-const mapTypesString = ({ name, type }: T.Field): string => {
+const mapTypesString = ({ name, type }: Field): string => {
   if (!U.isFieldType(type)) {
     return type;
   }
@@ -38,7 +39,7 @@ const mapTypeScalar = (type: T.FieldType, name?: string): T.GLBasicType => {
   }
 };
 
-export const getSchemaArrayFromDDL = (def: T.Ddl[]): string[] =>
+export const getSchemaArrayFromDDL = (def: Entity[]): string[] =>
   def.map((entity) => {
     const fields = entity.fields.map((f) => {
       return `  ${f.name}: ${mapTypesString(f)}${
@@ -48,5 +49,5 @@ export const getSchemaArrayFromDDL = (def: T.Ddl[]): string[] =>
     return `type ${entity.name} {\n${fields.join("\n")}\n}`;
   });
 
-export const getSchemaFromDDL = (def: T.Ddl[]): string =>
+export const getSchemaFromDDL = (def: Entity[]): string =>
   getSchemaArrayFromDDL(def).join("\n\n");

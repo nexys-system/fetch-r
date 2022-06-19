@@ -1,9 +1,9 @@
 import * as GL from "graphql";
-import { QueryProjection, QueryFilters } from "../type";
+import { QueryProjection, QueryFilters, Entity, Field } from "../type";
 import * as T from "./type";
 
 // not used
-export const getSchemaFromDDL = (def: T.Ddl[]) => {
+export const getSchemaFromDDL = (def: Entity[]) => {
   const schemaArray = def.map((entity) => {
     const fields = entity.fields.map((f) => {
       return `  ${f.name}: ${mapTypesString(f)}${
@@ -18,7 +18,7 @@ export const getSchemaFromDDL = (def: T.Ddl[]) => {
 
 export const toEnum = (
   entity: string,
-  { name, options }: T.Field
+  { name, options }: Field & { options?: T.FieldOption[] }
 ): GL.GraphQLOutputType => {
   if (!options) {
     return GL.GraphQLInt;
@@ -36,7 +36,7 @@ export const toEnum = (
   });
 };
 
-export const mapTypesString = ({ name, type }: T.Field): string => {
+export const mapTypesString = ({ name, type }: Field): string => {
   if (!isFieldType(type)) {
     return type;
   }
@@ -78,24 +78,25 @@ export const mapTypesString = ({ name, type }: T.Field): string => {
 // end not used
 
 export const ddl = (
-  ddlComplete: (Omit<T.Ddl, "uuid"> & { uuid?: boolean })[]
-): T.Ddl[] =>
+  ddlComplete: (Omit<Entity, "uuid"> & { uuid?: boolean })[]
+): Entity[] =>
   ddlComplete.map((entity) => {
-    const fields: T.Field[] = entity.fields.map((f) => {
+    const fields: Field[] = entity.fields.map((f) => {
+      const optional: boolean = f.optional || false;
       return {
         name: f.name,
         type: f.type,
-        optional: f.optional || false,
-        options: f.options,
+        optional,
+        //  options: f.options,
       };
     });
 
     const isUuid: boolean = entity.uuid || false;
 
     if (isUuid) {
-      fields.unshift({ name: "uuid", type: "String" });
+      fields.unshift({ name: "uuid", type: "String", optional: false });
     } else {
-      fields.unshift({ name: "id", type: "Int" });
+      fields.unshift({ name: "id", type: "Int", optional: false });
     }
 
     return {

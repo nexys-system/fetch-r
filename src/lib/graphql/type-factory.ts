@@ -1,4 +1,5 @@
 import * as GL from "graphql";
+import { Entity } from "../type";
 import * as T from "./type";
 import * as U from "./utils";
 import * as UM from "./utils-mapping";
@@ -11,7 +12,7 @@ import * as UM from "./utils-mapping";
  * @returns
  */
 export const createTypesFromModel = (
-  def: T.Ddl[],
+  def: Entity[],
   constraints?: T.ModelConstraints
 ): T.GLTypes => {
   const QLtypes: T.GLTypes = new Map();

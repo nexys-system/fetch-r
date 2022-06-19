@@ -1,7 +1,7 @@
+import { Entity } from "../type";
 import * as S from "./submodel";
-import * as T from "./type";
 
-const m1: T.Ddl[] = [
+const m1: Entity[] = [
   {
     name: "Instance",
     uuid: true,
