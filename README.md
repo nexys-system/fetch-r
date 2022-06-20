@@ -10,7 +10,7 @@
 
 Typescript ORM to connect to MySQL database
 
-Typescript port of [Scala version](https://github.com/fetch-r/serverg)
+Typescript port of [Scala version](https://github.com/nexys-system/fetch-r-scala)
 
 [npm-image]: https://img.shields.io/npm/v/@nexys/fetchr.svg
 [npm-url]: https://npmjs.org/package/@nexys/fetchr
