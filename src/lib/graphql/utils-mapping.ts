@@ -1,10 +1,11 @@
 import * as GL from "graphql";
+import { Entity, Field } from "../type";
 import * as T from "./type";
 import * as U from "./utils";
 
 export const mapInputType = (
-  { name, type }: T.Field,
-  def: T.Ddl[]
+  { name, type }: Field,
+  def: Entity[]
 ): GL.GraphQLInputType => {
   // if the field is not a standard field (i.e foreign key)
   // allow the user to filter by id/uuid
@@ -26,7 +27,7 @@ export const mapInputType = (
 };
 
 export const mapOutputType = (
-  { name, type }: T.Field,
+  { name, type }: Field,
   entityTypes: T.GLTypes = new Map()
 ): GL.GraphQLOutputType | undefined => {
   if (!U.isFieldType(type)) {

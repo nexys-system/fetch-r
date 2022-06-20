@@ -4,14 +4,16 @@ import * as GL from "graphql";
 import * as T from "./type";
 import * as U from "./utils";
 
-import { QueryFilters } from "../type";
+import { Entity, QueryFilters } from "../type";
 import { createTypesFromModel } from "./type-factory";
 
-import FetchR from "../main";
+import * as Connection from "../database/connection";
+import * as Exec from "../exec";
 
 const fieldResolve =
   (
-    fetchR: FetchR,
+    def: Entity[],
+    s: Connection.SQL,
     entity: { name: string },
     constraints?: T.ModelConstraints
   ) =>
@@ -45,15 +47,15 @@ const fieldResolve =
 
     console.log({ params });
 
-    const q = await fetchR.query({ [entity.name]: params });
+    const q = await Exec.exec({ [entity.name]: params }, def, s);
     console.log(q);
 
     return q[entity.name];
   };
 
 export const getQueryFromModel = (
-  def: T.Ddl[],
-  fetchR: FetchR,
+  def: Entity[],
+  s: Connection.SQL,
   constraints?: T.ModelConstraints
 ): GL.GraphQLObjectType => {
   const QLtypes: T.GLTypes = createTypesFromModel(def, constraints);
@@ -64,7 +66,7 @@ export const getQueryFromModel = (
     fields[entity.name] = {
       type: new GL.GraphQLList(U.getType(entity.name, QLtypes)),
       args: U.getArgs(entity.name, QLtypes),
-      resolve: fieldResolve(fetchR, entity, constraints),
+      resolve: fieldResolve(def, s, entity, constraints),
     };
   });
 

@@ -1,8 +1,13 @@
-import { Ddl } from "./type";
 import * as US from "./utils-string";
 import * as U from "./utils";
-const ddl: Ddl[] = [
-  { name: "MyEntity", uuid: true, fields: [{ name: "name", type: "String" }] },
+import { Entity } from "../type";
+
+const ddl: Entity[] = [
+  {
+    name: "MyEntity",
+    uuid: true,
+    fields: [{ name: "name", type: "String", optional: false }],
+  },
 ];
 
 test("getSchemaArrayFromDDL", () => {

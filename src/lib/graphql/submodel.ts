@@ -1,12 +1,12 @@
-import { QueryFilters, QueryProjection } from "../type";
+import { Entity, QueryFilters, QueryProjection } from "../type";
 import * as T from "./type";
 
 type Uuid = string;
 
-export const createAdminConstraints = (def: T.Ddl[]) =>
+export const createAdminConstraints = (def: Entity[]) =>
   createConstraintsFromEntities<"Instance", string | number>(def);
 
-export const createAppConstraint = (def: T.Ddl[]) =>
+export const createAppConstraint = (def: Entity[]) =>
   createConstraintsFromEntities<"Instance" | "User", string | number>(def);
 
 /**
@@ -14,7 +14,7 @@ export const createAppConstraint = (def: T.Ddl[]) =>
  * @paramn ObservedEntites: list of entities
  */
 export const createConstraintsFromEntities =
-  <ObservedEntity extends string, Id extends Uuid | number>(def: T.Ddl[]) =>
+  <ObservedEntity extends string, Id extends Uuid | number>(def: Entity[]) =>
   (ids: { [key in ObservedEntity]: Id }): T.ModelConstraints => {
     const r: T.ModelConstraints = {};
 

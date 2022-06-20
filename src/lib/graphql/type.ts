@@ -15,19 +15,6 @@ export type FieldType =
   | "LocalDate"
   | "BigDecimal";
 
-export interface Field {
-  name: string;
-  type: FieldType | string;
-  optional?: boolean;
-  options?: FieldOption[];
-}
-
-export interface Ddl {
-  name: string;
-  uuid: boolean;
-  fields: Field[];
-}
-
 export type GLTypes = Map<
   string,
   { objectType: GL.GraphQLObjectType; args: GL.GraphQLFieldConfigArgumentMap }
@@ -43,3 +30,8 @@ export interface ModelConstraints {
 export interface GField {
   [field: string]: {} | GField;
 }
+
+export type Submodel<Permission> = [
+  Permission,
+  (v: { Instance: string | number; User: string | number }) => ModelConstraints
+];

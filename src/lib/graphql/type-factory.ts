@@ -1,4 +1,5 @@
 import * as GL from "graphql";
+import { Entity } from "../type";
 import * as T from "./type";
 import * as U from "./utils";
 import * as UM from "./utils-mapping";
@@ -11,8 +12,9 @@ import * as UM from "./utils-mapping";
  * @returns
  */
 export const createTypesFromModel = (
-  def: T.Ddl[],
-  constraints?: T.ModelConstraints
+  def: Entity[],
+  constraints?: T.ModelConstraints,
+  inputTypeWithOptional: boolean = false
 ): T.GLTypes => {
   const QLtypes: T.GLTypes = new Map();
 
@@ -101,7 +103,11 @@ export const createTypesFromModel = (
     const args: GL.GraphQLFieldConfigArgumentMap = {};
 
     entity.fields.forEach((f) => {
-      const type = UM.mapInputType(f, def);
+      const preType: GL.GraphQLInputType = UM.mapInputType(f, def);
+      const type: GL.GraphQLInputType =
+        inputTypeWithOptional === false || f.optional === true
+          ? preType
+          : new GL.GraphQLNonNull(preType);
 
       args[f.name] = { type };
     });

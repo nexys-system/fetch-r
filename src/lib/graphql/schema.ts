@@ -1,10 +1,10 @@
 import { GraphQLSchema } from "graphql";
+import { Connection } from "../database";
 
-import FetchR from "../main";
+import { Entity } from "../type";
 
 import * as SchemaFactory from "./schema-factory";
-
-import { Ddl, ModelConstraints } from "./type";
+import { Submodel } from "./type";
 
 class GQLSchema<Permission> {
   roleQLSchemaMap: Map<
@@ -16,24 +16,18 @@ class GQLSchema<Permission> {
   gQLSchema: GraphQLSchema;
 
   constructor(
-    model: Ddl[],
-    fetchR: FetchR,
-    submodels: [
-      Permission,
-      (v: {
-        Instance: string | number;
-        User: string | number;
-      }) => ModelConstraints
-    ][]
+    def: Entity[],
+    s: Connection.SQL,
+    submodels: Submodel<Permission>[]
   ) {
     // superadmin schema, which is also the one that is used with the "app authentication"
-    this.gQLSchema = SchemaFactory.getSchemaFromModel(model, fetchR);
+    this.gQLSchema = SchemaFactory.getSchemaFromModel(def, s);
 
     this.roleQLSchemaMap = new Map(
       submodels.map(([k, v]) => [
         k,
         (ids: { Instance: string; User: string }) =>
-          SchemaFactory.getSchemaFromModel(model, fetchR, v(ids)),
+          SchemaFactory.getSchemaFromModel(def, s, v(ids)),
       ])
     );
   }

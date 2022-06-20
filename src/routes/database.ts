@@ -20,6 +20,7 @@ router.all(
     username: {},
     password: {},
     host: {},
+    port: { type: "number", optional: true },
   }),
   async (ctx) => {
     const { body } = ctx.request;

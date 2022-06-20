@@ -14,6 +14,8 @@ export interface ConnectionOptions {
   ssl?: string | SslOptions;
 }
 
+const defaultSSL: SslOptions = { rejectUnauthorized: false };
+
 export class SQL {
   //connection: mysql.Connection;
   pool: T.Pool;
@@ -24,7 +26,7 @@ export class SQL {
     password,
     database,
     port = mysqlDefaultPort,
-    ssl,
+    ssl = defaultSSL,
   }: ConnectionOptions) {
     const config: PoolOptions = {
       host,

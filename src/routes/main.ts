@@ -2,6 +2,8 @@ import Koa from "koa";
 import Router from "koa-router";
 import bodyParser from "koa-body";
 
+import { version, sha } from "../config";
+
 import * as Middleware from "../middleware";
 import * as QueryService from "../lib/exec";
 import * as ModelService from "../service/model";
@@ -120,8 +122,8 @@ router.post("/mutate", Middleware.isAuth, bodyParser(), async (ctx) => {
 router.all("/", async (ctx: Koa.Context) => {
   ctx.body = {
     msg: "fetch-r",
-    sha: process.env.GIT_SHA_ENV,
-    version: process.env.GIT_VERSION_ENV,
+    sha,
+    version,
   };
 });
 
