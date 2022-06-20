@@ -75,26 +75,3 @@ export const getQueryFromModel = (
     fields,
   });
 };
-
-export const getMutateFromModel = (
-  def: Entity[],
-  s: Connection.SQL,
-  constraints?: T.ModelConstraints
-): GL.GraphQLObjectType => {
-  const QLtypes: T.GLTypes = createTypesFromModel(def, constraints);
-
-  const fields: GL.ThunkObjMap<GL.GraphQLFieldConfig<any, any>> = {};
-
-  def.forEach((entity) => {
-    fields[entity.name] = {
-      type: new GL.GraphQLList(U.getType(entity.name, QLtypes)),
-      args: U.getArgs(entity.name, QLtypes),
-      resolve: fieldResolve(def, s, entity, constraints),
-    };
-  });
-
-  return new GL.GraphQLObjectType({
-    name: "Mutate",
-    fields,
-  });
-};

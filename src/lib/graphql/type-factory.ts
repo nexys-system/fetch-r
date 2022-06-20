@@ -13,7 +13,8 @@ import * as UM from "./utils-mapping";
  */
 export const createTypesFromModel = (
   def: Entity[],
-  constraints?: T.ModelConstraints
+  constraints?: T.ModelConstraints,
+  inputTypeWithOptional: boolean = false
 ): T.GLTypes => {
   const QLtypes: T.GLTypes = new Map();
 
@@ -102,7 +103,11 @@ export const createTypesFromModel = (
     const args: GL.GraphQLFieldConfigArgumentMap = {};
 
     entity.fields.forEach((f) => {
-      const type = UM.mapInputType(f, def);
+      const preType: GL.GraphQLInputType = UM.mapInputType(f, def);
+      const type: GL.GraphQLInputType =
+        inputTypeWithOptional === false || f.optional === true
+          ? preType
+          : new GL.GraphQLNonNull(preType);
 
       args[f.name] = { type };
     });

@@ -120,7 +120,7 @@ export const isFieldType = (s: string): s is T.FieldType =>
   availableTypes.includes(s);
 
 export const foreignUuid = new GL.GraphQLInputObjectType({
-  name: "ForeignUuid",
+  name: "UuidObject",
   fields: { uuid: { type: new GL.GraphQLNonNull(GL.GraphQLID) } },
 });
 
@@ -130,7 +130,7 @@ export const foreignUuid = new GL.GraphQLInputObjectType({
 });*/
 
 export const foreignId = new GL.GraphQLInputObjectType({
-  name: "ForeignId",
+  name: "IdObject",
   fields: { id: { type: new GL.GraphQLNonNull(GL.GraphQLInt) } },
 });
 
@@ -163,12 +163,17 @@ export const getType = (
 
 export const getArgs = (
   entity: string,
-  QLtypes: T.GLTypes
+  QLtypes: T.GLTypes,
+  mutateInsert: boolean = false
 ): GL.GraphQLFieldConfigArgumentMap => {
   const r = QLtypes.get(entity);
 
   if (!r || !r.args) {
     throw Error("could not find entity " + entity);
+  }
+
+  if (mutateInsert) {
+    return r.args;
   }
 
   return {

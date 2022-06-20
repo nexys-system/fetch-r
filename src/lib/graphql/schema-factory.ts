@@ -1,13 +1,12 @@
 import * as GL from "graphql";
-import * as T from "./type";
-import * as U from "./utils";
 
 import { Entity } from "../type";
 import { Connection } from "../database";
-import {
-  getQueryFromModel,
-  //getMutateFromModel
-} from "./query-factory";
+
+import * as T from "./type";
+import * as U from "./utils";
+import { getQueryFromModel } from "./query-factory";
+import { getMutation } from "./mutate-factory";
 
 /**
  *
@@ -23,6 +22,7 @@ export const getSchemaFromModel = (
 ): GL.GraphQLSchema => {
   const ddl = U.ddl(def);
   const query = getQueryFromModel(ddl, s, constraints);
-  // const mutation = getMutateFromModel(ddl, s, constraints);
-  return new GL.GraphQLSchema({ query });
+  const mutation = getMutation(def, s);
+
+  return new GL.GraphQLSchema({ query, mutation });
 };
