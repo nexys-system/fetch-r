@@ -1,8 +1,71 @@
 import * as GL from "graphql";
-import { Entity } from "../type";
+import { Entity, Field } from "../type";
 import * as T from "./type";
 import * as U from "./utils";
 import * as UM from "./utils-mapping";
+
+const getObjectType = (
+  filteredEntityFields: Field[],
+  QLtypes: T.GLTypes,
+  entityName: string
+): GL.GraphQLObjectType => {
+  const fields = getFields(filteredEntityFields, QLtypes);
+
+  // self referencing
+  const selfReferencingFields: Field[] = filteredEntityFields.filter(
+    (x) => x.type === entityName
+  );
+
+  if (selfReferencingFields.length > 0) {
+    const objectType = new GL.GraphQLObjectType({
+      name: entityName,
+      fields: () => {
+        selfReferencingFields.forEach((selfRefField) => {
+          const type: GL.GraphQLOutputType =
+            selfRefField.optional === true
+              ? objectType
+              : new GL.GraphQLNonNull(objectType);
+          fields[selfRefField.name] = { type };
+        });
+
+        return fields;
+      },
+    });
+
+    return objectType;
+  }
+
+  // create GraphQL Object
+  return new GL.GraphQLObjectType({
+    name: entityName,
+    fields,
+  });
+};
+
+const getFields = (
+  filteredEntityFields: Field[],
+  QLtypes: T.GLTypes
+): GL.GraphQLFieldConfigMap<any, any> => {
+  // initialize fields
+  const fields: GL.GraphQLFieldConfigMap<any, any> = {};
+  // populate fields
+  filteredEntityFields.forEach((field) => {
+    const pType: GL.GraphQLOutputType | undefined = UM.mapOutputType(
+      field,
+      QLtypes
+    );
+
+    if (pType) {
+      const type: GL.GraphQLOutputType =
+        field.optional === true ? pType : new GL.GraphQLNonNull(pType);
+
+      // add field to GLField for observed entity
+      fields[field.name] = { type };
+    }
+  });
+
+  return fields;
+};
 
 /**
  * creates GL types from the model
@@ -37,8 +100,11 @@ export const createTypesFromModel = (
     // among the foreign keys fields, look if they were already handled,
     // if yes the observed entity can be handled since all fks are already present
     const canBeHandled = fieldsTypeFk
-      .map((entity) => entities.find((e) => e.name === entity))
-      .map((x) => x === undefined)
+      .map(
+        (entityFk) =>
+          entities.find((e) => e.name === entityFk) === undefined ||
+          entityFk !== entity.name // this is the self referencing case
+      )
       .reduce((a, b) => a && b, true);
 
     //console.log({ entity: entity.name, fieldsTypeFk, f1, f2, f3 });
@@ -51,11 +117,7 @@ export const createTypesFromModel = (
       continue;
     }
 
-    // initialize fields
-    const fields: GL.GraphQLFieldConfigMap<any, any> = {};
-
-    // populate fields
-    entity.fields
+    const filteredEntityFields = entity.fields
       // only add fields that are in constraints projections (if constraints exists)
       .filter((field) => {
         if (!constraints) {
@@ -77,27 +139,14 @@ export const createTypesFromModel = (
         }
 
         return false;
-      })
-      .forEach((field) => {
-        const pType: GL.GraphQLOutputType | undefined = UM.mapOutputType(
-          field,
-          QLtypes
-        );
-
-        if (pType) {
-          const type: GL.GraphQLOutputType =
-            field.optional === true ? pType : new GL.GraphQLNonNull(pType);
-
-          // add field to GLField for observed entity
-          fields[field.name] = { type };
-        }
       });
 
     // create GraphQL Object
-    const objectType = new GL.GraphQLObjectType({
-      name: entity.name,
-      fields,
-    });
+    const objectType = getObjectType(
+      filteredEntityFields,
+      QLtypes,
+      entity.name
+    );
 
     // args
     const args: GL.GraphQLFieldConfigArgumentMap = {};
@@ -114,6 +163,7 @@ export const createTypesFromModel = (
     // end args
 
     // add to the list of types
+    // for self referencing entities, see https://stackoverflow.com/questions/32551022/how-do-i-create-a-graphql-schema-for-a-self-referencing-data-hierarchy
     QLtypes.set(entity.name, {
       objectType,
       args,
