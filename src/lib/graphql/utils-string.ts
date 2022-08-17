@@ -25,9 +25,11 @@ const mapTypeScalar = (type: T.FieldType, name?: string): T.GLBasicType => {
 
   switch (type) {
     case "Int":
+    case "Long":
       return "Int";
     case "Float":
     case "BigDecimal":
+    case "Double":
       return "Float";
     case "Boolean":
       return "Boolean";
@@ -37,6 +39,8 @@ const mapTypeScalar = (type: T.FieldType, name?: string): T.GLBasicType => {
     case "String":
       return "String";
   }
+
+  throw Error("coulr not map scalar type (GLBasicType): " + type);
 };
 
 export const getSchemaArrayFromDDL = (def: Entity[]): string[] =>

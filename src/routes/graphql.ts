@@ -16,7 +16,7 @@ type Permission = {};
 const submodels: Submodel<Permission>[] = [];
 
 // this is the default schema, superadmin
-router.get("/", bodyParser(), Middleware.isAuth, async (ctx) => {
+router.all("/", bodyParser(), Middleware.isAuth, async (ctx) => {
   try {
     const model = ModelService.getModel(ctx.state.jwtContent);
     const connectionPool = DatabaseService.getPool(ctx.state.jwtContent);
@@ -25,11 +25,12 @@ router.get("/", bodyParser(), Middleware.isAuth, async (ctx) => {
     ctx.body = printSchema(schemas.gQLSchema);
   } catch (e) {
     ctx.status = 400;
+    console.log(e);
     ctx.body = { error: (e as Error).message };
   }
 });
 
-router.post("/", bodyParser(), Middleware.isAuth, async (ctx) => {
+router.post("/query", bodyParser(), Middleware.isAuth, async (ctx) => {
   const {
     body: { query },
   } = ctx.request;

@@ -13,7 +13,9 @@ export type FieldType =
   | "Float"
   | "LocalDateTime"
   | "LocalDate"
-  | "BigDecimal";
+  | "BigDecimal"
+  | "Double"
+  | "Long";
 
 export type GLTypes = Map<
   string,

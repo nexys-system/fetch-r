@@ -86,6 +86,7 @@ export const ddl = (
       return {
         name: f.name,
         type: f.type,
+        column: f.column,
         optional,
         //  options: f.options,
       };
@@ -101,12 +102,13 @@ export const ddl = (
 
     return {
       name: entity.name,
+      table: entity.table,
       uuid: isUuid,
       fields,
     };
   });
 
-const availableTypes = [
+const availableTypes: T.FieldType[] = [
   "String",
   "Boolean",
   "Int",
@@ -115,10 +117,11 @@ const availableTypes = [
   "LocalDateTime",
   "LocalDate",
   "BigDecimal",
+  "Double",
 ];
 
 export const isFieldType = (s: string): s is T.FieldType =>
-  availableTypes.includes(s);
+  availableTypes.includes(s as any);
 
 export const foreignUuid = new GL.GraphQLInputObjectType({
   name: "UuidObject",
@@ -190,7 +193,7 @@ export const prepareFilters = (
   constraints: T.ModelConstraints
 ): QueryFilters => {
   const constraintsFilter: QueryFilters = constraints
-    ? constraints[entity.name].filters || {}
+    ? constraints[entity.name]?.filters || {}
     : {};
 
   return { ...constraintsFilter, ...queryFilters };

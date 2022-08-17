@@ -62,11 +62,13 @@ const mapScalarType = (
 
   switch (type) {
     case "Int":
+    case "Long":
       // to consider (not practial becaues returns a string
       // return  toEnum(entity, t)
       return GL.GraphQLInt;
     case "Float":
     case "BigDecimal":
+    case "Double":
       return GL.GraphQLFloat;
     case "Boolean":
       return GL.GraphQLBoolean;
@@ -76,4 +78,6 @@ const mapScalarType = (
     case "String":
       return GL.GraphQLString;
   }
+
+  throw Error("could not map scalar type  " + type);
 };

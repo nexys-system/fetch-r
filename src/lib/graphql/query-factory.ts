@@ -4,7 +4,7 @@ import * as GL from "graphql";
 import * as T from "./type";
 import * as U from "./utils";
 
-import { Entity, QueryFilters } from "../type";
+import { Entity, Query, QueryFilters, QueryParams } from "../type";
 import { createTypesFromModel } from "./type-factory";
 
 import * as Connection from "../database/connection";
@@ -29,26 +29,22 @@ const fieldResolve =
 
     const projection = U.formatGFields(graphqlFields(resolveInfo));
 
-    const filters: QueryFilters = U.prepareFilters(entity, queryFilters, {
-      User: { filters: {} },
-      School: { filters: {} },
-      Instance: { filters: {} },
-    });
+    const filters: QueryFilters = U.prepareFilters(entity, queryFilters, {});
 
     const take: number | undefined = Number(_take) || 10; // never return more than 10 entries unless explicitly specified
     const skip: number | undefined = _skip ? Number(_skip) : undefined;
 
-    const params = {
+    const params: QueryParams = {
       projection,
       filters,
       take,
       skip,
     };
 
-    console.log({ params });
+    const query: Query = { [entity.name]: params };
+    // console.log({ query });
 
-    const q = await Exec.exec({ [entity.name]: params }, def, s);
-    console.log(q);
+    const q = await Exec.exec(query, def, s);
 
     return q[entity.name];
   };
