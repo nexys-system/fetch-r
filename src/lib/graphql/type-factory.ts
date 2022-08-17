@@ -104,12 +104,13 @@ export const createTypesFromModel = (
       .map(
         (entityFk) =>
           entities.find((e) => e.name === entityFk) === undefined ||
-          entityFk !== entity.name // this is the self referencing case
+          entityFk === entity.name // this is the self referencing case
       )
       .reduce((a, b) => a && b, true);
 
-    //console.log({ entity: entity.name, fieldsTypeFk, f1, f2, f3 });
+    // console.log({ entity: entity.name, fieldsTypeFk, f1, f2, f3 });
 
+    // console.debug("canBeHandled", canBeHandled);
     if (!canBeHandled) {
       // observed entity cannot be handled
       // adding current entity at the end
