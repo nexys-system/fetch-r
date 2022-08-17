@@ -20,7 +20,10 @@ export const mapInputType = (
       }
     }
 
-    throw Error("map input type: entity could not be found");
+    throw Error(
+      "map input type: entity could not be found: " +
+        JSON.stringify({ name, type })
+    );
   }
 
   return mapScalarType(type, name);

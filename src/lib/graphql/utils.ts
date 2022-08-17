@@ -110,6 +110,7 @@ const availableTypes = [
   "String",
   "Boolean",
   "Int",
+  "Long",
   "Float",
   "LocalDateTime",
   "LocalDate",

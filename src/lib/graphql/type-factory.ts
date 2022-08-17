@@ -12,6 +12,7 @@ const getObjectType = (
   const fields = getFields(filteredEntityFields, QLtypes);
 
   // self referencing
+  // see https://stackoverflow.com/questions/32551022/how-do-i-create-a-graphql-schema-for-a-self-referencing-data-hierarchy
   const selfReferencingFields: Field[] = filteredEntityFields.filter(
     (x) => x.type === entityName
   );
@@ -163,7 +164,6 @@ export const createTypesFromModel = (
     // end args
 
     // add to the list of types
-    // for self referencing entities, see https://stackoverflow.com/questions/32551022/how-do-i-create-a-graphql-schema-for-a-self-referencing-data-hierarchy
     QLtypes.set(entity.name, {
       objectType,
       args,
