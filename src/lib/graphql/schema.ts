@@ -14,6 +14,8 @@ class GQLSchema<Permission> {
 
   // superadmin gql schema
   gQLSchema: GraphQLSchema;
+  // raw model, only used as a public variable
+  public rawModel: Entity[];
 
   constructor(
     def: Entity[],
@@ -22,6 +24,7 @@ class GQLSchema<Permission> {
   ) {
     // superadmin schema, which is also the one that is used with the "app authentication"
     this.gQLSchema = SchemaFactory.getSchemaFromModel(def, s);
+    
 
     this.roleQLSchemaMap = new Map(
       submodels.map(([k, v]) => [
@@ -30,6 +33,8 @@ class GQLSchema<Permission> {
           SchemaFactory.getSchemaFromModel(def, s, v(ids)),
       ])
     );
+      
+    this.rawModel = def;
   }
 
   getSchemaFromCtx = (
