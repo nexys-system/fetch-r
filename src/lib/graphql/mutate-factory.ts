@@ -19,6 +19,15 @@ const mutateReponseInsertType: GL.GraphQLOutputType = new GL.GraphQLObjectType({
 });
 
 // this is the graphql equivalent of MutateResponseDelete
+const mutateReponseUpdateType: GL.GraphQLOutputType = new GL.GraphQLObjectType({
+  name: "MutateReponseUpdate",
+  fields: {
+    updated: { type: new GL.GraphQLNonNull(GL.GraphQLInt) },
+    success: { type: new GL.GraphQLNonNull(GL.GraphQLBoolean) },
+  },
+});
+
+// this is the graphql equivalent of MutateResponseDelete
 const mutateReponseDeleteType: GL.GraphQLOutputType = new GL.GraphQLObjectType({
   name: "MutateReponseDelete",
   fields: {
@@ -54,16 +63,32 @@ const deleteById = async (
   s: Connection.SQL
 ): Promise<MutateResponseDelete> => {
   const r = await Exec.mutate({ [entity]: { delete: { filters } } }, def, s);
-  const { delete: delete2 } = r[entity];
+  const response = r[entity];
 
-  if (!delete2) {
+  if (!response.delete) {
     throw Error(
       "the expected MutateResponseInsert out type did not have the expected shape: " +
-        JSON.stringify(delete2)
+        JSON.stringify(response.delete)
     );
   }
 
-  return delete2;
+  return response.delete;
+};
+
+const update = async <A>(
+  entity: string,
+  data: Partial<A>,
+  filters: { id?: number; uuid?: string },
+  def: Entity[],
+  s: Connection.SQL
+) => {
+  const mutateResponse = await Exec.mutate(
+    { [entity]: { update: { data, filters } } },
+    def,
+    s
+  );
+
+  return mutateResponse[entity]["update"];
 };
 
 export const getMutation = (
@@ -85,7 +110,50 @@ export const getMutation = (
   });
 
   // add update
-  // TODO
+  def.forEach((entity) => {
+    const qlType = QLTypes.get(entity.name);
+
+    if (!qlType) {
+      throw Error("qltype for " + entity.name + " could not be retrieved");
+    }
+
+    const argFields: GL.GraphQLFieldConfigArgumentMap = qlType.argsPartial;
+
+    const data = new GL.GraphQLInputObjectType({
+      name: entity.name + "Update",
+      fields: argFields,
+    });
+
+    const argFieldsFilter: GL.GraphQLFieldConfigArgumentMap = { ...argFields };
+
+    if (entity.uuid) {
+      argFieldsFilter["uuid"] = { type: GL.GraphQLID };
+    } else {
+      argFieldsFilter["id"] = { type: GL.GraphQLInt };
+    }
+
+    const filters = new GL.GraphQLInputObjectType({
+      name: entity.name + "UpdateFilter",
+      fields: argFieldsFilter,
+    });
+
+    fields["update" + entity.name] = {
+      type: mutateReponseUpdateType,
+      args: {
+        data: { type: data },
+        filters: { type: filters },
+      },
+      resolve: async (_source, args) => {
+        const { data, filters } = args;
+
+        if (Object.keys(filters).length === 0) {
+          throw Error("at least one filter arg must be given");
+        }
+
+        return update(entity.name, data, filters, def, s);
+      },
+    };
+  });
 
   // add delete
   def.forEach((entity) => {

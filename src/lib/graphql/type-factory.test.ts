@@ -21,6 +21,7 @@ describe("createTypesFromModel", () => {
 
     const entityContent = {
       args: { test: { type: GL.GraphQLString } },
+      argsPartial: { test: { type: GL.GraphQLString } },
       objectType: new GL.GraphQLObjectType({
         name: "Test",
         fields: { test: { type: new GL.GraphQLNonNull(GL.GraphQLString) } },
@@ -61,9 +62,11 @@ describe("createTypesFromModel", () => {
 
     const testEntityContent: {
       args: GL.GraphQLFieldConfigArgumentMap;
+      argsPartial: GL.GraphQLFieldConfigArgumentMap;
       objectType: GL.GraphQLObjectType;
     } = {
       args: { test: { type: GL.GraphQLString } },
+      argsPartial: { test: { type: GL.GraphQLString } },
       objectType: new GL.GraphQLObjectType({
         name: "Test",
         fields: { test: { type: new GL.GraphQLNonNull(GL.GraphQLString) } },
@@ -72,9 +75,11 @@ describe("createTypesFromModel", () => {
 
     const test2EntityContent: {
       args: GL.GraphQLFieldConfigArgumentMap;
+      argsPartial: GL.GraphQLFieldConfigArgumentMap;
       objectType: GL.GraphQLObjectType;
     } = {
       args: { ff: { type: foreignId } },
+      argsPartial: { ff: { type: foreignId } },
       objectType: new GL.GraphQLObjectType({
         name: "Test2",
         fields: {
@@ -119,9 +124,11 @@ describe("createTypesFromModel", () => {
 
     const testEntityContent: {
       args: GL.GraphQLFieldConfigArgumentMap;
+      argsPartial: GL.GraphQLFieldConfigArgumentMap;
       objectType: GL.GraphQLObjectType;
     } = {
       args: { test: { type: GL.GraphQLString } },
+      argsPartial: { test: { type: GL.GraphQLString } },
       objectType: new GL.GraphQLObjectType({
         name: "Test",
         fields: { test: { type: new GL.GraphQLNonNull(GL.GraphQLString) } },
@@ -130,9 +137,11 @@ describe("createTypesFromModel", () => {
 
     const test2EntityContent: {
       args: GL.GraphQLFieldConfigArgumentMap;
+      argsPartial: GL.GraphQLFieldConfigArgumentMap;
       objectType: GL.GraphQLObjectType;
     } = {
       args: { ff: { type: foreignId } },
+      argsPartial: { ff: { type: foreignId } },
       objectType: new GL.GraphQLObjectType({
         name: "Test2",
         fields: {
@@ -184,6 +193,10 @@ describe("createTypesFromModel", () => {
         foo: { type: GL.GraphQLString },
         foo2: { type: foreignId },
       },
+      argsPartial: {
+        foo: { type: GL.GraphQLString },
+        foo2: { type: foreignId },
+      },
       objectType,
     };
 
@@ -229,17 +242,21 @@ describe("createTypesFromModel", () => {
 
     const testEntityContent: {
       args: GL.GraphQLFieldConfigArgumentMap;
+      argsPartial: GL.GraphQLFieldConfigArgumentMap;
       objectType: GL.GraphQLObjectType;
     } = {
       args: { test: { type: foreignId } },
+      argsPartial: { test: { type: foreignId } },
       objectType,
     };
 
     const test2EntityContent: {
       args: GL.GraphQLFieldConfigArgumentMap;
+      argsPartial: GL.GraphQLFieldConfigArgumentMap;
       objectType: GL.GraphQLObjectType;
     } = {
       args: { ff: { type: foreignId } },
+      argsPartial: { ff: { type: foreignId } },
       objectType: new GL.GraphQLObjectType({
         name: "Test2",
         fields: {
@@ -294,17 +311,21 @@ describe("createTypesFromModel", () => {
 
     const testEntityContent: {
       args: GL.GraphQLFieldConfigArgumentMap;
+      argsPartial: GL.GraphQLFieldConfigArgumentMap;
       objectType: GL.GraphQLObjectType;
     } = {
       args: { t2: { type: foreignId } },
+      argsPartial: { t2: { type: foreignId } },
       objectType: ot1,
     };
 
     const test2EntityContent: {
       args: GL.GraphQLFieldConfigArgumentMap;
+      argsPartial: GL.GraphQLFieldConfigArgumentMap;
       objectType: GL.GraphQLObjectType;
     } = {
       args: { t: { type: foreignId } },
+      argsPartial: { t: { type: foreignId } },
       objectType: ot2,
     };
 

@@ -15,8 +15,15 @@ type Permission = {};
 // empty submodels
 const submodels: Submodel<Permission>[] = [];
 
+router.all("/", async (ctx) => {
+  ctx.body = {
+    message:
+      "available endpoints are `/schema` for the schema and `/query` for queying the schema",
+  };
+});
+
 // this is the default schema, superadmin
-router.all("/", bodyParser(), Middleware.isAuth, async (ctx) => {
+router.all("/schema", bodyParser(), Middleware.isAuth, async (ctx) => {
   try {
     const model = ModelService.getModel(ctx.state.jwtContent);
     const connectionPool = DatabaseService.getPool(ctx.state.jwtContent);
