@@ -126,3 +126,7 @@ When a query requiring a particular database is called, it will look for an asso
 ### Migrations
 
 The migration engines is largely inspired from flyway. An array of migrations can be passed; each having a unique combination of index and version (e.g. `2.1`, `2.2` etc). Migrations are stored in a separate table with their checksum values.
+
+### GraphQL
+
+GraphQL support is available. See https://github.com/nexys-system/server-boilerplate/blob/master/README.md#graphql-query-examples-tested-in-postman for more information
