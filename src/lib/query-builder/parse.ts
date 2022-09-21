@@ -24,11 +24,16 @@ export const getParsedValue = (
 ) => {
   // get value
   const v = x[aliasName];
-  // console.log({ v, aliasName, type });
+  // console.log({ v, aliasName, type, t: typeof v, in: v instanceof Date });
 
   // if expected type is boolean and returned type is number, cast to boolean
   if (type && type === "Boolean" && typeof v === "number") {
     return Boolean(v > 0); // note that false == 0 and true is any positive integer
+  }
+
+  // if date, explicitly turn to JSON
+  if (typeof v === "object" && v instanceof Date) {
+    return v.toJSON();
   }
 
   return v;
