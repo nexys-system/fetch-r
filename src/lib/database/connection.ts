@@ -29,6 +29,7 @@ export class SQL {
     ssl = defaultSSL,
   }: ConnectionOptions) {
     const config: PoolOptions = {
+      timezone: "GMT",
       host,
       user,
       password,
