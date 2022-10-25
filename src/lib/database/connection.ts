@@ -16,6 +16,10 @@ export interface ConnectionOptions {
 
 const defaultSSL: SslOptions = { rejectUnauthorized: false };
 
+// https://stackoverflow.com/a/60883634/1659569
+// "GMT" throws: Ignoring invalid timezone passed to Connection: GMT. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+const timezone = "+00:00";
+
 export class SQL {
   //connection: mysql.Connection;
   pool: T.Pool;
@@ -29,7 +33,7 @@ export class SQL {
     ssl = defaultSSL,
   }: ConnectionOptions) {
     const config: PoolOptions = {
-      timezone: "GMT",
+      timezone,
       host,
       user,
       password,
