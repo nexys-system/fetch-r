@@ -35,8 +35,12 @@
   },
   "dependencies": {
     "@nexys/validation": "^2.1.4",
+    "@types/pg-pool": "^2.0.3",
     "@types/sqlstring": "^2.3.0",
     "mysql2": "^2.3.3",
+    "pg": "^8.8.0",
+    "pg-pool": "^3.5.2",
+    "postgres-pool": "^6.0.5",
     "sqlstring": "^2.3.2"
   },
   "peerDependencies": {
