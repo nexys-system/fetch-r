@@ -8,6 +8,7 @@ export const types: T.Type[] = [
   "Boolean",
   "BigDecimal",
   "Float",
+  "Double",
   "LocalDate",
   "LocalDateTime",
   "LocalTime",

@@ -19,7 +19,11 @@ export type FieldType =
 
 export type GLTypes = Map<
   string,
-  { objectType: GL.GraphQLObjectType; args: GL.GraphQLFieldConfigArgumentMap }
+  {
+    objectType: GL.GraphQLObjectType;
+    args: GL.GraphQLFieldConfigArgumentMap;
+    argsPartial: GL.GraphQLFieldConfigArgumentMap;
+  }
 >;
 
 // https://graphql.org/graphql-js/basic-types/

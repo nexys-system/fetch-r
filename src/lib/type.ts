@@ -7,6 +7,7 @@ export type Type =
   | "Boolean"
   | "BigDecimal"
   | "Float"
+  | "Double"
   | "LocalDate"
   | "LocalDateTime"
   | "LocalTime";

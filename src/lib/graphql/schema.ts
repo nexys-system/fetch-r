@@ -24,7 +24,6 @@ class GQLSchema<Permission> {
   ) {
     // superadmin schema, which is also the one that is used with the "app authentication"
     this.gQLSchema = SchemaFactory.getSchemaFromModel(def, s);
-    
 
     this.roleQLSchemaMap = new Map(
       submodels.map(([k, v]) => [
@@ -33,7 +32,7 @@ class GQLSchema<Permission> {
           SchemaFactory.getSchemaFromModel(def, s, v(ids)),
       ])
     );
-      
+
     this.rawModel = def;
   }
 
@@ -47,6 +46,11 @@ class GQLSchema<Permission> {
 
     if (!permission) {
       throw { code: 400, msg: `Role "${role}" does not exist` };
+    }
+
+    if (permission === (3 as any as Permission)) {
+      // 3 is superadmin, in this case return full schema
+      return this.gQLSchema;
     }
 
     const preSchema = this.roleQLSchemaMap.get(permission);

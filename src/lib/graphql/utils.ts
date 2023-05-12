@@ -56,7 +56,7 @@ export const mapTypesString = ({ name, type }: Field): string => {
     return "Int";
   }
 
-  if (type === "Float" || type === "BigDecimal") {
+  if (type === "Float" || type === "BigDecimal" || type === "Double") {
     return "Float";
   }
 

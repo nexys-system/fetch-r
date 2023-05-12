@@ -1,6 +1,6 @@
 {
   "name": "@nexys/fetchr",
-  "version": "0.7.6",
+  "version": "0.7.13",
   "license": "AGPL-3.0-or-later",
   "main": "dist/index.js",
   "files": [
@@ -36,7 +36,7 @@
   "dependencies": {
     "@nexys/validation": "^2.1.4",
     "@types/sqlstring": "^2.3.0",
-    "mysql2": "^2.2.5",
+    "mysql2": "^2.3.3",
     "sqlstring": "^2.3.2"
   },
   "peerDependencies": {

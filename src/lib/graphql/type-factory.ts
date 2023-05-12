@@ -111,6 +111,8 @@ export const createTypesFromModel = (
 
     // args
     const args: GL.GraphQLFieldConfigArgumentMap = {};
+    // args partial is the same as arg but all arguments are optional. i.e. going from A to Partial<A>
+    const argsPartial: GL.GraphQLFieldConfigArgumentMap = {};
 
     entity.fields.forEach((f) => {
       const preType: GL.GraphQLInputType = UM.mapInputType(f, def);
@@ -120,6 +122,7 @@ export const createTypesFromModel = (
           : new GL.GraphQLNonNull(preType);
 
       args[f.name] = { type };
+      argsPartial[f.name] = { type: preType };
     });
     // end args
 
@@ -127,6 +130,7 @@ export const createTypesFromModel = (
     QLtypes.set(entity.name, {
       objectType,
       args,
+      argsPartial,
     });
 
     //
