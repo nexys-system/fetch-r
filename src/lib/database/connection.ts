@@ -1,14 +1,15 @@
 import mysql from "mysql2";
-import { PoolOptions } from "mysql2/typings/mysql";
-import * as T from "./type";
 
-export type ConnectionOptions = PoolOptions;
+import * as T from "./type";
 
 export class SQL {
   //connection: mysql.Connection;
   pool: T.Pool;
 
-  constructor(connectionOptions: ConnectionOptions) {
+  constructor(
+    connectionOptions: T.ConnectionOptions,
+    databaseType: T.DatabaseType
+  ) {
     // remove ssl by default
     /*if (!connectionOptions.ssl) {
       connectionOptions.ssl = { rejectUnauthorized: false };
@@ -16,8 +17,22 @@ export class SQL {
 
     // see: https://dev.mysql.com/doc/mysql-port-reference/en/mysql-ports-reference-tables.html#mysql-client-server-ports
     if (!connectionOptions.port) {
-      connectionOptions.port = 3306;
+      // default port are different depending on the database type
+      if (databaseType === "PostgreSQL") {
+        connectionOptions.port = 5432;
+      }
+
+      if (databaseType === "MySQL") {
+        connectionOptions.port = 3306;
+      }
     }
+
+    if (databaseType === "PostgreSQL") {
+      // here reference the postgresl stuff
+      // return "pool" equivalent object
+    }
+
+    // fallback to SQL
 
     if (typeof connectionOptions.multipleStatements === "undefined") {
       connectionOptions.multipleStatements = true;
@@ -39,3 +54,5 @@ export class SQL {
 
 // stores all connections in a map, can be called on demand
 export const databases: Map<string, SQL> = new Map();
+
+export type DatabaseType = "MySQL" | "PostgreSQL";

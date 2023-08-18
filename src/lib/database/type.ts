@@ -5,6 +5,7 @@ import {
   RowDataPacket,
   FieldPacket,
 } from "mysql2/promise";
+import { PoolOptions } from "mysql2/typings/mysql";
 
 export interface Database {
   host: string;
@@ -29,3 +30,18 @@ export type Response = [
   OkPacket | ResultSetHeader | RowDataPacket[] | RowDataPacket[][] | OkPacket[],
   FieldPacket[]
 ];
+
+export type DatabaseType = "MySQL" | "PostgreSQL";
+
+export type ConnectionOptions = Pick<
+  PoolOptions,
+  | "host"
+  | "database"
+  | "user"
+  | "password"
+  | "socketPath"
+  | "port"
+  | "ssl"
+  | "multipleStatements"
+  | "timezone"
+>;

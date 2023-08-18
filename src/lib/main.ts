@@ -5,6 +5,7 @@ import * as T from "./type";
 import { addColumnsToModel } from "./model/utils";
 import { Query as AQuery } from "./query-builder/aggregate/type";
 import { Aggregate } from "./query-builder";
+import { ConnectionOptions, DatabaseType } from "./database/type";
 
 interface Options {
   legacyMode: boolean;
@@ -16,11 +17,12 @@ export class Main {
   options: Options;
 
   constructor(
-    c: Connection.ConnectionOptions,
+    c: ConnectionOptions,
+    databaseType: DatabaseType,
     model: T.Entity[],
     options: Options = { legacyMode: false }
   ) {
-    this.s = new Connection.SQL(c);
+    this.s = new Connection.SQL(c, databaseType);
 
     addColumnsToModel(model);
     this.model = model;

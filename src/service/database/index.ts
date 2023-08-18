@@ -58,7 +58,7 @@ export const getPool = (
       database: db.database,
     };
 
-    const pool = new Connection.SQL(connection);
+    const pool = new Connection.SQL(connection, "MySQL");
     Connection.databases.set(pid, pool);
 
     return pool;
