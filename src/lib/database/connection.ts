@@ -1,10 +1,12 @@
 import mysql from "mysql2";
+import * as pg from "pg";
 
 import * as T from "./type";
 
 export class SQL {
   //connection: mysql.Connection;
-  pool: T.Pool;
+  private pool: T.Pool | null;
+  private poolPg: pg.Pool | null;
 
   constructor(
     connectionOptions: T.ConnectionOptions,
@@ -44,12 +46,39 @@ export class SQL {
       connectionOptions.timezone = "+00:00";
     }
 
-    // https://www.npmjs.com/package/mysql2#using-connection-pools
-    //this.connection = mysql.createConnection(config);
-    this.pool = mysql.createPool(connectionOptions).promise();
+    this.pool = null;
+    this.poolPg = null;
+
+    if (databaseType === "PostgreSQL") {
+      // https://node-postgres.com/apis/pool
+      this.poolPg = new pg.Pool({
+        host: connectionOptions.host,
+        user: connectionOptions.user,
+        database: connectionOptions.database,
+        password: connectionOptions.password,
+        port: connectionOptions.port,
+        idleTimeoutMillis: 5000,
+      });
+    }
+
+    if (databaseType === "MySQL") {
+      // https://www.npmjs.com/package/mysql2#using-connection-pools
+      //this.connection = mysql.createConnection(config);
+      this.pool = mysql.createPool(connectionOptions).promise();
+    }
   }
 
-  execQuery = (query: string): Promise<T.Response> => this.pool.query(query);
+  execQuery = (query: string): Promise<T.Response> => {
+    if (this.pool) {
+      return this.pool.query(query);
+    }
+
+    if (this.poolPg) {
+      return this.poolPg.query(query) as any;
+    }
+
+    throw Error("no pool initialized");
+  };
 }
 
 // stores all connections in a map, can be called on demand
