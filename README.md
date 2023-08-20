@@ -5,7 +5,6 @@
 [![Deploy to docker](https://github.com/nexys-system/fetch-r/actions/workflows/deploy.yml/badge.svg)](https://github.com/nexys-system/fetch-r/actions/workflows/deploy.yml)
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
-[![Bundlephobia](https://badgen.net/bundlephobia/min/@nexys/fetchr)](https://bundlephobia.com/result?p=@nexys/fetchr)
 ![Code style](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)
 
 Typescript ORM to connect to MySQL database
