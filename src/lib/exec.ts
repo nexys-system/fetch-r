@@ -8,6 +8,7 @@ import * as Parse from "./query-builder/parse";
 import * as ParseMutate from "./query-builder/parse-mutate";
 import * as ReferenceService from "./query-builder/references";
 import * as U from "./query-builder/utils";
+import { DatabaseType } from "./database/type";
 
 const isRawDataPacket = (
   response: RowDataPacket[] | RowDataPacket
@@ -18,7 +19,8 @@ const handleReponse = async (
   response: RowDataPacket[] | RowDataPacket,
   qs: TT.MetaQuery[],
   model: T.Entity[],
-  s: Connection.SQL
+  s: Connection.SQL,
+  databaseType: DatabaseType
 ): Promise<T.ReturnUnit> => {
   if (!Array.isArray(response)) {
     throw Error("not an array");
@@ -26,14 +28,14 @@ const handleReponse = async (
 
   // in case we requested only one query, the response is a single array, we call the function recursively to be able to handle it
   if (isRawDataPacket(response)) {
-    return handleReponse([response], qs, model, s);
+    return handleReponse([response], qs, model, s, databaseType);
   }
 
   const pResponseParsed = response.map(
     async (responseUnit: RowDataPacket, metaIdx: number) => {
       const meta = qs[metaIdx];
 
-      const main = Parse.parse(responseUnit, meta);
+      const main = Parse.parse(responseUnit, meta, databaseType);
 
       // if references are present
       // 1. get ids of parent result
@@ -41,7 +43,14 @@ const handleReponse = async (
       // 3 insert result into current result
       const { references } = meta;
       if (references) {
-        await ReferenceService.prepare(meta, main, references, model, s);
+        await ReferenceService.prepare(
+          meta,
+          main,
+          references,
+          model,
+          s,
+          databaseType
+        );
       }
 
       return main;
@@ -73,11 +82,12 @@ export const exec = async (
   mq: T.Query,
   entities: T.Entity[],
   s: Connection.SQL,
-  options: { legacyMode: boolean } = { legacyMode: false }
+  databaseType: DatabaseType
+  //options: {  } = { }
 ): Promise<T.ReturnUnit> => {
-  const qs = Meta.createQuery(mq, entities, options.legacyMode);
+  const qs = Meta.createQuery(mq, entities, databaseType);
 
-  const r = await execFromMeta(qs, entities, s);
+  const r = await execFromMeta(qs, entities, s, databaseType);
 
   // this is the last step before output, remove ids where not needed
   U.removeId(r);
@@ -92,8 +102,12 @@ export const getSQLFromMeta = (
   }[]
 ): string => qs.map((x) => x.sql).join("\n");
 
-export const getSQL = (mq: T.Query, entities: T.Entity[]) => {
-  const qs = Meta.createQuery(mq, entities);
+export const getSQL = (
+  mq: T.Query,
+  entities: T.Entity[],
+  databaseType: DatabaseType
+) => {
+  const qs = Meta.createQuery(mq, entities, databaseType);
   return getSQLFromMeta(qs);
 };
 
@@ -103,19 +117,21 @@ export const execFromMeta = async (
     meta: TT.MetaQuery;
   }[],
   entities: T.Entity[],
-  s: Connection.SQL
+  s: Connection.SQL,
+  databaseType: DatabaseType
 ): Promise<T.ReturnUnit> => {
   const sqlScript = getSQLFromMeta(qs);
 
   // here we cast to RowDataPacket[] but theoretically it can also be RowDataPacket, it is checked downstream
   // raw response
-  const [response] = await s.execQuery(sqlScript);
+  const response = await s.execQuery(sqlScript);
 
   return handleReponse(
     response as RowDataPacket,
     qs.map((x) => x.meta),
     entities,
-    s
+    s,
+    databaseType
   );
 };
 
@@ -124,14 +140,14 @@ export const getSQLMutate = (mq: T.Mutate, entities: T.Entity[]): string => {
   return qs.map((x) => x.sql).join("\n");
 };
 
-export const mutate = async (
-  mq: T.Mutate,
+export const mutate = async <A = any>(
+  mq: T.Mutate<A>,
   entities: T.Entity[],
   s: Connection.SQL
 ): Promise<T.MutateResponse> => {
   const qs = MutateService.createMutateQuery(mq, entities);
   // console.log(qs.map((x) => x.sql).join("\n"));
-  const [response] = await s.execQuery(qs.map((x) => x.sql).join("\n"));
+  const response = await s.execQuery(qs.map((x) => x.sql).join("\n"));
 
   return await ParseMutate.parseMutate(qs, response as OkPacket, s);
 };

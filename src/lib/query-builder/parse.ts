@@ -6,6 +6,7 @@
  *
  * this file handles the parsing
  */
+import { DatabaseType } from "../database/type";
 import * as T from "../type";
 import * as TT from "./type";
 import * as UU from "./utils";
@@ -41,7 +42,8 @@ export const getParsedValue = (
 
 export const parseUnit = (
   x: RowDataPacket,
-  meta: TT.MetaQueryUnit[]
+  meta: TT.MetaQueryUnit[],
+  databaseType: DatabaseType
 ): T.ReturnUnit => {
   /**
    * add the projection values
@@ -52,7 +54,11 @@ export const parseUnit = (
     const r: T.ReturnUnit = {};
 
     m.fields.forEach((f) => {
-      const aliasName = UU.getAliasColumn(m.alias, f.name);
+      let aliasName = UU.getAliasColumn(m.alias, f.name);
+
+      if (databaseType === "PostgreSQL") {
+        aliasName = aliasName.toLowerCase();
+      }
 
       r[f.name] = getParsedValue(x, aliasName, f.type);
     });
@@ -112,12 +118,14 @@ export const parseUnit = (
   return r as T.ReturnUnit; // here explicitly rule out `null` via type casting, more elegant way?
 };
 
-export const parse = (x: RowDataPacket, meta: TT.MetaQuery): T.ReturnUnit[] => {
+export const parse = (
+  x: RowDataPacket,
+  meta: TT.MetaQuery,
+  databaseType: DatabaseType
+): T.ReturnUnit[] => {
   if (!Array.isArray(x)) {
     throw Error("expecting an array");
   }
 
-  const mainResult = x.map((y) => parseUnit(y, meta.units));
-
-  return mainResult;
+  return x.map((y) => parseUnit(y, meta.units, databaseType));
 };

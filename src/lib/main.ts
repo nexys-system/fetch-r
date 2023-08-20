@@ -15,6 +15,7 @@ export class Main {
   s: Connection.SQL;
   model: T.Entity[];
   options: Options;
+  databaseType: DatabaseType;
 
   constructor(
     c: ConnectionOptions,
@@ -23,6 +24,7 @@ export class Main {
     options: Options = { legacyMode: false }
   ) {
     this.s = new Connection.SQL(c, databaseType);
+    this.databaseType = databaseType;
 
     addColumnsToModel(model);
     this.model = model;
@@ -31,7 +33,7 @@ export class Main {
 
   mutate = (m: T.Mutate) => Exec.mutate(m, this.model, this.s);
 
-  query = (q: T.Query) => Exec.exec(q, this.model, this.s, this.options);
+  query = (q: T.Query) => Exec.exec(q, this.model, this.s, this.databaseType);
 
   aggregate = (q: AQuery) => Aggregate.exec(q, this.model, this.s);
 }

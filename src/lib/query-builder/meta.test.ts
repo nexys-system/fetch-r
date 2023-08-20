@@ -59,7 +59,7 @@ describe("to meta and to query", () => {
   });
 
   test("to query", () => {
-    expect(S.toQuery(meta)).toEqual([
+    expect(S.toQuery(meta, "MySQL")).toEqual([
       "SELECT t0.`id` AS t0_id, t0.`uuid` AS t0_uuid, t0.`first_name` AS t0_firstName, t1.`id` AS t1_id, t1.`col_name` AS t1_name",
       "FROM user AS t0",
       "JOIN user_status AS t1 ON t1.id=t0.status_id",
@@ -123,7 +123,7 @@ describe("to meta and to query 2", () => {
   });
 
   test("to query", () => {
-    expect(S.toQuery({ units })).toEqual([
+    expect(S.toQuery({ units }, "MySQL")).toEqual([
       "SELECT t0.`id` AS t0_id, t0.`uuid` AS t0_uuid, t0.`first_name` AS t0_firstName, t1.`id` AS t1_id, t1.`col_name` AS t1_name",
       "FROM user AS t0",
       "JOIN user_status AS t1 ON t1.id=t0.status_id",
@@ -140,7 +140,7 @@ test("simple select + parse", () => {
     "FROM user_status AS t0",
     "WHERE 1",
   ];
-  const mq = S.toQuery({ units: m.units });
+  const mq = S.toQuery({ units: m.units }, "MySQL");
   expect(mq).toEqual(s);
   const r = [
     {
@@ -163,7 +163,7 @@ test("simple select + parse", () => {
     { t0_id: 3, t0_name: "denied" },
   ] as RowDataPacket[];
 
-  expect(P.parse(y as any, m)).toEqual(r);
+  expect(P.parse(y as any, m, "MySQL")).toEqual(r);
 });
 
 test("simple select to SQLs", () => {
@@ -179,7 +179,7 @@ test("simple select to SQLs", () => {
       "LIMIT 0, 2",
     ].join("\n") + ";";
 
-  const ss = M.createQuery(q, model).map((x) => x.sql);
+  const ss = M.createQuery(q, model, "MySQL").map((x) => x.sql);
   expect(ss).toEqual([s]);
 });
 
@@ -193,7 +193,7 @@ test("simple select w projection", () => {
     "LIMIT 8, 4",
   ];
   const m = M.toMeta("UserStatus", q.UserStatus, model);
-  const r = S.toQuery(m);
+  const r = S.toQuery(m, "MySQL");
   expect(r).toEqual(s);
 });
 
@@ -213,7 +213,7 @@ test("simple select w projection and filter", () => {
     "WHERE t0.`id`=2 AND t0.`col_name`='ok'",
   ];
   const m = M.toMeta("UserStatus", q.UserStatus, model);
-  const r = S.toQuery(m);
+  const r = S.toQuery(m, "MySQL");
   expect(r).toEqual(s);
 });
 
@@ -233,7 +233,7 @@ test("select w json 2nd level", () => {
   ];
 
   const m = M.toMeta("UserAuthentication", q.UserAuthentication, model);
-  const qs = S.toQuery(m);
+  const qs = S.toQuery(m, "MySQL");
   expect(qs).toEqual(s);
 
   const r = [
@@ -257,7 +257,7 @@ test("select w json 2nd level", () => {
     },
   ] as RowDataPacket[];
 
-  expect(P.parse(y as any, m)).toEqual(r);
+  expect(P.parse(y as any, m, "MySQL")).toEqual(r);
 });
 
 test("implicitly nested query", () => {

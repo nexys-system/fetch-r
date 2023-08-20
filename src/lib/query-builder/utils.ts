@@ -1,14 +1,15 @@
 import * as T from "../type";
 import * as TT from "./type";
 import { escape } from "../utils";
+import { DatabaseType } from "../database/type";
 
 export const getAliasColumn = (tableAlias: string, fieldName: string) =>
   tableAlias + "_" + fieldName;
 
-export const getLimitStatement = ({
-  take,
-  skip,
-}: Pick<TT.MetaQuery, "take" | "skip">): string | undefined => {
+export const getLimitStatement = (
+  { take, skip }: Pick<TT.MetaQuery, "take" | "skip">,
+  databaseType: DatabaseType
+): string | undefined => {
   if (!take) {
     return;
   }
@@ -19,6 +20,10 @@ export const getLimitStatement = ({
 
   if (skip && skip < 0) {
     throw Error("skip must be greater than zero");
+  }
+
+  if (databaseType === "PostgreSQL") {
+    return `LIMIT ${take} OFFSET ${skip || 0}`;
   }
 
   return `LIMIT ${skip || 0}, ${take}`;

@@ -8,12 +8,14 @@ import { Entity, Query, QueryFilters, QueryParams } from "../type";
 import { createTypesFromModel } from "./type-factory";
 
 import * as Connection from "../database/connection";
+import { DatabaseType } from "../database/type";
 import * as Exec from "../exec";
 
 const fieldResolve =
   (
     def: Entity[],
     s: Connection.SQL,
+    databaseType: DatabaseType,
     entity: { name: string },
     constraints?: T.ModelConstraints
   ) =>
@@ -44,7 +46,7 @@ const fieldResolve =
     const query: Query = { [entity.name]: params };
     // console.log({ query });
 
-    const q = await Exec.exec(query, def, s);
+    const q = await Exec.exec(query, def, s, databaseType);
 
     return q[entity.name];
   };
@@ -52,6 +54,7 @@ const fieldResolve =
 export const getQueryFromModel = (
   def: Entity[],
   s: Connection.SQL,
+  databaseType: DatabaseType,
   constraints?: T.ModelConstraints
 ): GL.GraphQLObjectType => {
   const QLtypes: T.GLTypes = createTypesFromModel(def, constraints);
@@ -62,7 +65,7 @@ export const getQueryFromModel = (
     fields[entity.name] = {
       type: new GL.GraphQLList(U.getType(entity.name, QLtypes)),
       args: U.getArgs(entity.name, QLtypes),
-      resolve: fieldResolve(def, s, entity, constraints),
+      resolve: fieldResolve(def, s, databaseType, entity, constraints),
     };
   });
 

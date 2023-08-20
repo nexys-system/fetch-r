@@ -6,8 +6,19 @@ test("getAliasColumn", () => {
 });
 
 test("getLimitStatement", () => {
-  expect(U.getLimitStatement({ take: 2 })).toEqual("LIMIT 0, 2");
-  expect(U.getLimitStatement({ take: 2, skip: 4 })).toEqual("LIMIT 4, 2");
+  expect(U.getLimitStatement({ take: 2 }, "MySQL")).toEqual("LIMIT 0, 2");
+  expect(U.getLimitStatement({ take: 2, skip: 4 }, "MySQL")).toEqual(
+    "LIMIT 4, 2"
+  );
+});
+
+test("getLimitStatement postgres", () => {
+  expect(U.getLimitStatement({ take: 2 }, "PostgreSQL")).toEqual(
+    "LIMIT 2 OFFSET 0"
+  );
+  expect(U.getLimitStatement({ take: 2, skip: 4 }, "PostgreSQL")).toEqual(
+    "LIMIT 2 OFFSET 4"
+  );
 });
 
 test("getOrderStatement", () => {

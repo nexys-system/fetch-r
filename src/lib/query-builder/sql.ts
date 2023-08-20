@@ -1,17 +1,22 @@
 import * as TT from "./type";
 import * as U from "../utils";
 import * as UU from "./utils";
+import { DatabaseType } from "../database/type";
 
-export const toQuery = (meta: TT.MetaQuery): string[] => {
+export const toQuery = (
+  meta: TT.MetaQuery,
+  databaseType: DatabaseType
+): string[] => {
+  const columnEscaper = databaseType === "MySQL" ? "`" : '"';
+
   const projection: string = meta.units
     .map((x) =>
       x.fields
         .map(
           (y) =>
-            `${x.alias}.\`${y.column}\` AS ${UU.getAliasColumn(
-              x.alias,
-              y.name
-            )}`
+            `${x.alias}.${columnEscaper}${
+              y.column
+            }${columnEscaper} AS ${UU.getAliasColumn(x.alias, y.name)}`
         )
         .join(", ")
     )
@@ -52,14 +57,19 @@ export const toQuery = (meta: TT.MetaQuery): string[] => {
     "FROM " + tableEscaped + " AS " + meta.units[0].alias,
   ];
 
+  // in MySQL: WHERE 1 , postgres: WHERE true
+  const wherePlaceholder = databaseType === "MySQL" ? "1" : "true";
+
   joins.forEach((join) => r.push(join));
-  r.push("WHERE " + (filters.length === 0 ? "1" : filters.join(" AND ")));
+  r.push(
+    "WHERE " + (filters.length === 0 ? wherePlaceholder : filters.join(" AND "))
+  );
 
   if (meta.order) {
     r.push(UU.prepareOrderStatement(meta));
   }
 
-  const limitStatement = UU.getLimitStatement(meta);
+  const limitStatement = UU.getLimitStatement(meta, databaseType);
   if (limitStatement) {
     r.push(limitStatement);
   }

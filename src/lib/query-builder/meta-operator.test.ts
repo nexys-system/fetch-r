@@ -19,7 +19,7 @@ test("simple select w projection and filter with operator", () => {
     "WHERE t0.`id`>2 AND t0.`id`<10 AND t0.`col_name` IN ('ok','pending')",
   ];
   const m = M.toMeta("UserStatus", q.UserStatus, model);
-  const r = S.toQuery(m);
+  const r = S.toQuery(m, "MySQL");
   expect(r).toEqual(s);
 });
 
@@ -37,7 +37,7 @@ test("simple select w regex operator", () => {
     "WHERE t0.`col_name` REGEXP '^aregexstring$'",
   ];
   const m = M.toMeta("UserStatus", q.UserStatus, model);
-  const r = S.toQuery(m);
+  const r = S.toQuery(m, "MySQL");
   expect(r).toEqual(s);
 });
 
@@ -55,7 +55,7 @@ test("simple select w NOT IN operator", () => {
     "WHERE t0.`col_name` IS NOT IN ('active','inactive')",
   ];
   const m = M.toMeta("UserStatus", q.UserStatus, model);
-  const r = S.toQuery(m);
+  const r = S.toQuery(m, "MySQL");
   expect(r).toEqual(s);
 });
 
@@ -73,7 +73,7 @@ test("simple select w NOT IN operator", () => {
     "WHERE t0.`col_name` IS NOT NULL",
   ];
   const m = M.toMeta("UserStatus", q.UserStatus, model);
-  const r = S.toQuery(m);
+  const r = S.toQuery(m, "MySQL");
   expect(r).toEqual(s);
 });
 
@@ -89,6 +89,6 @@ test("simple select w projection and filter by null", () => {
     "LIMIT 8, 4",
   ];
   const m = M.toMeta("UserStatus", q.UserStatus, model);
-  const r = S.toQuery(m);
+  const r = S.toQuery(m, "MySQL");
   expect(r).toEqual(s);
 });

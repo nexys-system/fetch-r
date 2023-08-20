@@ -4,12 +4,12 @@
  * the meta query is transformed into MySQL (or any SQL-like system, grammar to be adjusted)
  * teh result of the query is parsed
  */
+import { DatabaseType } from "../database/type";
 import * as T from "../type";
 import * as TT from "./type";
 import * as U from "../utils";
 import * as UU from "./utils";
 import { toQuery } from "./sql";
-import * as L from "./legacy";
 
 const getField = (
   fieldName: string,
@@ -266,7 +266,7 @@ export const toMetas = (query: T.Query, model: T.Entity[]): TT.MetaQuery[] =>
 export const createQuery = (
   query: T.Query,
   model: T.Entity[],
-  legacyMode: boolean = false
+  databaseType: DatabaseType
 ): { sql: string; meta: TT.MetaQuery }[] => {
   const oEntries = Object.entries(query);
 
@@ -277,23 +277,19 @@ export const createQuery = (
   }
 
   return oEntries.map(([entity, params]) => {
-    // here integrate legacy mode
-    if (legacyMode) {
-      L.augment(entity, params.projection || {}, model);
-    }
-
     const meta: TT.MetaQuery = toMeta(entity, params, model);
-    const pSQL = toQuery(meta);
+    const pSQL = toQuery(meta, databaseType);
     const sql = pSQL.join("\n") + ";";
     return { sql, meta };
   });
 };
 
 export const createSQL = (
-  metas: TT.MetaQuery[]
+  metas: TT.MetaQuery[],
+  databaseType: DatabaseType
 ): { sql: string; meta: TT.MetaQuery }[] => {
   return metas.map((meta) => {
-    const pSQL = toQuery(meta);
+    const pSQL = toQuery(meta, databaseType);
     const sql = pSQL.join("\n") + ";";
     return { sql, meta };
   });

@@ -85,7 +85,7 @@ export const exec = async (
 
   const p = Object.entries(query).map(async ([entity, params]) => {
     const sql = toSQL(entity, params, model);
-    const [response] = await s.execQuery(sql);
+    const response = await s.execQuery(sql);
     r[entity] = parse(response);
     return 1;
   });

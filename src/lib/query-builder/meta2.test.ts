@@ -32,7 +32,7 @@ test("2nd level projection", () => {
   const entity = "ModuleLesson";
 
   const em = M.toMeta(entity, q[entity], modelAcademy);
-  const s = S.toQuery(em);
+  const s = S.toQuery(em, "MySQL");
   const m: TT.MetaQuery = {
     units: [
       {
@@ -134,7 +134,7 @@ test("$neq", () => {
     },
   };
 
-  const em = M.createQuery(q, modelAcademy);
+  const em = M.createQuery(q, modelAcademy, "MySQL");
 
   const s = [
     "SELECT t0.`id` AS t0_id, t0.`issued` AS t0_issued, t0.`printed` AS t0_printed, t0.`score` AS t0_score, t0.`expires` AS t0_expires, t0.`log_date_added` AS t0_logDateAdded, t0.`test_user_id` AS t0_testUserId, t0.`reason` AS t0_reason, t0.`badge_status` AS t0_badgeStatus, t0.`is_log` AS t0_isLog, t0.`badge_id` AS t0_badgeId, t0.`log_comment` AS t0_logComment, t1.`id` AS t1_id, t2.`id` AS t2_id, t3.`id` AS t3_id, t4.`id` AS t4_id",
@@ -168,7 +168,7 @@ test("is null", () => {
     "WHERE t0.`badge_id` IS NULL;",
   ];
 
-  const em = M.createQuery(q, modelAcademy);
+  const em = M.createQuery(q, modelAcademy, "MySQL");
 
   expect(em[0].sql).toEqual(s.join("\n"));
 });

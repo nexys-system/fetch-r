@@ -5,6 +5,7 @@ import { Entity } from "../type";
 
 import * as SchemaFactory from "./schema-factory";
 import { Submodel } from "./type";
+import { DatabaseType } from "../database/type";
 
 class GQLSchema<Permission> {
   roleQLSchemaMap: Map<
@@ -20,16 +21,17 @@ class GQLSchema<Permission> {
   constructor(
     def: Entity[],
     s: Connection.SQL,
+    databaseType: DatabaseType,
     submodels: Submodel<Permission>[]
   ) {
     // superadmin schema, which is also the one that is used with the "app authentication"
-    this.gQLSchema = SchemaFactory.getSchemaFromModel(def, s);
+    this.gQLSchema = SchemaFactory.getSchemaFromModel(def, s, databaseType);
 
     this.roleQLSchemaMap = new Map(
       submodels.map(([k, v]) => [
         k,
         (ids: { Instance: string; User: string }) =>
-          SchemaFactory.getSchemaFromModel(def, s, v(ids)),
+          SchemaFactory.getSchemaFromModel(def, s, databaseType, v(ids)),
       ])
     );
 

@@ -85,7 +85,7 @@ const meta: MetaQuery = {
 
 test("parse - idx=0", () => {
   const row = response[0];
-  expect(P.parseUnit(row, meta.units)).toEqual({
+  expect(P.parseUnit(row, meta.units, "MySQL")).toEqual({
     id: 11,
     isEnabled: true,
     company: { id: 138, logUser: { id: 1681 } },
@@ -94,7 +94,7 @@ test("parse - idx=0", () => {
 
 test("parse - idx=1", () => {
   const row = response[1];
-  expect(P.parseUnit(row, meta.units)).toEqual({
+  expect(P.parseUnit(row, meta.units, "MySQL")).toEqual({
     id: 12,
     isEnabled: false,
     company: { id: 2, logUser: { id: 1683 } },

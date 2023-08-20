@@ -3,6 +3,7 @@ import * as TT from "../query-builder/type";
 import * as Exec from "../exec";
 import { Entity, Field, References, ReturnUnit } from "../type";
 import * as Connection from "../database/connection";
+import { DatabaseType } from "../database/type";
 
 interface Ref {
   entity: string;
@@ -125,14 +126,15 @@ export const prepare = async (
   main: ReturnUnit[],
   references: References,
   model: Entity[],
-  s: Connection.SQL
+  s: Connection.SQL,
+  databaseType: DatabaseType
 ): Promise<ReturnUnit[]> => {
   // create meta query from reference query
   const { entity: parentEntity } = meta.units[0];
 
   augmentRefQuery(references, model, parentEntity);
 
-  const qs = Meta.createQuery(references, model);
+  const qs = Meta.createQuery(references, model, databaseType);
 
   // adding filter
   const refs: Ref[] = qs.map((q) => {
@@ -144,9 +146,14 @@ export const prepare = async (
 
   const metas = qs.map((x) => x.meta);
 
-  const qs2 = Meta.createSQL(metas);
+  const qs2 = Meta.createSQL(metas, databaseType);
   //console.log("qs2", qs2);
-  const subResult: ReturnUnit = await Exec.execFromMeta(qs2, model, s);
+  const subResult: ReturnUnit = await Exec.execFromMeta(
+    qs2,
+    model,
+    s,
+    databaseType
+  );
 
   return refs.map((ref) => {
     //console.log(ref);
@@ -175,7 +182,7 @@ export const prepare = async (
           return m.id === x[fieldUnit.name].id;
         });
 
-        m[entity] = filteredSubResult === {} ? [] : filteredSubResult;
+        m[entity] = filteredSubResult === ({} as any) ? [] : filteredSubResult;
 
         return m;
       }

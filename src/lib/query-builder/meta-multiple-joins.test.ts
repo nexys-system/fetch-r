@@ -312,7 +312,7 @@ describe("multiple joins", () => {
       "LIMIT 0, 3",
     ];
 
-    const pSQL = S.toQuery(metaExpected);
+    const pSQL = S.toQuery(metaExpected, "MySQL");
 
     expect(pSQL).toEqual(s);
   });

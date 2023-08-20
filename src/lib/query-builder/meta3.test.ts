@@ -192,7 +192,7 @@ test("multi filters", () => {
   const entity = "EnvVar";
 
   const em = M.toMeta(entity, q[entity], model);
-  const s = S.toQuery(em);
+  const s = S.toQuery(em, "MySQL");
 
   const ss = [
     "SELECT t0.`id` AS t0_id, t1.`id` AS t1_id, t2.`id` AS t2_id, t2.`uuid` AS t2_uuid, t3.`id` AS t3_id, t4.`uuid` AS t4_uuid",

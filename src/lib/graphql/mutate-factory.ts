@@ -1,6 +1,11 @@
 import * as GL from "graphql";
 
-import { Entity, MutateResponseDelete, MutateResponseInsert } from "../type";
+import {
+  Entity,
+  Mutate,
+  MutateResponseDelete,
+  MutateResponseInsert,
+} from "../type";
 import { Connection } from "../database";
 
 import * as Exec from "../exec";
@@ -42,7 +47,8 @@ const insertOneRow = async <A>(
   def: Entity[],
   s: Connection.SQL
 ): Promise<MutateResponseInsert> => {
-  const r = await Exec.mutate({ [entity]: { insert: { data } } }, def, s);
+  const mq: Mutate<A> = { [entity]: { insert: { data } } };
+  const r = await Exec.mutate(mq, def, s);
 
   const { insert } = r[entity];
 

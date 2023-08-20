@@ -28,7 +28,14 @@ router.all("/schema", bodyParser(), Middleware.isAuth, async (ctx) => {
     const model = ModelService.getModel(ctx.state.jwtContent);
     const connectionPool = DatabaseService.getPool(ctx.state.jwtContent);
 
-    const schemas = new Schema<Permission>(model, connectionPool, submodels);
+    const databaseType = "MySQL";
+
+    const schemas = new Schema<Permission>(
+      model,
+      connectionPool,
+      databaseType,
+      submodels
+    );
     ctx.body = printSchema(schemas.gQLSchema);
   } catch (e) {
     ctx.status = 400;
@@ -44,8 +51,14 @@ router.post("/query", bodyParser(), Middleware.isAuth, async (ctx) => {
   try {
     const model = ModelService.getModel(ctx.state.jwtContent);
     const connectionPool = DatabaseService.getPool(ctx.state.jwtContent);
+    const databaseType = "MySQL";
 
-    const schemas = new Schema<Permission>(model, connectionPool, submodels);
+    const schemas = new Schema<Permission>(
+      model,
+      connectionPool,
+      databaseType,
+      submodels
+    );
     ctx.body = await graphql({ schema: schemas.gQLSchema, source: query });
   } catch (e) {
     ctx.status = 400;

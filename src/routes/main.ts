@@ -36,9 +36,9 @@ const aggregate = async (ctx: Koa.Context) => {
 const query = async (ctx: Koa.Context) => {
   // get query
   const { body: query } = ctx.request;
-  const { sqlScript, legacy } = ctx.query;
+  const { sqlScript } = ctx.query;
 
-  const legacyMode: boolean = legacy === "true";
+  const databaseType = "MySQL";
 
   // get model
   try {
@@ -46,16 +46,19 @@ const query = async (ctx: Koa.Context) => {
     const connectionPool = DatabaseService.getPool(ctx.state.jwtContent);
 
     if (sqlScript) {
-      const sql = QueryService.getSQL(query, model);
+      const sql = QueryService.getSQL(query, model, databaseType);
 
       ctx.body = { sql };
       return;
     }
 
     try {
-      ctx.body = await QueryService.exec(query, model, connectionPool, {
-        legacyMode,
-      });
+      ctx.body = await QueryService.exec(
+        query,
+        model,
+        connectionPool,
+        databaseType
+      );
     } catch (err) {
       ctx.status = 400;
       ctx.body = { error: (err as any).message };

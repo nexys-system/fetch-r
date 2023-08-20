@@ -1,4 +1,4 @@
-import mysql from "mysql2";
+import mysql, { OkPacket, RowDataPacket } from "mysql2";
 import * as pg from "pg";
 
 import * as T from "./type";
@@ -53,7 +53,7 @@ export class SQL {
       // https://node-postgres.com/apis/pool
       this.poolPg = new pg.Pool({
         host: connectionOptions.host,
-        user: connectionOptions.user,
+        user: connectionOptions.user || (connectionOptions as any).username,
         database: connectionOptions.database,
         password: connectionOptions.password,
         port: connectionOptions.port,
@@ -68,13 +68,15 @@ export class SQL {
     }
   }
 
-  execQuery = (query: string): Promise<T.Response> => {
+  execQuery = async (query: string): Promise<RowDataPacket | OkPacket> => {
     if (this.pool) {
-      return this.pool.query(query);
+      const [response] = await this.pool.query(query);
+      return response as RowDataPacket | OkPacket;
     }
 
     if (this.poolPg) {
-      return this.poolPg.query(query) as any;
+      const r = (await this.poolPg.query(query)) as any;
+      return r.rows as RowDataPacket | OkPacket;
     }
 
     throw Error("no pool initialized");
@@ -83,5 +85,3 @@ export class SQL {
 
 // stores all connections in a map, can be called on demand
 export const databases: Map<string, SQL> = new Map();
-
-export type DatabaseType = "MySQL" | "PostgreSQL";
