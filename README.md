@@ -10,6 +10,8 @@
 
 Typescript ORM to connect to MySQL database
 
+_experimental support for PostgreSQL_
+
 Typescript port of [Scala version](https://github.com/nexys-system/fetch-r-scala)
 
 [npm-image]: https://img.shields.io/npm/v/@nexys/fetchr.svg
