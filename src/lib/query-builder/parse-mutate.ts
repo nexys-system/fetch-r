@@ -48,7 +48,7 @@ export const parseMutateInsert = async (
       entity
     )} WHERE id IN (${ids.join(", ")})`;
 
-    const [responseUuid] = (await s.execQuery(sql)) as any as [RowDataPacket];
+    const responseUuid = (await s.execQuery(sql)) as RowDataPacket;
 
     const uuids: string[] = responseUuid.map(
       (d: { uuid: string }) => d["uuid"]
