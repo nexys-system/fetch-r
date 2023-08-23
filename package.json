@@ -37,6 +37,7 @@
     "@nexys/validation": "^2.1.4",
     "@types/pg": "^8.10.2",
     "@types/sqlstring": "^2.3.0",
+    "crc-32": "^1.2.2",
     "mysql2": "^2.3.3",
     "pg": "^8.11.3",
     "sqlstring": "^2.3.2"
