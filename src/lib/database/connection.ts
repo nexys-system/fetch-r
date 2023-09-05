@@ -76,6 +76,7 @@ export class SQL {
 
     if (this.poolPg) {
       const r = (await this.poolPg.query(query)) as any;
+
       return r.rows as RowDataPacket | OkPacket;
     }
 

@@ -31,7 +31,8 @@ export class Main {
     this.options = options;
   }
 
-  mutate = (m: T.Mutate) => Exec.mutate(m, this.model, this.s);
+  mutate = (m: T.Mutate) =>
+    Exec.mutate(m, this.model, this.s, this.databaseType);
 
   query = (q: T.Query) => Exec.exec(q, this.model, this.s, this.databaseType);
 

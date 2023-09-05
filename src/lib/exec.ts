@@ -135,19 +135,28 @@ export const execFromMeta = async (
   );
 };
 
-export const getSQLMutate = (mq: T.Mutate, entities: T.Entity[]): string => {
-  const qs = MutateService.createMutateQuery(mq, entities);
+export const getSQLMutate = (
+  mq: T.Mutate,
+  entities: T.Entity[],
+  databaseType: DatabaseType
+): string => {
+  const qs = MutateService.createMutateQuery(mq, entities, databaseType);
   return qs.map((x) => x.sql).join("\n");
 };
 
 export const mutate = async <A = any>(
   mq: T.Mutate<A>,
   entities: T.Entity[],
-  s: Connection.SQL
+  s: Connection.SQL,
+  databaseType: DatabaseType
 ): Promise<T.MutateResponse> => {
-  const qs = MutateService.createMutateQuery(mq, entities);
+  const qs = MutateService.createMutateQuery(mq, entities, databaseType);
   // console.log(qs.map((x) => x.sql).join("\n"));
   const response = await s.execQuery(qs.map((x) => x.sql).join("\n"));
+
+  if (databaseType === "PostgreSQL") {
+    return response as any;
+  }
 
   return await ParseMutate.parseMutate(qs, response as OkPacket, s);
 };

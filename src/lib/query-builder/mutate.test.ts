@@ -24,12 +24,14 @@ interface Permission {
   name: string;
 }
 
+const databaseType = "MySQL";
+
 describe("create mutate query", () => {
   test("simple insert", () => {
     const data: Omit<UserStatus, "id"> = { name: "ok" };
     const q: T.Mutate<UserStatus> = { UserStatus: { insert: { data } } };
     const s = ["INSERT INTO user_status (`col_name`) VALUES ('ok');"];
-    const sm = S.createMutateQuery(q, model);
+    const sm = S.createMutateQuery(q, model, databaseType);
     expect(sm.map((_) => _.sql)).toEqual(s);
   });
 
@@ -39,7 +41,7 @@ describe("create mutate query", () => {
     const s = [
       "INSERT INTO permission (`name`, `uuid`) VALUES ('mypermission', UUID());",
     ];
-    const sm = S.createMutateQuery(q, model);
+    const sm = S.createMutateQuery(q, model, databaseType);
     expect(sm.map((_) => _.sql)).toEqual(s);
   });
 
@@ -61,7 +63,7 @@ describe("create mutate query", () => {
     const s = [
       "INSERT INTO user (`first_name`, `last_name`, `middle_name`, `email`, `status_id`, `log_date_added`, `instance_id`, `lang`, `uuid`) VALUES ('John', 'Doe', NULL, 'john@doe.com', 3, '2015-11-05T13:29:36.000', (SELECT id FROM `instance` WHERE uuid='myuuid'), 'en', UUID());",
     ];
-    const ss = S.createMutateQuery(q, model);
+    const ss = S.createMutateQuery(q, model, databaseType);
     expect(ss.map((_) => _.sql)).toEqual(s);
   });
 
@@ -96,7 +98,7 @@ describe("create mutate query", () => {
       `('John', 'Doe', NULL, 'john@doe.com', 3, '2015-11-05T13:29:36.000', (SELECT id FROM \`instance\` WHERE uuid='myuuid'), 'en', UUID()),`,
       `('Jane', 'Doe', NULL, 'jane@doe.com', 2, '2015-11-05T13:29:36.000', (SELECT id FROM \`instance\` WHERE uuid='myuuid2'), 'de', UUID());`,
     ].join(" ");
-    const ss = S.createMutateQuery(q, model)[0];
+    const ss = S.createMutateQuery(q, model, databaseType)[0];
 
     expect(ss.sql).toEqual(s);
   });
@@ -104,7 +106,7 @@ describe("create mutate query", () => {
   test("simple delete", () => {
     const q: T.Mutate = { UserStatus: { delete: { filters: { id: 2 } } } };
     const s = ["DELETE FROM user_status WHERE `id`=2;"];
-    const sm = S.createMutateQuery(q, model);
+    const sm = S.createMutateQuery(q, model, databaseType);
     expect(sm.map((x) => x.sql)).toEqual(s);
   });
 
@@ -113,7 +115,7 @@ describe("create mutate query", () => {
       UserStatus: { update: { data: { name: "ok" }, filters: { id: 2 } } },
     };
     const s = ["UPDATE user_status SET `col_name`='ok' WHERE `id`=2;"];
-    const sm = S.createMutateQuery(q, model);
+    const sm = S.createMutateQuery(q, model, databaseType);
     expect(sm.map((x) => x.sql)).toEqual(s);
   });
 
@@ -124,7 +126,7 @@ describe("create mutate query", () => {
       },
     };
     const s = ["UPDATE user_status SET `col_name`='ok' WHERE `id`=2;"];
-    const sm = S.createMutateQuery(q, model);
+    const sm = S.createMutateQuery(q, model, databaseType);
     expect(sm.map((x) => x.sql)).toEqual(s);
   });
 
@@ -140,7 +142,7 @@ describe("create mutate query", () => {
     const s = [
       "UPDATE module_lesson SET `is_mandatory`=0 WHERE `lesson_id`=2495 AND `module_id`=553;",
     ];
-    const sm = S.createMutateQuery(q, model2);
+    const sm = S.createMutateQuery(q, model2, databaseType);
     expect(sm.map((x) => x.sql)).toEqual(s);
   });
 
@@ -156,7 +158,7 @@ describe("create mutate query", () => {
     const s = [
       "UPDATE module_lesson SET `is_mandatory`=0 WHERE `lesson_id`=2495 AND `module_id`=553;",
     ];
-    const sm = S.createMutateQuery(q, model2);
+    const sm = S.createMutateQuery(q, model2, databaseType);
     expect(sm.map((x) => x.sql)).toEqual(s);
   });
 
@@ -174,7 +176,7 @@ describe("create mutate query", () => {
     const s = [
       "UPDATE user SET `first_name`='Jane', `instance_id`=(SELECT id FROM `instance` WHERE uuid='myuuid'), `status_id`=(SELECT id FROM `user_status` WHERE id=3) WHERE `uuid`='useruuid';",
     ];
-    const sm = S.createMutateQuery(q, model);
+    const sm = S.createMutateQuery(q, model, databaseType);
     expect(sm.map((x) => x.sql)).toEqual(s);
   });
 });
@@ -203,7 +205,7 @@ test("update with 2nd level filter", () => {
   const s: string[] = [
     "UPDATE module_lesson SET `is_mandatory`=1 WHERE `lesson_id` IN (SELECT id FROM `lesson` WHERE `ref_id`=2495) AND `module_id`=553;",
   ];
-  const sm = S.createMutateQuery(query, model2);
+  const sm = S.createMutateQuery(query, model2, databaseType);
   expect(sm.map((x) => x.sql)).toEqual(s);
 });
 
@@ -223,7 +225,7 @@ test("update special case when referring to the same table/entity", () => {
     },
   };
   const s: string[] = ["UPDATE lesson SET `ref_id`=544 WHERE `id`=720;"];
-  const sm = S.createMutateQuery(q, model2);
+  const sm = S.createMutateQuery(q, model2, databaseType);
   expect(sm.map((x) => x.sql)).toEqual(s);
 });
 
@@ -234,7 +236,7 @@ test("update with IN operator", () => {
     },
   };
   const s = ["UPDATE user_status SET `col_name`='ok' WHERE `id` IN (1,2,3);"];
-  const sm = S.createMutateQuery(q, model);
+  const sm = S.createMutateQuery(q, model, databaseType);
   expect(sm.map((x) => x.sql)).toEqual(s);
 });
 
@@ -245,7 +247,7 @@ test("update with IN operator", () => {
     },
   };
   const s = ["UPDATE user_status SET `col_name`='ok' WHERE `id`>1;"];
-  const sm = S.createMutateQuery(q, model);
+  const sm = S.createMutateQuery(q, model, databaseType);
   expect(sm.map((x) => x.sql)).toEqual(s);
 });
 
@@ -256,19 +258,25 @@ describe("get filter unit", () => {
   }
   test("optional value, nut non optional field", () => {
     try {
-      S.getFilterUnit("firstName", null, modelUnit, model);
+      S.getFilterUnit("firstName", null, modelUnit, model, "`");
     } catch (err) {
       expect(typeof (err as any).message).toEqual("string");
     }
   });
 
   test(" simple string value", () => {
-    const r = S.getFilterUnit("firstName", "john", modelUnit, model);
+    const r = S.getFilterUnit("firstName", "john", modelUnit, model, "`");
     expect(r).toEqual("`first_name`='john'");
   });
 
   test("fk value", () => {
-    const r = S.getFilterUnit("instance", { uuid: "myuuid" }, modelUnit, model);
+    const r = S.getFilterUnit(
+      "instance",
+      { uuid: "myuuid" },
+      modelUnit,
+      model,
+      "`"
+    );
     expect(r).toEqual(
       "`instance_id`=(SELECT id FROM `instance` WHERE uuid='myuuid')"
     );
@@ -292,7 +300,7 @@ describe("update with null", () => {
       },
     };
 
-    const [t] = S.createMutateQuery(q, model2);
+    const [t] = S.createMutateQuery(q, model2, databaseType);
 
     expect(t.sql).toEqual(
       "UPDATE module SET `points`=30, `tag_id`=NULL, `external_id`=6000 WHERE `id`=516;"
@@ -314,7 +322,7 @@ describe("update with null", () => {
     };
 
     try {
-      S.createMutateQuery(q, model2);
+      S.createMutateQuery(q, model2, databaseType);
     } catch (err) {
       expect(err).toEqual(
         "value is null/undefined, even though the field is not optional"

@@ -33,12 +33,12 @@ const aggregate = async (ctx: Koa.Context) => {
   }
 };
 
+const databaseType = "MySQL";
+
 const query = async (ctx: Koa.Context) => {
   // get query
   const { body: query } = ctx.request;
   const { sqlScript } = ctx.query;
-
-  const databaseType = "MySQL";
 
   // get model
   try {
@@ -105,11 +105,18 @@ router.post("/mutate", Middleware.isAuth, bodyParser(), async (ctx) => {
 
     try {
       if (sqlScript) {
-        ctx.body = { sql: QueryService.getSQLMutate(query, model) };
+        ctx.body = {
+          sql: QueryService.getSQLMutate(query, model, databaseType),
+        };
         return;
       }
 
-      ctx.body = await QueryService.mutate(query, model, connectionPool);
+      ctx.body = await QueryService.mutate(
+        query,
+        model,
+        connectionPool,
+        databaseType
+      );
     } catch (err) {
       ctx.status = 400;
       ctx.body = { error: (err as any).message };

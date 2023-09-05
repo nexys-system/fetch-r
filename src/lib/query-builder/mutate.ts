@@ -2,13 +2,15 @@ import { getModel } from "./utils";
 import * as T from "../type";
 import * as U from "../utils";
 import * as UU from "./utils";
+import { DatabaseType } from "../database/type";
 
 // SQL
 export const getFilterUnit = (
   col: string,
   value: T.QueryFilters<any> | T.FilterAttribute,
   modelUnit: T.Entity,
-  model: T.Entity[] = []
+  model: T.Entity[] = [],
+  sep: string
 ): string => {
   const field = U.findField(modelUnit, col);
   // optional case
@@ -36,7 +38,9 @@ export const getFilterUnit = (
       (value as { id: number }).id &&
       typeof (value as { id: number }).id === "number"
     ) {
-      return `\`${field.column}\`=${U.escape((value as { id: number }).id)}`;
+      return `${sep}${field.column}${sep}=${U.escape(
+        (value as { id: number }).id
+      )}`;
     }
 
     if (
@@ -49,7 +53,7 @@ export const getFilterUnit = (
     }
 
     try {
-      const f = getFilters(modelFk, value as any, model);
+      const f = getFilters(modelFk, value as any, model, sep);
 
       return `\`${field.column}\` IN (SELECT id FROM \`${U.entityToTable(
         modelFk
@@ -65,20 +69,21 @@ export const getFilterUnit = (
 
   const filterValue = UU.getFilterString(value as T.FilterAttribute);
 
-  return `\`${field.column}\`${filterValue}`;
+  return `${sep}${field.column}${sep}${filterValue}`;
 };
 
 const getFilters = (
   modelUnit: T.Entity,
   filters?: T.QueryFilters,
-  model: T.Entity[] = []
+  model: T.Entity[] = [],
+  sep: string = "`"
 ): string => {
   if (!filters) {
     return "1";
   }
 
   return Object.entries(filters)
-    .map(([col, value]) => getFilterUnit(col, value, modelUnit, model))
+    .map(([col, value]) => getFilterUnit(col, value, modelUnit, model, sep))
     .join(" AND ");
 };
 
@@ -171,14 +176,21 @@ const getValuesInsertMultiple = (
 ): string =>
   data.map((d) => getValuesInsert(d, fields, model, hasUuid)).join(", ");
 
-const toQueryInsert = (entity: T.Entity, data: any, model: T.Entity[]) => {
+const toQueryInsert = (
+  entity: T.Entity,
+  data: any,
+  model: T.Entity[],
+  databaseType: DatabaseType
+) => {
   const fieldsArray = entity.fields.map((x) => U.fieldToColumn(x));
 
   if (entity.uuid) {
     fieldsArray.push("uuid");
   }
 
-  const fields = fieldsArray.map((x) => "`" + x + "`").join(", ");
+  const sep = databaseType === "PostgreSQL" ? "" : "`";
+
+  const fields = fieldsArray.map((x) => sep + x + sep).join(", ");
 
   const values = Array.isArray(data)
     ? getValuesInsertMultiple(data, entity.fields, model, entity.uuid)
@@ -192,9 +204,11 @@ const toQueryUpdate = (
   entity: T.Entity,
   data: any,
   filters: T.QueryFilters,
-  model: T.Entity[]
+  model: T.Entity[],
+  databaseType: DatabaseType
 ) => {
-  const filterString = getFilters(entity, filters, model);
+  const sep = databaseType === "PostgreSQL" ? "" : "`";
+  const filterString = getFilters(entity, filters, model, sep);
 
   const values = Object.entries(data)
     .filter(([k]) => k !== "id" && k !== "uuid") // here drop id, or uuid, since they can't be updated
@@ -205,7 +219,7 @@ const toQueryUpdate = (
         throw Error(`update: cannot find ${entity.name}.${k}`);
       }
 
-      const col = "`" + U.fieldToColumn(field) + "`";
+      const col = sep + U.fieldToColumn(field) + sep;
 
       if (!U.isStandardType(field.type)) {
         // if same entity, do not link extra table
@@ -221,7 +235,7 @@ const toQueryUpdate = (
     .join(", ");
 
   const table = U.entityToTable(entity);
-  const tableEscaped = table.includes("-") ? "`" + table + "`" : table;
+  const tableEscaped = table.includes("-") ? sep + table + sep : table;
 
   return `UPDATE ${tableEscaped} SET ${values} WHERE ${filterString};`;
 };
@@ -229,9 +243,11 @@ const toQueryUpdate = (
 const toQueryDelete = (
   entity: T.Entity,
   filters: T.QueryFilters,
-  model: T.Entity[]
+  model: T.Entity[],
+  databaseType: DatabaseType
 ) => {
-  const filterString = getFilters(entity, filters, model);
+  const sep = databaseType === "PostgreSQL" ? "" : "`";
+  const filterString = getFilters(entity, filters, model, sep);
 
   const table = U.entityToTable(entity);
   const tableEscaped = table.includes("-") ? "`" + table + "`" : table;
@@ -240,7 +256,8 @@ const toQueryDelete = (
 
 export const createMutateQuery = (
   query: T.Mutate,
-  model: T.Entity[]
+  model: T.Entity[],
+  databaseType: DatabaseType
 ): { type: T.MutateType; entity: T.Entity; sql: string }[] =>
   Object.entries(query)
     .map(([entity, queryParams]) => {
@@ -251,23 +268,33 @@ export const createMutateQuery = (
           ? T.MutateType.insertMultiple
           : T.MutateType.insert;
 
+        const insertQuery = toQueryInsert(
+          modelEntity,
+          queryParams.insert.data,
+          model,
+          databaseType
+        );
+
         return {
           type,
           entity: modelEntity,
-          sql: toQueryInsert(modelEntity, queryParams.insert.data, model),
+          sql: insertQuery,
         };
       }
 
       if (queryParams.update) {
+        const query = toQueryUpdate(
+          modelEntity,
+          queryParams.update.data,
+          queryParams.update.filters,
+          model,
+          databaseType
+        );
+
         return {
           type: T.MutateType.update,
           entity: modelEntity,
-          sql: toQueryUpdate(
-            modelEntity,
-            queryParams.update.data,
-            queryParams.update.filters,
-            model
-          ),
+          sql: query,
         };
       }
 
@@ -275,7 +302,12 @@ export const createMutateQuery = (
         return {
           type: T.MutateType.delete,
           entity: modelEntity,
-          sql: toQueryDelete(modelEntity, queryParams.delete.filters, model),
+          sql: toQueryDelete(
+            modelEntity,
+            queryParams.delete.filters,
+            model,
+            databaseType
+          ),
         };
       }
 

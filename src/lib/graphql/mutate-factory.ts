@@ -12,6 +12,7 @@ import * as Exec from "../exec";
 import { foreignId, foreignUuid, getArgs } from "./utils";
 import { createTypesFromModel } from "./type-factory";
 import { GLTypes } from "./type";
+import { DatabaseType } from "../database/type";
 
 // this is the graphql equivalent of MutateResponseInsert
 const mutateReponseInsertType: GL.GraphQLOutputType = new GL.GraphQLObjectType({
@@ -41,6 +42,8 @@ const mutateReponseDeleteType: GL.GraphQLOutputType = new GL.GraphQLObjectType({
   },
 });
 
+const databaseType: DatabaseType = "MySQL";
+
 const insertOneRow = async <A>(
   entity: string,
   data: A,
@@ -48,7 +51,7 @@ const insertOneRow = async <A>(
   s: Connection.SQL
 ): Promise<MutateResponseInsert> => {
   const mq: Mutate<A> = { [entity]: { insert: { data } } };
-  const r = await Exec.mutate(mq, def, s);
+  const r = await Exec.mutate(mq, def, s, databaseType);
 
   const { insert } = r[entity];
 
@@ -68,7 +71,12 @@ const deleteById = async (
   def: Entity[],
   s: Connection.SQL
 ): Promise<MutateResponseDelete> => {
-  const r = await Exec.mutate({ [entity]: { delete: { filters } } }, def, s);
+  const r = await Exec.mutate(
+    { [entity]: { delete: { filters } } },
+    def,
+    s,
+    databaseType
+  );
   const response = r[entity];
 
   if (!response.delete) {
@@ -91,7 +99,8 @@ const update = async <A>(
   const mutateResponse = await Exec.mutate(
     { [entity]: { update: { data, filters } } },
     def,
-    s
+    s,
+    databaseType
   );
 
   return mutateResponse[entity]["update"];
