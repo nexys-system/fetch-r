@@ -31,7 +31,7 @@ export const toQuery = (
       return x.filters
         .map(
           (y) =>
-            `t${i}.\`${y.column}\`` +
+            `t${i}.${columnEscaper}${y.column}${columnEscaper}` +
             UU.toSQLOperator(y.operator, y.value) +
             U.escape(y.value)
         )
