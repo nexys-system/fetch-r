@@ -48,10 +48,10 @@ export interface Entity {
   fields: Field[];
 }
 export interface Field {
-  type: string;
   name: string;
-  column?: string;
+  type: string;
   optional: boolean;
+  column?: string;
 }
 
 export type QueryProjection<A = any> = {
