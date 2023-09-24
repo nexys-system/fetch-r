@@ -151,12 +151,8 @@ export const mutate = async <A = any>(
   databaseType: DatabaseType
 ): Promise<T.MutateResponse> => {
   const qs = MutateService.createMutateQuery(mq, entities, databaseType);
-  // console.log(qs.map((x) => x.sql).join("\n"));
-  const response = await s.execQuery(qs.map((x) => x.sql).join("\n"));
 
-  if (databaseType === "PostgreSQL") {
-    return response as any;
-  }
+  const response = await s.execQuery(qs.map((x) => x.sql).join("\n"));
 
   return await ParseMutate.parseMutate(qs, response as OkPacket, s);
 };

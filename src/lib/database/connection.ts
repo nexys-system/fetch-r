@@ -71,13 +71,39 @@ export class SQL {
   execQuery = async (query: string): Promise<RowDataPacket | OkPacket> => {
     if (this.pool) {
       const [response] = await this.pool.query(query);
+
       return response as RowDataPacket | OkPacket;
     }
 
     if (this.poolPg) {
-      const r = (await this.poolPg.query(query)) as any;
+      try {
+        const r = await this.poolPg.query(query);
+        // console.log(r);
+        // console.log(r.command, r.fields, r.rows, r.rowCount,r.oid);
 
-      return r.rows as RowDataPacket | OkPacket;
+        // mutate
+        if (["INSERT", "UPDATE", "DELETE"].includes(r.command)) {
+          const okPacket: OkPacket = {
+            constructor: {
+              name: "OkPacket",
+            },
+            insertId: r.oid,
+            affectedRows: r.rowCount,
+            fieldCount: 0,
+            changedRows: 0,
+            serverStatus: 0,
+            warningCount: 0,
+            message: "",
+            procotol41: false,
+          };
+
+          return okPacket;
+        }
+
+        return r.rows as RowDataPacket;
+      } catch (err) {
+        return Promise.reject(err);
+      }
     }
 
     throw Error("no pool initialized");
