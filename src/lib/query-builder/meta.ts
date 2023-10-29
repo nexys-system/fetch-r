@@ -95,41 +95,43 @@ export const toMeta = (
 
     const fields: TT.MetaField[] = [];
     let aaIdx = aliasIdx;
-    projEntries.forEach(([fieldName, value]) => {
-      const field = getField(fieldName, modelUnit, modelUnit.fields);
-      // console.log({ field });
+    projEntries
+      .filter(([_k, v]) => v !== undefined)
+      .forEach(([fieldName, value]) => {
+        const field = getField(fieldName, modelUnit, modelUnit.fields);
+        // console.log({ field });
 
-      // check foreign
-      if (!U.isStandardType(field.type)) {
-        // this is a trick and important statement: if the parent join was optional, the current one must be optional as well. Else we will rule out expected results
-        const isParentJoinOptional = join ? join.field.optional : false;
-        //console.log(modelUnit.name, join);
-        const currentJoin = getJoin(
-          modelUnit,
-          field,
-          toEntityRef(aliasIdx, depth),
-          isParentJoinOptional
-        );
+        // check foreign
+        if (!U.isStandardType(field.type)) {
+          // this is a trick and important statement: if the parent join was optional, the current one must be optional as well. Else we will rule out expected results
+          const isParentJoinOptional = join ? join.field.optional : false;
+          //console.log(modelUnit.name, join);
+          const currentJoin = getJoin(
+            modelUnit,
+            field,
+            toEntityRef(aliasIdx, depth),
+            isParentJoinOptional
+          );
 
-        addProjection(
-          field.type,
-          typeof value === "boolean" ? {} : (value as T.QueryProjection),
-          currentJoin,
-          aaIdx,
-          depth + 1
-        );
+          addProjection(
+            field.type,
+            typeof value === "boolean" ? {} : (value as T.QueryProjection),
+            currentJoin,
+            aaIdx,
+            depth + 1
+          );
 
-        aaIdx++;
-      } else {
-        if (typeof value === "boolean" && value === true) {
-          fields.push({
-            name: field.name,
-            column: U.fieldToColumn(field),
-            type: field.type === "Boolean" ? "Boolean" : undefined, // todo, for now only boolean, add all types in the future? if yes, tests will need to be adjusted
-          });
+          aaIdx++;
+        } else {
+          if (typeof value === "boolean" && value === true) {
+            fields.push({
+              name: field.name,
+              column: U.fieldToColumn(field),
+              type: field.type === "Boolean" ? "Boolean" : undefined, // todo, for now only boolean, add all types in the future? if yes, tests will need to be adjusted
+            });
+          }
         }
-      }
-    });
+      });
 
     const table = U.entityToTable(modelUnit);
 
@@ -161,35 +163,41 @@ export const toMeta = (
 
       const metaFilters: TT.MetaFilter[] = [];
       let aaIdx = aliasIdx;
-      Object.entries(filters).forEach(([fieldName, pvalue]) => {
-        const field = getField(fieldName, modelUnit, modelUnit.fields);
-        // check foreign
-        if (!U.isStandardType(field.type) && pvalue !== null) {
-          const join = getJoin(modelUnit, field, toEntityRef(aliasIdx, depth));
+      Object.entries(filters)
+        .filter(([_k, v]) => v !== undefined)
+        .forEach(([fieldName, pvalue]) => {
+          const field = getField(fieldName, modelUnit, modelUnit.fields);
+          // check foreign
+          if (!U.isStandardType(field.type) && pvalue !== null) {
+            const join = getJoin(
+              modelUnit,
+              field,
+              toEntityRef(aliasIdx, depth)
+            );
 
-          addFilters(
-            field.type,
-            pvalue as T.QueryFilters,
-            join,
-            aaIdx,
-            depth + 1
-          );
-          aaIdx++;
-          return;
-        }
-
-        UU.getValueAndOperator(pvalue as T.FilterAttribute).map(
-          ({ operator, value }) => {
-            // opposite todo cast to {} for non query filters
-            metaFilters.push({
-              name: field.name,
-              column: U.fieldToColumn(field),
-              value,
-              operator,
-            });
+            addFilters(
+              field.type,
+              pvalue as T.QueryFilters,
+              join,
+              aaIdx,
+              depth + 1
+            );
+            aaIdx++;
+            return;
           }
-        );
-      });
+
+          UU.getValueAndOperator(pvalue as T.FilterAttribute).map(
+            ({ operator, value }) => {
+              // opposite todo cast to {} for non query filters
+              metaFilters.push({
+                name: field.name,
+                column: U.fieldToColumn(field),
+                value,
+                operator,
+              });
+            }
+          );
+        });
 
       if (metaFilters.length > 0) {
         // find an array element with the same join object

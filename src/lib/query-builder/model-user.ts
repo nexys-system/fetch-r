@@ -107,6 +107,12 @@ export default [
     fields: [
       { type: "String", name: "name", optional: false },
       { type: "LocalDateTime", name: "dateAdded", optional: false },
+      { type: "Product", name: "product", optional: true },
     ],
+  },
+  {
+    name: "Product",
+    uuid: false,
+    fields: [{ type: "String", name: "name", optional: false }],
   },
 ];

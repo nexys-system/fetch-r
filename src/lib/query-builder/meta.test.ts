@@ -324,3 +324,45 @@ test("implicitly nested query", () => {
 
   expect(m).toEqual(em.units);
 });
+
+//
+
+test("select and simple filter fk", () => {
+  const q: T.Query = {
+    Instance: {
+      projection: { product: undefined },
+      filters: { product: { id: 3 } },
+    },
+  };
+
+  const s = [
+    "SELECT t0.`id` AS t0_id, t0.`uuid` AS t0_uuid, t1.`id` AS t1_id",
+    "FROM instance AS t0",
+    "LEFT JOIN product AS t1 ON t1.id=t0.undefined",
+    "WHERE t1.`id`=3",
+  ];
+
+  const m = M.toMeta("Instance", q.Instance, model);
+  const qs = S.toQuery(m, "MySQL");
+  expect(qs).toEqual(s);
+});
+
+test("select and filter undefined", () => {
+  const q: T.Query = {
+    Instance: {
+      projection: {},
+      filters: { product: undefined },
+    },
+  };
+
+  const s = [
+    "SELECT t0.`id` AS t0_id, t0.`uuid` AS t0_uuid, t0.`name` AS t0_name, t0.`date_added` AS t0_dateAdded, t1.`id` AS t1_id",
+    "FROM instance AS t0",
+    "LEFT JOIN product AS t1 ON t1.id=t0.undefined",
+    "WHERE 1",
+  ];
+
+  const m = M.toMeta("Instance", q.Instance, model);
+  const qs = S.toQuery(m, "MySQL");
+  expect(qs).toEqual(s);
+});
