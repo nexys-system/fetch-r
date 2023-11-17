@@ -132,6 +132,9 @@ export const findPreviousMigrations = (
   checksum: number,
   y: Pick<T.MigrationRow, "version" | "checksum">[]
 ): boolean => {
+  if (!Array.isArray(y)) {
+    return findPreviousMigrations(version, checksum, [y]);
+  }
   const f = y.find((x) => x.version === version);
   if (f) {
     if (checksum === f.checksum) {
@@ -151,6 +154,10 @@ export const getLastRow = (
 ): { installed_rank: number } => {
   if (!y || y.length === 0) {
     return { installed_rank: 0 };
+  }
+
+  if (!Array.isArray(y)) {
+    return getLastRow([y]);
   }
 
   const l = y.length;
