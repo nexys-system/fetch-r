@@ -149,11 +149,11 @@ export const findPreviousMigrations = (
 export const getLastRow = (
   y: Pick<T.MigrationRow, "installed_rank">[]
 ): { installed_rank: number } => {
-  const l = y.length;
-
-  if (y.length === 0) {
+  if (!y || y.length === 0) {
     return { installed_rank: 0 };
   }
+
+  const l = y.length;
 
   const { installed_rank } = y[l - 1];
 
