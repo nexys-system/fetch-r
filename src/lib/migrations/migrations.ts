@@ -32,7 +32,7 @@ export const runMigrations = async (
 
   // get all migrations
   const [r] = await s.execQuery(U.getMigrations);
-  const y = r as RowDataPacket[] as T.MigrationRow[];
+  const y = (r || []) as RowDataPacket[] as T.MigrationRow[];
 
   const { installed_rank: lastRank } = U.getLastRow(y);
 
@@ -46,8 +46,10 @@ export const runMigrations = async (
     }
 
     const t1 = new Date().getTime();
-    const [rm] = await s.execQuery(migration.sql);
+    const rm = await s.execQuery(migration.sql);
     const t2 = new Date().getTime();
+
+    //console.log(t1, t2, (rm as any as OkPacket).affectedRows);
 
     const success: number = getSuccess(rm as OkPacket | OkPacket[]);
 
@@ -78,7 +80,7 @@ export const runMigrations = async (
 
   // enter result in flyway table
   const sql = U.migrationsToSQL(rows);
-  const [rm] = await s.execQuery(sql);
+  const rm = await s.execQuery(sql);
   console.log(rm);
 
   return rows;
@@ -96,7 +98,7 @@ const getSuccess = (rm: OkPacket | OkPacket[]): number => {
     return getSuccess(rm[l - 1]);
   }
 
-  return rm.serverStatus;
+  return rm.affectedRows;
 };
 
 const isNotNull = <A>(x: A | null | undefined): x is A =>
