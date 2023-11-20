@@ -105,7 +105,7 @@ const getSubQuery = (field: T.Field, model: T.Entity[], v: any) => {
 
   if (!iid) {
     throw Error(
-      `could not find associated ref for ${field.name} (parent entitiy: ${entity.name}}. Did you forget to add the object: {id: x} instead of x`
+      `fetchr: could not find associated ref for ${field.name} (parent entity: ${entity.name}}. Did you forget to add the object: {id: x} instead of x`
     );
   }
 
