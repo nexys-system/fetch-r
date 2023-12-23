@@ -88,7 +88,7 @@ export class SQL {
               name: "OkPacket",
             },
             insertId: r.oid,
-            affectedRows: r.rowCount,
+            affectedRows: r.rowCount || 0,
             fieldCount: 0,
             changedRows: 0,
             serverStatus: 0,
