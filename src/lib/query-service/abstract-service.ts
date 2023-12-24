@@ -40,4 +40,6 @@ abstract class QueryService {
   abstract delete(a: any, b: any): Promise<TQ.Type.MutateResponseDelete>;
 }
 
+export { QueryService };
+
 export default QueryService;

@@ -1,11 +1,10 @@
 import {
   Pool as MPool,
-  OkPacket,
   ResultSetHeader,
   RowDataPacket,
   FieldPacket,
+  PoolOptions,
 } from "mysql2/promise";
-import { PoolOptions } from "mysql2/typings/mysql";
 
 export interface Database {
   host: string;
@@ -27,7 +26,7 @@ export interface DatabaseOut {
 export type Pool = MPool;
 
 export type Response = [
-  OkPacket | ResultSetHeader | RowDataPacket[] | RowDataPacket[][] | OkPacket[],
+  ResultSetHeader | RowDataPacket[] | RowDataPacket[][],
   FieldPacket[]
 ];
 
