@@ -91,7 +91,7 @@ abstract class QueryService extends AbstractService {
    **/
   async insertMultiple<A = any>(
     entity: string,
-    data: A[] = []
+    data: Omit<A, 'uuid' | 'id'>[] = []
   ): Promise<MutateResponseInsert[]> {
     if (data.length === 0) {
       throw new Error(`No rows for ${entity} provided`);
