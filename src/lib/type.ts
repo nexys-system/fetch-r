@@ -10,7 +10,8 @@ export type Type =
   | "Double"
   | "LocalDate"
   | "LocalDateTime"
-  | "LocalTime";
+  | "LocalTime"
+  | "Json";
 
 export type Value = number | string | boolean | Date;
 
