@@ -1,4 +1,4 @@
-import { FilterAttribute } from "../../type";
+import { FilterAttribute } from "../../type.js";
 type Uuid = string;
 
 export interface Profile {

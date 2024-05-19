@@ -1,6 +1,6 @@
-import { Field } from "../../type";
-import { camelToSnakeCase } from "../../utils";
-import * as T from "./type";
+import { Field } from "../../type.js";
+import { camelToSnakeCase } from "../../utils.js";
+import * as T from "./type.js";
 
 export const toSQLOperator = (
   input: T.AggregateOperator

@@ -1,3 +1,3 @@
-export * as Migrations from "./migrations";
-export * as Utils from "./utils";
-export * as Type from "./type";
+export * as Migrations from "./migrations.js";
+export * as Utils from "./utils.js";
+export * as Type from "./type.js";

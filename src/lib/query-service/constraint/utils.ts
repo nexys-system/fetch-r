@@ -1,5 +1,5 @@
-import { MutateResponse } from "../../type";
-import * as QueryTypes from "./type";
+import { MutateResponse } from "../../type.js";
+import * as QueryTypes from "./type.js";
 
 /**
  *

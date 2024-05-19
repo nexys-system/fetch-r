@@ -1,4 +1,4 @@
-import { QueryFilters as Filters, Mutate } from "../type";
+import { QueryFilters as Filters, Mutate } from "../type.js";
 
 export const paramsFromFilters = (
   filters: number | string | Filters

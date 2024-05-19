@@ -2,12 +2,12 @@ import Router from "koa-router";
 import bodyParser from "koa-body";
 import { graphql, printSchema } from "graphql";
 
-import Schema from "../lib/graphql/schema";
-import { Submodel } from "../lib/graphql/type";
-import * as Middleware from "../middleware";
+import Schema from "../lib/graphql/schema.js";
+import { Submodel } from "../lib/graphql/type.js";
+import * as Middleware from "../middleware/index.js";
 
-import * as ModelService from "../service/model";
-import * as DatabaseService from "../service/database";
+import * as ModelService from "../service/model/index.js";
+import * as DatabaseService from "../service/database/index.js";
 
 const router = new Router();
 

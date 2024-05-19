@@ -1,11 +1,11 @@
 // very first version
-import * as T from "./type";
+import * as T from "./type.js";
 
-import { Entity, Field } from "../../type";
-import * as U from "./utils";
-import { SQL } from "../../database/connection";
-import { getFilterString } from "../utils";
-import { camelToSnakeCase } from "../../utils";
+import { Entity, Field } from "../../type.js";
+import * as U from "./utils.js";
+import { SQL } from "../../database/connection.js";
+import { getFilterString } from "../utils.js";
+import { camelToSnakeCase } from "../../utils.js";
 
 const idField: Field = {
   name: "id",

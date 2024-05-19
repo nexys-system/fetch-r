@@ -1,6 +1,6 @@
-import * as P from "./parse";
+import * as P from "./parse.js";
 import { RowDataPacket } from "mysql2";
-import { MetaQuery } from "./type";
+import { MetaQuery } from "./type.js";
 
 describe("get parsed value", () => {
   test("string", () => {

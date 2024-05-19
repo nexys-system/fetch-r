@@ -3,7 +3,7 @@ import {
   MutateConstraint,
   ProjectionConstraint,
   QueryConstraint,
-} from "./type";
+} from "./type.js";
 
 type Uuid = string;
 

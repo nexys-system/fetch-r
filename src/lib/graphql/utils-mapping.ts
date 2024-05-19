@@ -1,7 +1,7 @@
 import * as GL from "graphql";
-import { Entity, Field } from "../type";
-import * as T from "./type";
-import * as U from "./utils";
+import { Entity, Field } from "../type.js";
+import * as T from "./type.js";
+import * as U from "./utils.js";
 
 export const mapInputType = (
   { name, type }: Field,

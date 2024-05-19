@@ -7,8 +7,8 @@ import {
 
 //import * as T from "@nexys/sql-migrations/dist/type";
 //import * as U from "@nexys/sql-migrations/dist/utils";
-import * as T from "./type";
-import * as U from "./utils";
+import * as T from "./type.js";
+import * as U from "./utils.js";
 
 type Response = [
   OkPacket | ResultSetHeader | RowDataPacket[] | RowDataPacket[][] | OkPacket[],

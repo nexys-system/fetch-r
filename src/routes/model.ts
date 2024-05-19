@@ -1,8 +1,8 @@
 import Router from "koa-router";
 import bodyParser from "koa-body";
 
-import * as Middleware from "../middleware";
-import * as ModelService from "../service/model";
+import * as Middleware from "../middleware/index.js";
+import * as ModelService from "../service/model/index.js";
 
 import * as V from "@nexys/validation";
 

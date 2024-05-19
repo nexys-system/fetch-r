@@ -1,13 +1,13 @@
-import * as T from "./type";
+import * as T from "./type.js";
 import CRC32 from "crc-32";
 
 // manages migration
 // inspiration from flyway - https://flywaydb.org/
 
-const table = "flyway_schema_history";
+const migrationTable = "flyway_schema_history";
 
 export const createMigrationTable = [
-  "CREATE TABLE IF NOT EXISTS `" + table + "` (",
+  "CREATE TABLE IF NOT EXISTS `" + migrationTable + "` (",
   "`installed_rank` int NOT NULL,",
   " `version` varchar(50) DEFAULT NULL,",
   " `description` varchar(200) NOT NULL,",
@@ -23,7 +23,7 @@ export const createMigrationTable = [
   ") ENGINE=InnoDB",
 ].join("\n");
 
-export const getMigrations = `SELECT * FROM ${table};`;
+export const getMigrations = `SELECT * FROM ${migrationTable};`;
 
 export const toVersion = (version: number, idx: number) => version + "." + idx;
 export const toScript = (version: string, name: string): string =>
@@ -61,7 +61,7 @@ export const migrationsToSQL = (rows: T.MigrationRow[]) => {
     .map((x) => `(${x})`)
     .join(", ");
 
-  return `INSERT INTO \`${table}\` (${keys
+  return `INSERT INTO \`${migrationTable}\` (${keys
     .map((x) => "`" + x + "`")
     .join(", ")}) VALUES ${values};`;
 };

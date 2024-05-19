@@ -6,11 +6,11 @@
  *
  * this file handles the parsing
  */
-import { DatabaseType } from "../database/type";
-import * as T from "../type";
-import * as TT from "./type";
-import * as UU from "./utils";
 import { RowDataPacket } from "mysql2";
+import { DatabaseType } from "../database/type.js";
+import * as T from "../type.js";
+import * as TT from "./type.js";
+import * as UU from "./utils.js";
 
 /**
  * parse to the right javascript value

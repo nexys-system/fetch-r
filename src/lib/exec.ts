@@ -1,14 +1,14 @@
 import { RowDataPacket, ResultSetHeader } from "mysql2";
-import * as Connection from "./database/connection";
-import * as T from "./type";
-import * as Meta from "./query-builder/meta";
-import * as MutateService from "./query-builder/mutate";
-import * as TT from "./query-builder/type";
-import * as Parse from "./query-builder/parse";
-import * as ParseMutate from "./query-builder/parse-mutate";
-import * as ReferenceService from "./query-builder/references";
-import * as U from "./query-builder/utils";
-import { DatabaseType } from "./database/type";
+import * as Connection from "./database/connection.js";
+import * as T from "./type.js";
+import * as Meta from "./query-builder/meta.js";
+import * as MutateService from "./query-builder/mutate.js";
+import * as TT from "./query-builder/type.js";
+import * as Parse from "./query-builder/parse.js";
+import * as ParseMutate from "./query-builder/parse-mutate.js";
+import * as ReferenceService from "./query-builder/references.js";
+import * as U from "./query-builder/utils.js";
+import { DatabaseType } from "./database/type.js";
 
 const isRawDataPacket = (
   response: RowDataPacket[] | RowDataPacket

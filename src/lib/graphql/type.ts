@@ -1,5 +1,5 @@
 import * as GL from "graphql";
-import { QueryFilters, QueryProjection } from "../type";
+import { QueryFilters, QueryProjection } from "../type.js";
 
 export interface FieldOption {
   id: number;

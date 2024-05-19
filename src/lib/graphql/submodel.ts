@@ -1,5 +1,5 @@
-import { Entity, QueryFilters, QueryProjection } from "../type";
-import * as T from "./type";
+import { Entity, QueryFilters, QueryProjection } from "../type.js";
+import * as T from "./type.js";
 
 type Uuid = string;
 

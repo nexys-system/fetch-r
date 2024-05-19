@@ -1,8 +1,8 @@
 //import { GraphQLObjectType } from "graphql";
 import * as GL from "graphql";
-import { Entity } from "../type";
-import * as TF from "./type-factory";
-import { foreignId } from "./utils";
+import { Entity } from "../type.js";
+import * as TF from "./type-factory.js";
+import { foreignId } from "./utils.js";
 
 describe("createTypesFromModel", () => {
   test("empty", () => {

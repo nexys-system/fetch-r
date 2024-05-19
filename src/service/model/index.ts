@@ -1,7 +1,7 @@
 import fs from "fs";
-import { addColumnsToModel } from "../../lib/model/utils";
-import * as T from "../../lib/type";
-import { JwtStructure } from "../../middleware/type";
+import { addColumnsToModel } from "../../lib/model/utils.js";
+import * as T from "../../lib/type.js";
+import { JwtStructure } from "../../middleware/type.js";
 
 const productIdentifier = (j: Pick<JwtStructure, "product" | "env">) =>
   j.product + "_" + j.env;

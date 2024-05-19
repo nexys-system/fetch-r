@@ -1,7 +1,7 @@
-import * as TT from "./type";
-import * as U from "../utils";
-import * as UU from "./utils";
-import { DatabaseType } from "../database/type";
+import * as TT from "./type.js";
+import * as U from "../utils.js";
+import * as UU from "./utils.js";
+import { DatabaseType } from "../database/type.js";
 
 export const toQuery = (
   meta: TT.MetaQuery,

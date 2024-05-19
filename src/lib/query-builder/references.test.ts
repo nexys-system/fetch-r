@@ -1,6 +1,6 @@
-import { Entity, Field, References } from "../type";
-import * as R from "./references";
-import model from "../query-builder/model-academy";
+import { Entity, Field, References } from "../type.js";
+import * as R from "./references.js";
+import model from "../query-builder/model-academy.js";
 
 describe("get field - joinOn", () => {
   const field1: Field = { name: "logUser", type: "User", optional: false };

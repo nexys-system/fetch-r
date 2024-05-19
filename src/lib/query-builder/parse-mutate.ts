@@ -1,7 +1,7 @@
 import { ResultSetHeader, RowDataPacket } from "mysql2";
-import * as T from "../type";
-import { entityToTable } from "../utils";
-import * as Connection from "../database/connection";
+import * as T from "../type.js";
+import { entityToTable } from "../utils.js";
+import * as Connection from "../database/connection.js";
 
 export const getIdsMutateInsert = ({
   affectedRows,

@@ -2,13 +2,13 @@ import Koa from "koa";
 import Router from "koa-router";
 import bodyParser from "koa-body";
 
-import { version, sha } from "../config";
+import { version, sha } from "../config.js";
 
-import * as Middleware from "../middleware";
-import * as QueryService from "../lib/exec";
-import * as ModelService from "../service/model";
-import * as DatabaseService from "../service/database";
-import * as AggregateService from "../lib/query-builder/aggregate";
+import * as Middleware from "../middleware/index.js";
+import * as QueryService from "../lib/exec.js";
+import * as ModelService from "../service/model/index.js";
+import * as DatabaseService from "../service/database/index.js";
+import * as AggregateService from "../lib/query-builder/aggregate/index.js";
 
 const router: Router = new Router();
 

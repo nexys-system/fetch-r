@@ -1,5 +1,5 @@
-import * as L from "./legacy";
-import Model from "./model-academy";
+import * as L from "./legacy.js";
+import Model from "./model-academy.js";
 
 test("augment", () => {
   const projection = {};

@@ -5,14 +5,14 @@ import {
   Mutate,
   MutateResponseDelete,
   MutateResponseInsert,
-} from "../type";
-import { Connection } from "../database";
+} from "../type.js";
+import { Connection } from "../database/index.js";
 
-import * as Exec from "../exec";
-import { foreignId, foreignUuid, getArgs } from "./utils";
-import { createTypesFromModel } from "./type-factory";
-import { GLTypes } from "./type";
-import { DatabaseType } from "../database/type";
+import * as Exec from "../exec.js";
+import { foreignId, foreignUuid, getArgs } from "./utils.js";
+import { createTypesFromModel } from "./type-factory.js";
+import { GLTypes } from "./type.js";
+import { DatabaseType } from "../database/type.js";
 
 // this is the graphql equivalent of MutateResponseInsert
 const mutateReponseInsertType: GL.GraphQLOutputType = new GL.GraphQLObjectType({

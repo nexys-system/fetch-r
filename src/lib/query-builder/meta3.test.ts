@@ -1,6 +1,6 @@
-import * as M from "./meta";
-import * as S from "./sql";
-import * as T from "../type";
+import * as M from "./meta.js";
+import * as S from "./sql.js";
+import * as T from "../type.js";
 
 const model: T.Entity[] = [
   {

@@ -16,7 +16,7 @@ jobs:
           node-version: 20
       - run: yarn
       - run: yarn test
-      - run: yarn buildpackage
+      - run: yarn buildPackage
       - name: Publish package
         run: |
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" > ~/.npmrc

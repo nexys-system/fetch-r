@@ -1,7 +1,7 @@
 import * as GL from "graphql";
-import { Entity, Field } from "../type";
-import * as T from "./type";
-import * as UM from "./utils-mapping";
+import { Entity, Field } from "../type.js";
+import * as T from "./type.js";
+import * as UM from "./utils-mapping.js";
 
 const getObjectType = (
   filteredEntityFields: Field[],

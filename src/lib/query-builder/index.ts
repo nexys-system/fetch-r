@@ -1,7 +1,7 @@
-export * as Aggregate from "./aggregate";
-export * as Meta from "./meta";
-export * as Parse from "./parse";
-export * as ParseMutate from "./parse-mutate";
-export * as Mutate from "./mutate";
-export * as Type from "./type";
-export * as Utils from "./utils";
+export * as Aggregate from "./aggregate/index.js";
+export * as Meta from "./meta.js";
+export * as Parse from "./parse.js";
+export * as ParseMutate from "./parse-mutate.js";
+export * as Mutate from "./mutate.js";
+export * as Type from "./type.js";
+export * as Utils from "./utils.js";

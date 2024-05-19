@@ -1,7 +1,7 @@
 // this file is actualy not referenced elsewhere in the code (except for tests)
-import { Entity, Field } from "../type";
-import * as T from "./type";
-import * as U from "./utils";
+import { Entity, Field } from "../type.js";
+import * as T from "./type.js";
+import * as U from "./utils.js";
 
 // not used
 const mapTypesString = ({ name, type }: Field): string => {

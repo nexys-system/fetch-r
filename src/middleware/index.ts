@@ -1,7 +1,7 @@
 import Koa from "koa";
 import JWT from "jsonwebtoken";
 
-import * as C from "../config";
+import * as C from "../config.js";
 
 export const isJson = (headers: { "content-type"?: string }): void => {
   if (

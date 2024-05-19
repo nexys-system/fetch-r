@@ -1,4 +1,4 @@
-import * as TQ from "../";
+import * as TQ from "../index.js";
 
 abstract class QueryService {
   abstract list<A = any>(entity: string, params?: any): Promise<A[]>;

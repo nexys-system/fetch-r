@@ -2,8 +2,8 @@ import Router from "koa-router";
 
 import bodyParser from "koa-body";
 
-import * as Middleware from "../middleware";
-import * as DatabaseService from "../service/database";
+import * as Middleware from "../middleware/index.js";
+import * as DatabaseService from "../service/database/index.js";
 import * as V from "@nexys/validation";
 
 const router: Router = new Router();

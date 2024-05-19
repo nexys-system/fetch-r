@@ -1,4 +1,4 @@
-import * as PM from "./parse-mutate";
+import * as PM from "./parse-mutate.js";
 
 describe("parseMutateInsert", () => {
   test("insert", () => {

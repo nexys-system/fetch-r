@@ -1,7 +1,7 @@
-import { QueryParams, Entity } from "../../../type";
+import { QueryParams, Entity } from "../../../type.js";
 
-import * as T from "../type";
-import * as Q from "./data";
+import * as T from "../type.js";
+import * as Q from "./data.js";
 
 const model: Entity[] = [
   {

@@ -1,5 +1,6 @@
 {
   "name": "@nexys/fetchr",
+  "type": "module",
   "version": "0.13.0",
   "license": "AGPL-3.0-or-later",
   "main": "dist/index.js",
@@ -45,7 +46,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "build": "tsc",
-    "buildpackage": "rm -rf ./dist;tsc -p tsconfig.package.json",
+    "buildPackage": "rm -rf ./dist;tsc -p tsconfig.package.json",
     "test": "rm -rf dist && TZ=UTC jest",
     "watch": "tsc-watch --onSuccess \"node ./dist/index.js\""
   },

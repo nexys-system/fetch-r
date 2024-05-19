@@ -1,13 +1,13 @@
 import * as GL from "graphql";
 
-import { Entity } from "../type";
-import { Connection } from "../database";
-import { DatabaseType } from "../database/type";
+import { Entity } from "../type.js";
+import { Connection } from "../database/index.js";
+import { DatabaseType } from "../database/type.js";
 
-import * as T from "./type";
-import * as U from "./utils";
-import { getQueryFromModel } from "./query-factory";
-import { getMutation } from "./mutate-factory";
+import * as T from "./type.js";
+import * as U from "./utils.js";
+import { getQueryFromModel } from "./query-factory.js";
+import { getMutation } from "./mutate-factory.js";
 
 /**
  *

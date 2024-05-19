@@ -1,8 +1,8 @@
-import * as M from "./meta";
-import * as S from "./sql";
+import * as M from "./meta.js";
+import * as S from "./sql.js";
 
-import modelAcademy from "./model-academy";
-import { MetaQuery, MetaQueryUnit } from "./type";
+import modelAcademy from "./model-academy.js";
+import { MetaQuery, MetaQueryUnit } from "./type.js";
 
 const u0: MetaQueryUnit = {
   entity: "UserCertificate",

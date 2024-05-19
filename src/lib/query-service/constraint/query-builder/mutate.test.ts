@@ -1,4 +1,4 @@
-import * as Q from "./mutate";
+import * as Q from "./mutate.js";
 
 test("constructMutatePermission", () => {
   const q = { User: { insert: { data: {} } } };

@@ -4,12 +4,12 @@
  * the meta query is transformed into MySQL (or any SQL-like system, grammar to be adjusted)
  * teh result of the query is parsed
  */
-import { DatabaseType } from "../database/type";
-import * as T from "../type";
-import * as TT from "./type";
-import * as U from "../utils";
-import * as UU from "./utils";
-import { toQuery } from "./sql";
+import { DatabaseType } from "../database/type.js";
+import * as T from "../type.js";
+import * as TT from "./type.js";
+import * as U from "../utils.js";
+import * as UU from "./utils.js";
+import { toQuery } from "./sql.js";
 
 const getField = (
   fieldName: string,

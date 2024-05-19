@@ -1,15 +1,15 @@
 import graphqlFields from "graphql-fields";
 
 import * as GL from "graphql";
-import * as T from "./type";
-import * as U from "./utils";
+import * as T from "./type.js";
+import * as U from "./utils.js";
 
-import { Entity, Query, QueryFilters, QueryParams } from "../type";
-import { createTypesFromModel } from "./type-factory";
+import { Entity, Query, QueryFilters, QueryParams } from "../type.js";
+import { createTypesFromModel } from "./type-factory.js";
 
-import * as Connection from "../database/connection";
-import { DatabaseType } from "../database/type";
-import * as Exec from "../exec";
+import * as Connection from "../database/connection.js";
+import { DatabaseType } from "../database/type.js";
+import * as Exec from "../exec.js";
 
 const fieldResolve =
   (

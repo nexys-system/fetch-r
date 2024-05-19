@@ -1,8 +1,8 @@
-import * as M from "./meta";
-import * as S from "./sql";
-import * as TT from "./type";
+import * as M from "./meta.js";
+import * as S from "./sql.js";
+import * as TT from "./type.js";
 
-import modelAcademy from "./model-academy";
+import modelAcademy from "./model-academy.js";
 
 test("2nd level projection", () => {
   const q = {

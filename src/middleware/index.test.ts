@@ -1,6 +1,6 @@
-import * as M from "./index";
+import * as M from "./index.js";
 import JWT from "jsonwebtoken";
-import * as C from "../config";
+import * as C from "../config.js";
 
 test("extractToken", () => {
   expect(M.extractToken({ authorization: "Bearer mytoken" })).toEqual(

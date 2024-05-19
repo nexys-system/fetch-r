@@ -1,10 +1,10 @@
 import Koa from "koa";
 import Router from "koa-router";
 
-import Models from "./routes/model";
-import Database from "./routes/database";
-import Main from "./routes/main";
-import GraphQlRoutes from "./routes/graphql";
+import Models from "./routes/model.js";
+import Database from "./routes/database.js";
+import Main from "./routes/main.js";
+import GraphQlRoutes from "./routes/graphql.js";
 
 const app = new Koa();
 

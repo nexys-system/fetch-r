@@ -1,11 +1,11 @@
 import { GraphQLSchema } from "graphql";
-import { Connection } from "../database";
+import { Connection } from "../database/index.js";
 
-import { Entity } from "../type";
+import { Entity } from "../type.js";
 
-import * as SchemaFactory from "./schema-factory";
-import { Submodel } from "./type";
-import { DatabaseType } from "../database/type";
+import * as SchemaFactory from "./schema-factory.js";
+import { Submodel } from "./type.js";
+import { DatabaseType } from "../database/type.js";
 
 class GQLSchema<Permission> {
   roleQLSchemaMap: Map<

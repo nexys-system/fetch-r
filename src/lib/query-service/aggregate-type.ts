@@ -1,4 +1,4 @@
-import { QueryFilters } from "../type";
+import { QueryFilters } from "../type.js";
 
 export type AggregateOperator = "$count" | "$sum" | "$avg" | "$min" | "$max";
 
