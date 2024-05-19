@@ -1,4 +1,4 @@
-import * as SqlString from "sqlstring";
+import SqlString from "sqlstring";
 import * as T from "./type.js";
 
 export const types: T.Type[] = [
