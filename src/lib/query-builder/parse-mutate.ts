@@ -1,4 +1,4 @@
-import { OkPacket, RowDataPacket } from "mysql2";
+import { ResultSetHeader, RowDataPacket } from "mysql2";
 import * as T from "../type";
 import { entityToTable } from "../utils";
 import * as Connection from "../database/connection";
@@ -6,7 +6,7 @@ import * as Connection from "../database/connection";
 export const getIdsMutateInsert = ({
   affectedRows,
   insertId,
-}: OkPacket): number[] => {
+}: ResultSetHeader): number[] => {
   // insert multiple
   if (affectedRows > 0) {
     const ids: number[] = new Array(affectedRows)
@@ -20,18 +20,18 @@ export const getIdsMutateInsert = ({
 };
 
 const idsToResponseInsert = (
-  { insertId, message }: OkPacket,
+  { insertId, info }: ResultSetHeader,
   id?: number,
   uuid?: string
 ): T.MutateResponseInsert => ({
   success: typeof insertId === "number",
   uuid,
   id,
-  status: message,
+  status: info,
 });
 
 export const parseMutateInsert = async (
-  response: OkPacket,
+  response: ResultSetHeader,
   entity: T.Entity,
   s: Connection.SQL,
   isInsertMultiple: boolean
@@ -70,19 +70,23 @@ export const parseMutateInsert = async (
   return idsToResponseInsert(response, ids[0]);
 };
 
-const parseMutateUpdate = (response: OkPacket): T.MutateResponseUpdate => ({
+const parseMutateUpdate = (
+  response: ResultSetHeader
+): T.MutateResponseUpdate => ({
   success: typeof response.insertId === "number",
   updated: response.affectedRows,
 });
 
-const parseMutateDelete = (response: OkPacket): T.MutateResponseDelete => ({
+const parseMutateDelete = (
+  response: ResultSetHeader
+): T.MutateResponseDelete => ({
   success: typeof response.insertId === "number",
   deleted: response.affectedRows,
 });
 
 const getResultBasedOnType = async (
   t: T.MutateType,
-  response: OkPacket,
+  response: ResultSetHeader,
   entity: T.Entity,
   s: Connection.SQL
 ) => {
@@ -101,7 +105,7 @@ const getResultBasedOnType = async (
 
 export const parseMutate = async (
   qs: { type: T.MutateType; entity: T.Entity }[],
-  response: OkPacket,
+  response: ResultSetHeader,
   s: Connection.SQL
 ): Promise<T.MutateResponse> => {
   const r: T.MutateResponse = {};

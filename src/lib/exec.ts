@@ -1,4 +1,4 @@
-import { RowDataPacket, OkPacket } from "mysql2";
+import { RowDataPacket, ResultSetHeader } from "mysql2";
 import * as Connection from "./database/connection";
 import * as T from "./type";
 import * as Meta from "./query-builder/meta";
@@ -154,5 +154,5 @@ export const mutate = async <A = any>(
 
   const response = await s.execQuery(qs.map((x) => x.sql).join("\n"));
 
-  return await ParseMutate.parseMutate(qs, response as OkPacket, s);
+  return await ParseMutate.parseMutate(qs, response as ResultSetHeader, s);
 };

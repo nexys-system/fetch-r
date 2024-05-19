@@ -1,4 +1,4 @@
-import mysql, { OkPacket, RowDataPacket } from "mysql2";
+import mysql, { ResultSetHeader, RowDataPacket } from "mysql2";
 import * as pg from "pg";
 
 import * as T from "./type";
@@ -68,11 +68,13 @@ export class SQL {
     }
   }
 
-  execQuery = async (query: string): Promise<RowDataPacket | OkPacket> => {
+  execQuery = async (
+    query: string
+  ): Promise<RowDataPacket | ResultSetHeader> => {
     if (this.pool) {
       const [response] = await this.pool.query(query);
 
-      return response as RowDataPacket | OkPacket;
+      return response as RowDataPacket | ResultSetHeader;
     }
 
     if (this.poolPg) {
@@ -83,18 +85,20 @@ export class SQL {
 
         // mutate
         if (["INSERT", "UPDATE", "DELETE"].includes(r.command)) {
-          const okPacket: OkPacket = {
+          const okPacket: ResultSetHeader = {
             constructor: {
-              name: "OkPacket",
+              name: "ResultSetHeader",
             },
             insertId: r.oid,
             affectedRows: r.rowCount || 0,
             fieldCount: 0,
             changedRows: 0,
             serverStatus: 0,
-            warningCount: 0,
-            message: "",
-            procotol41: false,
+            info: "",
+            warningStatus: 0,
+            //  warningCount: 0,
+            //   message: "",
+            //   protocol41: false,
           };
 
           return okPacket;
