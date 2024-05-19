@@ -11,7 +11,7 @@ export type Type =
   | "LocalDate"
   | "LocalDateTime"
   | "LocalTime"
-  | "Json";
+  | "JSON";
 
 export type Value = number | string | boolean | Date;
 
