@@ -28,7 +28,7 @@ abstract class QueryService {
 
   abstract insertMultiple<A>(
     entity: string,
-    data: Omit<A, "uuid">[]
+    data: Omit<A, "uuid" | "id">[]
   ): Promise<TQ.Type.MutateResponseInsert[]>;
 
   abstract update<A>(
