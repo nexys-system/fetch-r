@@ -1,7 +1,7 @@
-import * as T from "../type";
-import * as TT from "./type";
-import { escape } from "../utils";
-import { DatabaseType } from "../database/type";
+import * as T from "../type.js";
+import * as TT from "./type.js";
+import { escape } from "../utils.js";
+import { DatabaseType } from "../database/type.js";
 
 export const getAliasColumn = (tableAlias: string, fieldName: string) =>
   tableAlias + "_" + fieldName;

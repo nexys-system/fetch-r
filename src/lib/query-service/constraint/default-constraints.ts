@@ -1,6 +1,6 @@
-import { Entity } from "../../type";
-import * as T from "./type";
-import * as Exclude from "./exclude";
+import { Entity } from "../../type.js";
+import * as T from "./type.js";
+import * as Exclude from "./exclude.js";
 
 export const defaultAppend = ({
   uuid,

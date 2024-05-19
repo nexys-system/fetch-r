@@ -1,11 +1,11 @@
 // this file is used for the package. The server should use the other files directly
-import * as Connection from "./database/connection";
-import * as Exec from "./exec";
-import * as T from "./type";
-import { addColumnsToModel } from "./model/utils";
-import { Query as AQuery } from "./query-builder/aggregate/type";
-import { Aggregate } from "./query-builder";
-import { ConnectionOptions, DatabaseType } from "./database/type";
+import * as Connection from "./database/connection.js";
+import * as Exec from "./exec.js";
+import * as T from "./type.js";
+import { addColumnsToModel } from "./model/utils.js";
+import { Query as AQuery } from "./query-builder/aggregate/type.js";
+import { Aggregate } from "./query-builder/index.js";
+import { ConnectionOptions, DatabaseType } from "./database/type.js";
 
 interface Options {
   legacyMode: boolean;

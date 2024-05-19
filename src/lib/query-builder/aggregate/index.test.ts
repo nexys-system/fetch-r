@@ -1,6 +1,6 @@
-import { Entity } from "../../type";
-import * as I from "./index";
-import * as T from "./type";
+import { Entity } from "../../type.js";
+import * as I from "./index.js";
+import * as T from "./type.js";
 
 const sql = [
   "SELECT user_module_id, SUM(passed) as sumPassed, COUNT(id) as count_id",

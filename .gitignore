@@ -3,3 +3,4 @@ dist/
 node_modules/
 assets/
 src/index-standalone.ts
+index.js

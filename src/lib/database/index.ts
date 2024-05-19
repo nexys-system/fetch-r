@@ -1,2 +1,2 @@
-export * as Connection from "./connection";
-export * as Type from "./type";
+export * as Connection from "./connection.js";
+export * as Type from "./type.js";

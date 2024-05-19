@@ -1,7 +1,7 @@
-import * as M from "./meta";
-import * as S from "./sql";
-import * as T from "../type";
-import model from "./model-user";
+import * as M from "./meta.js";
+import * as S from "./sql.js";
+import * as T from "../type.js";
+import model from "./model-user.js";
 
 test("simple select w projection and filter with operator", () => {
   const q: T.Query = {

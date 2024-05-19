@@ -4,8 +4,8 @@ import {
   QueryParams,
   QueryProjection,
   Query,
-} from "../../../type";
-import { FilterConstraint, ProjectionConstraint } from "../type";
+} from "../../../type.js";
+import { FilterConstraint, ProjectionConstraint } from "../type.js";
 
 const getModelUnit = (entity: string, model: Entity[]): Entity => {
   const f = model.find((x) => x.name === entity);

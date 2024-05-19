@@ -1,4 +1,4 @@
-import * as I from "./utils";
+import * as I from "./utils.js";
 
 describe("getOperator", () => {
   test("true", () => {

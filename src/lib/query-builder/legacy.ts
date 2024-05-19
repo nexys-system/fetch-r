@@ -1,8 +1,8 @@
 /**
  * set of helper functions to augment queries so they would return the same results as the old API
  */
-import * as U from "../utils";
-import * as T from "../type";
+import * as U from "../utils.js";
+import * as T from "../type.js";
 export const allFieldsAreFk = (
   fs: T.Field[],
   projection: T.QueryProjection

@@ -1,9 +1,9 @@
-import { Query, Mutate, MutateResponse, ReturnUnit } from "../type";
+import { Query, Mutate, MutateResponse, ReturnUnit } from "../type.js";
 
-import Fetchr from "../main";
+import Fetchr from "../main.js";
 
-import AbstractServiceWData from "./abstract-service-wdata";
-import * as TA from "../query-builder/aggregate/type";
+import AbstractServiceWData from "./abstract-service-wdata.js";
+import * as TA from "../query-builder/aggregate/type.js";
 
 class QueryService extends AbstractServiceWData {
   fetchr: Fetchr;

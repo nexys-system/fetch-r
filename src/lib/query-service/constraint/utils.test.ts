@@ -1,4 +1,4 @@
-import * as C from "./utils";
+import * as C from "./utils.js";
 
 test("format error", () => {
   const errorString =

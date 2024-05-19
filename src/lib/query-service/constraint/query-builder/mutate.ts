@@ -1,6 +1,6 @@
-import { Mutate, MutateParams } from "../../../type";
-import { DataConstraint, FilterConstraint } from "../type";
-import * as Utils from "./utils";
+import { Mutate, MutateParams } from "../../../type.js";
+import { DataConstraint, FilterConstraint } from "../type.js";
+import * as Utils from "./utils.js";
 
 export const constructMutatePermission = (
   query: Mutate,

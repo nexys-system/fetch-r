@@ -1,8 +1,8 @@
-import { getModel } from "./utils";
-import * as T from "../type";
-import * as U from "../utils";
-import * as UU from "./utils";
-import { DatabaseType } from "../database/type";
+import { getModel } from "./utils.js";
+import * as T from "../type.js";
+import * as U from "../utils.js";
+import * as UU from "./utils.js";
+import { DatabaseType } from "../database/type.js";
 
 // SQL
 export const getFilterUnit = (

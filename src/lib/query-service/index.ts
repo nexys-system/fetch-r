@@ -1,4 +1,4 @@
-import Service from "./service";
-export * as Utils from "./utils";
+import Service from "./service.js";
+export * as Utils from "./utils.js";
 
 export { Service };

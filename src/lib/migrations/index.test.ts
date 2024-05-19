@@ -1,4 +1,4 @@
-import * as I from "./index";
+import * as I from "./index.js";
 
 test("import/exports", () => {
   expect(typeof I.Migrations).toEqual("object");

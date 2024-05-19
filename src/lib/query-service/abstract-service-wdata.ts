@@ -1,4 +1,4 @@
-import * as QueryUtil from "./utils";
+import * as QueryUtil from "./utils.js";
 import {
   Query,
   QueryFilters as Filters,
@@ -10,16 +10,16 @@ import {
   References,
   MutateResponseUpdate,
   MutateResponseDelete,
-} from "../type";
+} from "../type.js";
 
-import AbstractService from "./abstract-service";
-import { QueryConstraint } from "./constraint/type";
+import AbstractService from "./abstract-service.js";
+import { QueryConstraint } from "./constraint/type.js";
 
-import * as QueryBuilder from "./constraint/query-builder";
-import * as TT from "./constraint/type";
-import { Entity } from "../type";
-import * as TA from "./aggregate-type";
-import { mutatePostProcessing } from "./constraint/utils";
+import * as QueryBuilder from "./constraint/query-builder/index.js";
+import * as TT from "./constraint/type.js";
+import { Entity } from "../type.js";
+import * as TA from "./aggregate-type.js";
+import { mutatePostProcessing } from "./constraint/utils.js";
 
 type QueryResponse = any;
 
@@ -91,7 +91,7 @@ abstract class QueryService extends AbstractService {
    **/
   async insertMultiple<A = any>(
     entity: string,
-    data: Omit<A, 'uuid' | 'id'>[] = []
+    data: Omit<A, "uuid" | "id">[] = []
   ): Promise<MutateResponseInsert[]> {
     if (data.length === 0) {
       throw new Error(`No rows for ${entity} provided`);

@@ -1,9 +1,9 @@
-import * as Meta from "../query-builder/meta";
-import * as TT from "../query-builder/type";
-import * as Exec from "../exec";
-import { Entity, Field, References, ReturnUnit } from "../type";
-import * as Connection from "../database/connection";
-import { DatabaseType } from "../database/type";
+import * as Meta from "../query-builder/meta.js";
+import * as TT from "../query-builder/type.js";
+import * as Exec from "../exec.js";
+import { Entity, Field, References, ReturnUnit } from "../type.js";
+import * as Connection from "../database/connection.js";
+import { DatabaseType } from "../database/type.js";
 
 interface Ref {
   entity: string;

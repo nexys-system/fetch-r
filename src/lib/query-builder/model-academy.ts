@@ -1,4 +1,4 @@
-import * as T from "../type";
+import * as T from "../type.js";
 
 const m: T.Entity[] = [
   {

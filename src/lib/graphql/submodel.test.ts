@@ -1,5 +1,5 @@
-import { Entity } from "../type";
-import * as S from "./submodel";
+import { Entity } from "../type.js";
+import * as S from "./submodel.js";
 
 const m1: Entity[] = [
   {

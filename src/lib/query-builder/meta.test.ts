@@ -1,10 +1,10 @@
-import * as M from "./meta";
-import * as P from "./parse";
-import * as S from "./sql";
-import * as TT from "./type";
-import * as T from "../type";
+import * as M from "./meta.js";
+import * as P from "./parse.js";
+import * as S from "./sql.js";
+import * as TT from "./type.js";
+import * as T from "../type.js";
 import { RowDataPacket } from "mysql2";
-import model from "./model-user";
+import model from "./model-user.js";
 
 describe("to meta and to query", () => {
   const q: T.Query = {

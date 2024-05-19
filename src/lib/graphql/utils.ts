@@ -1,6 +1,6 @@
 import * as GL from "graphql";
-import { QueryProjection, QueryFilters, Entity, Field } from "../type";
-import * as T from "./type";
+import { QueryProjection, QueryFilters, Entity, Field } from "../type.js";
+import * as T from "./type.js";
 
 // not used
 export const getSchemaFromDDL = (def: Entity[]) => {

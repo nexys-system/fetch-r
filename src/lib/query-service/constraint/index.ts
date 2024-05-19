@@ -1,8 +1,8 @@
-import { Entity } from "../../type";
+import { Entity } from "../../type.js";
 
-import { Profile, Constraint, Permission } from "./type";
+import { Profile, Constraint, Permission } from "./type.js";
 
-import DefaultConstraints from "./default-constraints";
+import DefaultConstraints from "./default-constraints.js";
 
 const roleKeys = [Permission.app, Permission.admin, Permission.superadmin];
 

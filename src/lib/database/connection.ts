@@ -1,7 +1,7 @@
 import mysql, { ResultSetHeader, RowDataPacket } from "mysql2";
 import * as pg from "pg";
 
-import * as T from "./type";
+import * as T from "./type.js";
 
 export class SQL {
   //connection: mysql.Connection;

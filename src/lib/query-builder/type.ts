@@ -1,4 +1,4 @@
-import * as T from "../type";
+import * as T from "../type.js";
 
 export interface MetaJoin {
   entity: string;

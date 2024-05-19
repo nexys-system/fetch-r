@@ -2,10 +2,10 @@
  * this service allows to use the external fetchr service
  */
 /// <reference lib="dom" />
-import { Query, Mutate, MutateResponse } from "../type";
-import * as TF from "../type";
-import AbstractServiceWData from "./abstract-service-wdata";
-import * as TA from "../query-builder/aggregate/type";
+import { Query, Mutate, MutateResponse } from "../type.js";
+import * as TF from "../type.js";
+import AbstractServiceWData from "./abstract-service-wdata.js";
+import * as TA from "../query-builder/aggregate/type.js";
 
 const hostDefault = "https://crud.nexys.io";
 

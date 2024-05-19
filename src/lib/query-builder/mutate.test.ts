@@ -1,7 +1,7 @@
-import * as S from "./mutate";
-import * as T from "../type";
-import model from "./model-user";
-import model2 from "./model-academy";
+import * as S from "./mutate.js";
+import * as T from "../type.js";
+import model from "./model-user.js";
+import model2 from "./model-academy.js";
 
 interface User {
   uuid: string;

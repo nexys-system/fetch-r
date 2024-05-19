@@ -1,5 +1,5 @@
-import * as T from "../type";
-import { camelToSnakeCase, isStandardType } from "../utils";
+import * as T from "../type.js";
+import { camelToSnakeCase, isStandardType } from "../utils.js";
 
 export const addColumnsToModel = (es: T.Entity[]) => {
   es.forEach((entity) => {

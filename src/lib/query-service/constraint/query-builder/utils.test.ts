@@ -1,4 +1,4 @@
-import * as U from "./utils";
+import * as U from "./utils.js";
 
 test("random string", () => {
   expect(U.generateString(12).length).toEqual(12);

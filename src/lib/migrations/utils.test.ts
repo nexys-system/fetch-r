@@ -1,4 +1,4 @@
-import * as M from "./utils";
+import * as M from "./utils.js";
 
 describe("check sequence", () => {
   test("right seq", () => {

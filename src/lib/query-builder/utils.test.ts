@@ -1,5 +1,5 @@
-import { MetaJoin } from "./type";
-import * as U from "./utils";
+import { MetaJoin } from "./type.js";
+import * as U from "./utils.js";
 
 test("getAliasColumn", () => {
   expect(U.getAliasColumn("my_table", "my_field")).toEqual("my_table_my_field");
