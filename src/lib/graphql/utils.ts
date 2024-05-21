@@ -118,6 +118,7 @@ const availableTypes: T.FieldType[] = [
   "LocalDate",
   "BigDecimal",
   "Double",
+  "JSON",
 ];
 
 export const isFieldType = (s: string): s is T.FieldType =>

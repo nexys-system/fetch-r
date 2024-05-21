@@ -15,7 +15,8 @@ export type FieldType =
   | "LocalDate"
   | "BigDecimal"
   | "Double"
-  | "Long";
+  | "Long"
+  | "JSON";
 
 export type GLTypes = Map<
   string,
