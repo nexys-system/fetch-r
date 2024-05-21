@@ -76,6 +76,7 @@ const mapScalarType = (
     case "LocalDateTime":
       return GL.GraphQLString; // date returns a string
     case "String":
+    case "JSON":
       return GL.GraphQLString;
   }
 
