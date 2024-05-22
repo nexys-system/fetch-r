@@ -1,29 +1,14 @@
-import {
-  OkPacket,
-  ResultSetHeader,
-  RowDataPacket,
-  FieldPacket,
-} from "mysql2/promise";
+import { OkPacket, RowDataPacket } from "mysql2/promise";
+import { Connection } from "../database/index.js";
 
-//import * as T from "@nexys/sql-migrations/dist/type";
-//import * as U from "@nexys/sql-migrations/dist/utils";
 import * as T from "./type.js";
 import * as U from "./utils.js";
-
-type Response = [
-  OkPacket | ResultSetHeader | RowDataPacket[] | RowDataPacket[][] | OkPacket[],
-  FieldPacket[]
-];
-
-interface SQL {
-  execQuery: (query: string) => Promise<Response>;
-}
 
 // manages migration
 // inspiration from flyway - https://flywaydb.org/
 export const runMigrations = async (
   migrations: T.Migration[],
-  s: SQL
+  s: Connection.SQL
 ): Promise<T.MigrationRow[]> => {
   U.checkSequence(migrations);
   // create table if not exists
@@ -31,7 +16,7 @@ export const runMigrations = async (
   await s.execQuery(U.createMigrationTable);
 
   // get all migrations
-  const [r] = await s.execQuery(U.getMigrations);
+  const r = await s.execQuery(U.getMigrations);
   const y = (r || []) as RowDataPacket[] as T.MigrationRow[];
 
   const { installed_rank: lastRank } = U.getLastRow(y);
