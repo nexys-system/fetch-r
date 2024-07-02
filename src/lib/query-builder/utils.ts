@@ -157,9 +157,9 @@ export const toSQLOperator = (operator: TT.MetaOperator, value?: any) => {
       return "<";
     case "gt":
       return ">";
-    case "lt":
+    case "lte":
       return "<=";
-    case "gt":
+    case "gte":
       return ">=";
     case "in":
       return " IN ";
@@ -175,7 +175,7 @@ export const toSQLOperator = (operator: TT.MetaOperator, value?: any) => {
     case "is":
       return " IS ";
     case "regexp":
-      return " REGEXP "; // https://dev.mysql.com/doc/refman/8.0/en/regexp.html#operator_regexp
+      return " REGEXP "; // https://dev.mysql.com/doc/refman/8.0/en/regexp.html#operator_regexp // SQLite uses a custom function for REGEXP
     default:
       return "=";
   }

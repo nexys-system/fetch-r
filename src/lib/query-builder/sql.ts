@@ -7,7 +7,8 @@ export const toQuery = (
   meta: TT.MetaQuery,
   databaseType: DatabaseType
 ): string[] => {
-  const columnEscaper = databaseType === "MySQL" ? "`" : '"';
+  const columnEscaper =
+    databaseType === "MySQL" || databaseType === "SQLite" ? "`" : '"';
 
   const projection: string = meta.units
     .map((x) =>
@@ -22,6 +23,7 @@ export const toQuery = (
     )
     .filter(U.arrayNotEmpty)
     .join(", ");
+
   const filters: string[] = meta.units
     .map((x, i) => {
       if (x.filters.length === 0) {
@@ -49,16 +51,21 @@ export const toQuery = (
   });
 
   const { table } = meta.units[0];
-  // add backticks if the table contains weird symbols, ideally it should alwasy be here but tests need to be fixed
-  const tableEscaped = table.includes("-") ? "`" + table + "`" : table;
+  // add appropriate escaping for SQLite and other databases
+  const tableEscaped =
+    databaseType === "MySQL" || databaseType === "SQLite"
+      ? table.includes("-")
+        ? "`" + table + "`"
+        : table
+      : `"${table}"`;
 
   const r = [
     "SELECT " + projection,
     "FROM " + tableEscaped + " AS " + meta.units[0].alias,
   ];
 
-  // in MySQL: WHERE 1 , postgres: WHERE true
-  const wherePlaceholder = databaseType === "MySQL" ? "1" : "true";
+  // in MySQL and SQLite: WHERE 1 , postgres: WHERE true
+  const wherePlaceholder = databaseType === "PostgreSQL" ? "true" : "1";
 
   joins.forEach((join) => r.push(join));
   r.push(
