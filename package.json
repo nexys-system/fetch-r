@@ -29,7 +29,7 @@
     "koa-router": "^10.0.0",
     "ts-jest": "^29.1.2",
     "tsc-watch": "^4.2.9",
-    "typescript": "^5.4.5"
+    "typescript": "^5.5.3"
   },
   "dependencies": {
     "@nexys/validation": "^2.1.5",
@@ -39,7 +39,7 @@
     "crc-32": "^1.2.2",
     "graphql": "^16.5.0",
     "graphql-fields": "^2.0.3",
-    "mysql2": "^3.9.7",
+    "mysql2": "^3.10.2",
     "pg": "^8.11.3",
     "sqlstring": "^2.3.3"
   },

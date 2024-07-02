@@ -30,7 +30,7 @@ export type Response = [
   FieldPacket[]
 ];
 
-export type DatabaseType = "MySQL" | "PostgreSQL";
+export type DatabaseType = "MySQL" | "PostgreSQL" | "SQLite";
 
 export type ConnectionOptions = Pick<
   PoolOptions,
