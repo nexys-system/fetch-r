@@ -5,8 +5,8 @@ import * as T from "./type.js";
 
 export class SQL {
   //connection: mysql.Connection;
-  private pool: T.Pool | null;
-  private poolPg: pg.Pool | null;
+  public pool: T.Pool | null;
+  public poolPg: pg.Pool | null;
 
   constructor(
     connectionOptions: T.ConnectionOptions,
