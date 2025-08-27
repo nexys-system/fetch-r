@@ -20,8 +20,8 @@ describe("PostgreSQL Integration Tests", () => {
         host: "localhost",
         port: 5432,
         database: "postgres",
-        user: "johan",
-        password: "", // Adjust if your PostgreSQL has a password
+        user: process.env.POSTGRES_USER || "johan",
+        password: process.env.POSTGRES_PASSWORD || "", // Use env var for CI
       },
       "PostgreSQL"
     );
@@ -41,8 +41,8 @@ describe("PostgreSQL Integration Tests", () => {
         host: "localhost",
         port: 5432,
         database: testDbName,
-        user: "johan",
-        password: "", // Adjust if your PostgreSQL has a password
+        user: process.env.POSTGRES_USER || "johan",
+        password: process.env.POSTGRES_PASSWORD || "", // Use env var for CI
       },
       "PostgreSQL"
     );
@@ -68,8 +68,8 @@ describe("PostgreSQL Integration Tests", () => {
           host: "localhost",
           port: 5432,
           database: "postgres",
-          user: "johan",
-          password: "", // Adjust if your PostgreSQL has a password
+          user: process.env.POSTGRES_USER || "johan",
+          password: process.env.POSTGRES_PASSWORD || "", // Use env var for CI
         },
         "PostgreSQL"
       );

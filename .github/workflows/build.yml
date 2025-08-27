@@ -5,11 +5,70 @@ on: [push]
 jobs:
   test:
     runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+          
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ''
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: mysql
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 3306:3306
+    
+    env:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ''
+    
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v1
         with:
           bun-version: 1.2.21
       - run: bun install
+      
+      # Install database client tools
+      - name: Install PostgreSQL client
+        run: sudo apt-get install -y postgresql-client
+      - name: Install MySQL client
+        run: sudo apt-get install -y mysql-client
+      
+      # Wait for services to be ready
+      - name: Wait for PostgreSQL
+        run: |
+          until pg_isready -h localhost -p 5432 -U postgres; do
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
+          
+      - name: Wait for MySQL
+        run: |
+          until mysqladmin ping -h 127.0.0.1 -P 3306 --silent; do
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+      
+      # Run tests with database services available
       - run: bun test
       - run: bun run build

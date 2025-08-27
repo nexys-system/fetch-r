@@ -20,8 +20,8 @@ describe("MySQL Integration Tests", () => {
         host: "localhost",
         port: 3306,
         database: "mysql",
-        user: "root",
-        password: "", // Adjust if your MySQL has a password
+        user: process.env.MYSQL_USER || "root",
+        password: process.env.MYSQL_PASSWORD || "", // Use env var for CI
       },
       "MySQL"
     );
@@ -41,8 +41,8 @@ describe("MySQL Integration Tests", () => {
         host: "localhost",
         port: 3306,
         database: testDbName,
-        user: "root",
-        password: "", // Adjust if your MySQL has a password
+        user: process.env.MYSQL_USER || "root",
+        password: process.env.MYSQL_PASSWORD || "", // Use env var for CI
       },
       "MySQL"
     );
@@ -68,8 +68,8 @@ describe("MySQL Integration Tests", () => {
           host: "localhost",
           port: 3306,
           database: "mysql",
-          user: "root",
-          password: "", // Adjust if your MySQL has a password
+          user: process.env.MYSQL_USER || "root",
+          password: process.env.MYSQL_PASSWORD || "", // Use env var for CI
         },
         "MySQL"
       );
