@@ -1,3 +1,4 @@
+import { describe, expect, test } from "bun:test";
 import * as PM from "./parse-mutate.js";
 
 describe("parseMutateInsert", () => {

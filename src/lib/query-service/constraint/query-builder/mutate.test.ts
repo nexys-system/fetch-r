@@ -1,3 +1,4 @@
+import { expect, test } from "bun:test";
 import * as Q from "./mutate.js";
 
 test("constructMutatePermission", () => {

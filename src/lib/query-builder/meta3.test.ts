@@ -1,6 +1,7 @@
+import { expect, test } from "bun:test";
+import * as T from "../type.js";
 import * as M from "./meta.js";
 import * as S from "./sql.js";
-import * as T from "../type.js";
 
 const model: T.Entity[] = [
   {

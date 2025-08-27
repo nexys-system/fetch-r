@@ -1,5 +1,5 @@
-import { QueryParams, Entity } from "../../../type.js";
-
+import { describe, expect, test } from "bun:test";
+import { Entity, QueryParams } from "../../../type.js";
 import * as T from "../type.js";
 import * as Q from "./data.js";
 

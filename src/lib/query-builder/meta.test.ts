@@ -1,10 +1,11 @@
+import { describe, expect, test } from "bun:test";
+import { RowDataPacket } from "mysql2";
+import * as T from "../type.js";
 import * as M from "./meta.js";
+import model from "./model-user.js";
 import * as P from "./parse.js";
 import * as S from "./sql.js";
 import * as TT from "./type.js";
-import * as T from "../type.js";
-import { RowDataPacket } from "mysql2";
-import model from "./model-user.js";
 
 describe("to meta and to query", () => {
   const q: T.Query = {

@@ -1,8 +1,8 @@
+import { expect, test } from "bun:test";
 import * as M from "./meta.js";
+import modelAcademy from "./model-academy.js";
 import * as S from "./sql.js";
 import * as TT from "./type.js";
-
-import modelAcademy from "./model-academy.js";
 
 test("2nd level projection", () => {
   const q = {

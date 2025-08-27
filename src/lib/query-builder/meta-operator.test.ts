@@ -1,7 +1,8 @@
-import * as M from "./meta.js";
-import * as S from "./sql.js";
+import { expect, test } from "bun:test";
 import * as T from "../type.js";
+import * as M from "./meta.js";
 import model from "./model-user.js";
+import * as S from "./sql.js";
 
 test("simple select w projection and filter with operator", () => {
   const q: T.Query = {

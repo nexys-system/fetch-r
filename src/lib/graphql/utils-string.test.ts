@@ -1,6 +1,7 @@
+import { expect, test } from "bun:test";
+import { Entity } from "../type.js";
 import * as US from "./utils-string.js";
 import * as U from "./utils.js";
-import { Entity } from "../type.js";
 
 const ddl: Entity[] = [
   {

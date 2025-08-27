@@ -3,6 +3,7 @@ import * as GL from "graphql";
 import { Entity } from "../type.js";
 import * as TF from "./type-factory.js";
 import { foreignId } from "./utils.js";
+import { expect, test, describe } from "bun:test";
 
 describe("createTypesFromModel", () => {
   test("empty", () => {

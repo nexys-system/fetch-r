@@ -1,3 +1,4 @@
+import { expect, test } from "bun:test";
 import * as C from "./utils.js";
 
 test("format error", () => {

@@ -1,7 +1,7 @@
+import { describe, expect, test } from "bun:test";
 import * as M from "./meta.js";
-import * as S from "./sql.js";
-
 import modelAcademy from "./model-academy.js";
+import * as S from "./sql.js";
 import { MetaQuery, MetaQueryUnit } from "./type.js";
 
 const u0: MetaQueryUnit = {
