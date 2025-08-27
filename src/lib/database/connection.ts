@@ -58,45 +58,67 @@ export class SQL {
     }
 
     try {
-      // For complex multi-statement queries, use simple() method
-      if (query.includes(";") && query.split(";").filter(s => s.trim()).length > 1) {
-        const result = await this.pool.unsafe(query);
+      // For SQLite with Bun.SQL, we need to detect if this is a mutation or query
+      const isMutation = /^\s*(INSERT|UPDATE|DELETE)/i.test(query);
+      
+      if (isMutation && this.databaseType === "SQLite") {
+        // For SQLite mutations, we need to execute and then get the metadata
+        await this.pool.unsafe(query);
         
-        // Transform result to match expected format
-        if (Array.isArray(result)) {
-          // For SELECT queries
-          return result;
-        } else if (result && typeof result === "object") {
-          // For INSERT/UPDATE/DELETE - transform to ResultSetHeader format
+        // For SQLite, we need to get the changes and lastInsertRowid from the database
+        // Since Bun.SQL doesn't directly return this info, we'll need to query for it
+        try {
+          const changesResult = await this.pool.unsafe("SELECT changes() as changes, last_insert_rowid() as lastInsertRowid");
+          const metadata = changesResult[0] || { changes: 0, lastInsertRowid: 0 };
+          
           return {
             constructor: { name: "ResultSetHeader" },
-            insertId: result.lastInsertRowid || 0,
-            affectedRows: result.changes || 0,
+            insertId: metadata.lastInsertRowid || 0,
+            affectedRows: metadata.changes || 0,
             fieldCount: 0,
-            changedRows: result.changes || 0,
+            changedRows: metadata.changes || 0,
+            serverStatus: 0,
+            info: "",
+            warningStatus: 0,
+          };
+        } catch (metaError) {
+          // Fallback - assume operation succeeded if no error was thrown
+          return {
+            constructor: { name: "ResultSetHeader" },
+            insertId: 0,
+            affectedRows: 1, // Assume at least one row affected if no error
+            fieldCount: 0,
+            changedRows: 1,
             serverStatus: 0,
             info: "",
             warningStatus: 0,
           };
         }
+      }
+      
+      // For SELECT queries or non-SQLite databases
+      const result = await this.pool.unsafe(query);
+      
+      // For multi-statement queries
+      if (query.includes(";") && query.split(";").filter(s => s.trim()).length > 1) {
         return result;
       }
-
-      // For single queries, use the unsafe method (since we're building SQL strings)
-      const result = await this.pool.unsafe(query);
 
       // Transform the result to match the expected format
       if (Array.isArray(result)) {
         // SELECT query results
         return result;
       } else if (result && typeof result === "object") {
-        // INSERT/UPDATE/DELETE results - transform to ResultSetHeader format
+        // INSERT/UPDATE/DELETE results for other databases
+        const changes = result.changes || 0;
+        const insertId = result.lastInsertRowid || 0;
+        
         return {
           constructor: { name: "ResultSetHeader" },
-          insertId: result.lastInsertRowid || 0,
-          affectedRows: result.changes || 0,
+          insertId: insertId,
+          affectedRows: changes,
           fieldCount: 0,
-          changedRows: result.changes || 0,
+          changedRows: changes,
           serverStatus: 0,
           info: "",
           warningStatus: 0,
