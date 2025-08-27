@@ -1,4 +1,5 @@
 import * as U from "./utils.js";
+import { expect, test } from "bun:test";
 
 test("isstandardtype", () => {
   expect(U.isStandardType("BigDecimal")).toEqual(true);

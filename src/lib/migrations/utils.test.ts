@@ -1,3 +1,4 @@
+import { describe, expect, test } from "bun:test";
 import * as M from "./utils.js";
 
 describe("check sequence", () => {

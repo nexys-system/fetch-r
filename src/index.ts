@@ -1,4 +1,6 @@
-import app from "./app.js";
 import { port } from "./config.js";
+import { createServer } from "./app.js";
 
-app.listen(port, () => console.log("fetch-r started on port " + port));
+createServer();
+
+console.log(`fetch-r started on port ${port}`);

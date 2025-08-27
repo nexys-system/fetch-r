@@ -1,6 +1,7 @@
+import { describe, expect, test } from "bun:test";
+import model from "../query-builder/model-academy.js";
 import { Entity, Field, References } from "../type.js";
 import * as R from "./references.js";
-import model from "../query-builder/model-academy.js";
 
 describe("get field - joinOn", () => {
   const field1: Field = { name: "logUser", type: "User", optional: false };

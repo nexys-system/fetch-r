@@ -196,8 +196,13 @@ const toQueryInsert = (
     ? getValuesInsertMultiple(data, entity.fields, model, entity.uuid)
     : getValuesInsert(data, entity.fields, model, entity.uuid);
   const table = U.entityToTable(entity);
-  const tableEscaped = table.includes("-") ? "`" + table + "`" : table;
-  return `INSERT INTO ${tableEscaped} (${fields}) VALUES ${values};`;
+  const tableEscaped = databaseType === "PostgreSQL" ? `"${table}"` : 
+                      table.includes("-") ? "`" + table + "`" : table;
+  
+  // Add RETURNING clause for PostgreSQL to get inserted ID
+  const returningClause = databaseType === "PostgreSQL" ? " RETURNING id" : "";
+  
+  return `INSERT INTO ${tableEscaped} (${fields}) VALUES ${values}${returningClause};`;
 };
 
 const toQueryUpdate = (
@@ -235,9 +240,13 @@ const toQueryUpdate = (
     .join(", ");
 
   const table = U.entityToTable(entity);
-  const tableEscaped = table.includes("-") ? sep + table + sep : table;
+  const tableEscaped = databaseType === "PostgreSQL" ? `"${table}"` : 
+                      table.includes("-") ? sep + table + sep : table;
 
-  return `UPDATE ${tableEscaped} SET ${values} WHERE ${filterString};`;
+  // Add RETURNING clause for PostgreSQL to get affected row count
+  const returningClause = databaseType === "PostgreSQL" ? " RETURNING id" : "";
+  
+  return `UPDATE ${tableEscaped} SET ${values} WHERE ${filterString}${returningClause};`;
 };
 
 const toQueryDelete = (
@@ -250,8 +259,12 @@ const toQueryDelete = (
   const filterString = getFilters(entity, filters, model, sep);
 
   const table = U.entityToTable(entity);
-  const tableEscaped = table.includes("-") ? "`" + table + "`" : table;
-  return `DELETE FROM ${tableEscaped} WHERE ${filterString};`;
+  const tableEscaped = databaseType === "PostgreSQL" ? `"${table}"` : 
+                      table.includes("-") ? "`" + table + "`" : table;
+  // Add RETURNING clause for PostgreSQL to get affected row count
+  const returningClause = databaseType === "PostgreSQL" ? " RETURNING id" : "";
+  
+  return `DELETE FROM ${tableEscaped} WHERE ${filterString}${returningClause};`;
 };
 
 export const createMutateQuery = (

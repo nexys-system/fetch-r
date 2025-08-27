@@ -6,8 +6,7 @@
  *
  * this file handles the parsing
  */
-import { RowDataPacket } from "mysql2";
-import { DatabaseType } from "../database/type.js";
+import { RowDataPacket, DatabaseType } from "../database/type.js";
 import * as T from "../type.js";
 import * as TT from "./type.js";
 import * as UU from "./utils.js";

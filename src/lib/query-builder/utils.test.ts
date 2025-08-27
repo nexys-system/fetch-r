@@ -1,3 +1,4 @@
+import { describe, expect, test } from "bun:test";
 import { MetaJoin } from "./type.js";
 import * as U from "./utils.js";
 
@@ -131,5 +132,5 @@ test("remove id", () => {
 
   U.removeId(a);
 
-  expect(a).toEqual(b);
+  expect(a).toEqual(b as any);
 });

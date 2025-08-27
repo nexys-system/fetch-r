@@ -1,3 +1,4 @@
+import { expect, test } from "bun:test";
 import { Entity } from "../type.js";
 import * as S from "./submodel.js";
 

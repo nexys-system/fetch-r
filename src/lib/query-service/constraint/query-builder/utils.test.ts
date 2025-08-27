@@ -1,3 +1,4 @@
+import { expect, test } from "bun:test";
 import * as U from "./utils.js";
 
 test("random string", () => {

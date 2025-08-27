@@ -1,4 +1,4 @@
-import { OkPacket, RowDataPacket } from "mysql2/promise";
+import { RowDataPacket } from "../database/type.js";
 import { Connection } from "../database/index.js";
 
 import * as T from "./type.js";
@@ -36,7 +36,7 @@ export const runMigrations = async (
 
     //console.log(t1, t2, (rm as any as OkPacket).affectedRows);
 
-    const success: number = getSuccess(rm as OkPacket | OkPacket[]);
+    const success: number = getSuccess(rm as any);
 
     const row: T.MigrationRow = U.migrationToRow(
       migration.name,
@@ -76,14 +76,14 @@ export const runMigrations = async (
  * @param rm: can be an array or a scalar
  * @returns the serverstatus of the last call
  */
-const getSuccess = (rm: OkPacket | OkPacket[]): number => {
+const getSuccess = (rm: any): number => {
   // if array return the last one
   if (Array.isArray(rm)) {
     const l = rm.length;
     return getSuccess(rm[l - 1]);
   }
 
-  return rm.affectedRows;
+  return rm.affectedRows || 0;
 };
 
 const isNotNull = <A>(x: A | null | undefined): x is A =>

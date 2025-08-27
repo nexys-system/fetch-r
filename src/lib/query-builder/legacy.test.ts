@@ -1,3 +1,4 @@
+import { expect, test } from "bun:test";
 import * as L from "./legacy.js";
 import Model from "./model-academy.js";
 
@@ -47,5 +48,5 @@ test("augment - do not discard child entity projections", () => {
     status: true,
     testUserId: true,
     user: true,
-  });
+  } as any);
 });
