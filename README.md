@@ -24,18 +24,12 @@ Built for modern applications requiring robust multi-database support with a cle
 - 🔄 **Advanced Relationships**: Complex JOIN queries with nested projections
 - 📊 **Flexible Querying**: Filtering, ordering, pagination, and aggregation
 - 🔄 **CRUD Operations**: Create, Read, Update, Delete with transaction support
-- 🧪 **Thoroughly Tested**: 289+ tests across all database types
-- 🚀 **Production Ready**: Used in production environments
 
 ## 🚀 Quick Start
 
 ### Installation
 
 ```bash
-npm install @nexys/fetchr
-# or
-yarn add @nexys/fetchr
-# or  
 bun add @nexys/fetchr
 ```
 
@@ -384,8 +378,6 @@ MYSQL_USER=root MYSQL_PASSWORD="" bun test mysql
 
 ### Test Coverage
 
-- ✅ **289+ tests** across 57 files
-- ✅ **594+ assertions** 
 - ✅ Complex relationship queries
 - ✅ All CRUD operations
 - ✅ Database-specific SQL generation
