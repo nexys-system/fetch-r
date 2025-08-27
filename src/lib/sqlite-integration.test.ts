@@ -330,7 +330,7 @@ describe("SQLite Integration Tests", () => {
           },
         },
         filters: {
-          score: { ">": 80 },
+          score: { "$gt": 80 },
         },
       },
     };
