@@ -44,9 +44,9 @@ export class SQL {
       const url = `postgres://${dbUser}:${password}@${host}:${port}/${database}`;
       this.pool = new BunSQL(url);
     } else if (this.databaseType === "MySQL") {
-      // MySQL support is coming to Bun.SQL soon
-      // For now, we'll use PostgreSQL as fallback or throw an error
-      throw new Error("MySQL support in Bun.SQL is coming soon. Please use PostgreSQL for now.");
+      // MySQL connection string
+      const url = `mysql://${dbUser}:${password}@${host}:${port}/${database}`;
+      this.pool = new BunSQL(url);
     } else if (this.databaseType === "SQLite") {
       // SQLite connection
       const url = database.startsWith(":memory:") ? ":memory:" : `sqlite://${database}`;
@@ -148,6 +148,78 @@ export class SQL {
           };
         } catch (pgError) {
           throw pgError;
+        }
+      }
+      
+      if (isMutation && this.databaseType === "MySQL") {
+        // For MySQL mutations, handle the response similar to PostgreSQL but without RETURNING
+        try {
+          const result = await this.pool.unsafe(query);
+          
+          // MySQL mutations typically return empty arrays, we need to query metadata separately
+          
+          let affectedRows = 0;
+          let insertId = 0;
+          
+          if (Array.isArray(result) && result.length === 0) {
+            // MySQL returns empty array for successful mutations
+            // We need to get the last insert ID and row count separately
+            try {
+              if (/^\s*INSERT/i.test(query)) {
+                // For INSERT, get the last inserted ID
+                const lastIdResult = await this.pool.unsafe("SELECT LAST_INSERT_ID() as lastInsertId");
+                if (lastIdResult && lastIdResult[0]) {
+                  insertId = lastIdResult[0].lastInsertId || 0;
+                }
+                affectedRows = 1; // Assume 1 row inserted if no error
+              } else if (/^\s*UPDATE/i.test(query)) {
+                // For UPDATE, get affected rows count
+                const rowCountResult = await this.pool.unsafe("SELECT ROW_COUNT() as affectedRows");
+                if (rowCountResult && rowCountResult[0]) {
+                  affectedRows = rowCountResult[0].affectedRows || 0;
+                }
+              } else if (/^\s*DELETE/i.test(query)) {
+                // For DELETE, get affected rows count  
+                const rowCountResult = await this.pool.unsafe("SELECT ROW_COUNT() as affectedRows");
+                if (rowCountResult && rowCountResult[0]) {
+                  affectedRows = rowCountResult[0].affectedRows || 0;
+                }
+              } else {
+                // For other mutations, assume success
+                affectedRows = 1;
+              }
+            } catch (metaError) {
+              // If we can't get metadata, assume success if no error was thrown
+              affectedRows = 1;
+            }
+          } else if (result && typeof result === "object") {
+            // Handle other possible result metadata formats
+            if ('affectedRows' in result) {
+              affectedRows = result.affectedRows || 0;
+            } else if ('insertId' in result) {
+              insertId = result.insertId || 0;
+              affectedRows = 1;
+            } else {
+              // For mutations that don't return specific metadata, assume success
+              affectedRows = 1;
+            }
+          } else {
+            // For basic mutations without specific metadata, assume success
+            affectedRows = 1;
+          }
+          
+          return {
+            constructor: { name: "ResultSetHeader" },
+            insertId: insertId,
+            affectedRows: affectedRows,
+            fieldCount: 0,
+            changedRows: affectedRows,
+            serverStatus: 0,
+            info: "",
+            warningStatus: 0,
+          };
+        } catch (mysqlError) {
+          throw mysqlError;
         }
       }
       
