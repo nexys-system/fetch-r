@@ -5,6 +5,10 @@ export class SQL {
   public pool: BunSQL | null;
   private connectionOptions: T.ConnectionOptions;
   private databaseType: T.DatabaseType;
+  
+  get config() {
+    return this.connectionOptions;
+  }
 
   constructor(
     connectionOptions: T.ConnectionOptions,
@@ -93,6 +97,57 @@ export class SQL {
             info: "",
             warningStatus: 0,
           };
+        }
+      }
+      
+      if (isMutation && this.databaseType === "PostgreSQL") {
+        // For PostgreSQL mutations, we need to handle the response differently
+        try {
+          const result = await this.pool.unsafe(query);
+          
+          // PostgreSQL mutations with RETURNING clauses return affected rows
+          
+          // PostgreSQL INSERT with RETURNING clause gives us the inserted data
+          let affectedRows = 0;
+          let insertId = 0;
+          
+          if (Array.isArray(result)) {
+            // If we got back rows (e.g., from RETURNING clause), count them
+            affectedRows = result.length;
+            if (result.length > 0 && result[0] && result[0].id) {
+              insertId = result[0].id;
+            }
+          } else if (result && typeof result === "object") {
+            // Handle Bun.SQL result metadata for PostgreSQL
+            if ('affectedRows' in result) {
+              affectedRows = result.affectedRows || 0;
+            } else if ('changes' in result) {
+              affectedRows = result.changes || 0;
+            } else {
+              // For mutations that don't return specific metadata, assume success if no error
+              affectedRows = 1;
+            }
+            
+            if ('insertId' in result) {
+              insertId = result.insertId || 0;
+            }
+          } else {
+            // For basic mutations without specific metadata, assume success
+            affectedRows = 1;
+          }
+          
+          return {
+            constructor: { name: "ResultSetHeader" },
+            insertId: insertId,
+            affectedRows: affectedRows,
+            fieldCount: 0,
+            changedRows: affectedRows,
+            serverStatus: 0,
+            info: "",
+            warningStatus: 0,
+          };
+        } catch (pgError) {
+          throw pgError;
         }
       }
       

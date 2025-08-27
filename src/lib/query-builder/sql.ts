@@ -44,20 +44,29 @@ export const toQuery = (
   const joins: string[] = meta.units.slice(1).map((x) => {
     const parentAlias = meta.units.findIndex((m) => UU.findUnit(x, m));
 
+    // Escape table names properly for PostgreSQL
+    const tableEscaped = databaseType === "PostgreSQL" ? `"${x.table}"` :
+                        databaseType === "MySQL" || databaseType === "SQLite"
+                          ? x.table.includes("-") ? "`" + x.table + "`" : x.table
+                          : x.table;
+
+    // For PostgreSQL, we need to escape column names in JOIN conditions
+    const joinCondition = databaseType === "PostgreSQL" 
+      ? `${x.alias}."id"=t${parentAlias}."${x.join?.field.column}"`
+      : `${x.alias}.id=t${parentAlias}.${x.join?.field.column}`;
+
     return (
       (x.join?.field.optional ? "LEFT " : "") +
-      `JOIN ${x.table} AS ${x.alias} ON ${x.alias}.id=t${parentAlias}.${x.join?.field.column}`
+      `JOIN ${tableEscaped} AS ${x.alias} ON ${joinCondition}`
     );
   });
 
   const { table } = meta.units[0];
-  // add appropriate escaping for SQLite and other databases
-  const tableEscaped =
-    databaseType === "MySQL" || databaseType === "SQLite"
-      ? table.includes("-")
-        ? "`" + table + "`"
-        : table
-      : `"${table}"`;
+  // add appropriate escaping for different databases
+  const tableEscaped = databaseType === "PostgreSQL" ? `"${table}"` :
+                      databaseType === "MySQL" || databaseType === "SQLite"
+                        ? table.includes("-") ? "`" + table + "`" : table
+                        : table;
 
   const r = [
     "SELECT " + projection,
