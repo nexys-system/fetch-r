@@ -1,6 +1,4 @@
-import Koa from "koa";
 import JWT from "jsonwebtoken";
-
 import * as C from "../config.js";
 
 export const isJson = (headers: { "content-type"?: string }): void => {
@@ -36,19 +34,4 @@ export const extractAndVerify = ({
 }) => {
   const token = extractToken({ authorization });
   return verifyToken(token);
-};
-
-export const isAuth = async (ctx: Koa.Context, next: Koa.Next) => {
-  const { headers } = ctx;
-
-  try {
-    isJson(headers);
-    const jwtContent = extractAndVerify(headers);
-    ctx.state.jwtContent = jwtContent;
-
-    await next();
-  } catch (err) {
-    ctx.status = 401;
-    ctx.body = { error: (err as Error).message };
-  }
 };

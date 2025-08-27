@@ -1,6 +1,4 @@
-import dotenv from "dotenv";
-
-dotenv.config();
+// Bun automatically loads .env files
 
 export const port: number = process.env.PORT ? Number(process.env.port) : 9000;
 

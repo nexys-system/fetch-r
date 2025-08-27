@@ -1,11 +1,3 @@
-import {
-  Pool as MPool,
-  ResultSetHeader,
-  RowDataPacket,
-  FieldPacket,
-  PoolOptions,
-} from "mysql2/promise";
-
 export interface Database {
   host: string;
   database: string;
@@ -23,7 +15,27 @@ export interface DatabaseOut {
   password: string;
 }
 
-export type Pool = MPool;
+// Custom types to replace MySQL2 types
+export interface ResultSetHeader {
+  constructor: { name: string };
+  insertId: number;
+  affectedRows: number;
+  fieldCount: number;
+  changedRows: number;
+  serverStatus: number;
+  info: string;
+  warningStatus: number;
+}
+
+export interface RowDataPacket {
+  [column: string]: any;
+}
+
+export interface FieldPacket {
+  name: string;
+  type: string;
+  table: string;
+}
 
 export type Response = [
   ResultSetHeader | RowDataPacket[] | RowDataPacket[][],
@@ -32,15 +44,15 @@ export type Response = [
 
 export type DatabaseType = "MySQL" | "PostgreSQL" | "SQLite";
 
-export type ConnectionOptions = Pick<
-  PoolOptions,
-  | "host"
-  | "database"
-  | "user"
-  | "password"
-  | "socketPath"
-  | "port"
-  | "ssl"
-  | "multipleStatements"
-  | "timezone"
->;
+export interface ConnectionOptions {
+  host?: string;
+  database?: string;
+  user?: string;
+  username?: string;
+  password?: string;
+  socketPath?: string;
+  port?: number;
+  ssl?: any;
+  multipleStatements?: boolean;
+  timezone?: string;
+}

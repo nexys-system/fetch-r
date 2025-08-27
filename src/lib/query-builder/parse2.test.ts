@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { RowDataPacket } from "mysql2";
+import { RowDataPacket } from "../database/type.js";
 import * as P from "./parse.js";
 import { MetaQuery } from "./type.js";
 

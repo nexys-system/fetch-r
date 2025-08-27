@@ -1,4 +1,4 @@
-import { ResultSetHeader, RowDataPacket } from "mysql2";
+import { ResultSetHeader, RowDataPacket } from "../database/type.js";
 import * as T from "../type.js";
 import { entityToTable } from "../utils.js";
 import * as Connection from "../database/connection.js";

@@ -1,6 +1,6 @@
-import { RowDataPacket, ResultSetHeader } from "mysql2";
 import * as Connection from "./database/connection.js";
 import * as T from "./type.js";
+import { RowDataPacket, ResultSetHeader } from "./database/type.js";
 import * as Meta from "./query-builder/meta.js";
 import * as MutateService from "./query-builder/mutate.js";
 import * as TT from "./query-builder/type.js";
@@ -12,8 +12,8 @@ import { DatabaseType } from "./database/type.js";
 
 const isRawDataPacket = (
   response: RowDataPacket[] | RowDataPacket
-): response is RowDataPacket =>
-  response.length > 0 && !Array.isArray(response[0]);
+): response is RowDataPacket[] =>
+  Array.isArray(response) && response.length > 0 && !Array.isArray(response[0]);
 
 const handleReponse = async (
   response: RowDataPacket[] | RowDataPacket,

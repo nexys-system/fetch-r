@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { RowDataPacket } from "mysql2";
+import { RowDataPacket } from "../database/type.js";
 import * as T from "../type.js";
 import * as M from "./meta.js";
 import model from "./model-user.js";
