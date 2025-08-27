@@ -30,6 +30,7 @@ test("augment - do not discard child entity projections", () => {
   L.augment(entity, projection, Model);
 
   expect(projection).toEqual({
+    badgeId: true,
     badgeStatus: true,
     cert: true,
     expires: true,
