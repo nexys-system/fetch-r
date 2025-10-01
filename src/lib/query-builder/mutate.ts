@@ -221,6 +221,11 @@ const toQueryUpdate = (
 
       const col = sep + U.fieldToColumn(field) + sep;
 
+      // Check if value should be NULL for optional fields
+      if (UU.isNull(field.optional, v)) {
+        return col + "=NULL";
+      }
+
       if (!U.isStandardType(field.type)) {
         // if same entity, do not link extra table
         if (field.type === entity.name && (v as { id: number }).id) {
