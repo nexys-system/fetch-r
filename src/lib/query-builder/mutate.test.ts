@@ -372,6 +372,40 @@ describe("update with null", () => {
     );
   });
 
+  // Test for issue #58: setting optional datetime to null
+  test("update optional datetime to null", () => {
+    const testModel: T.Entity[] = [
+      {
+        name: "Event",
+        uuid: false,
+        fields: [
+          { name: "title", type: "String", optional: false },
+          { name: "startDate", type: "LocalDateTime", optional: false },
+          { name: "endDate", type: "LocalDateTime", optional: true }, // optional datetime
+        ],
+      },
+    ];
+
+    const q = {
+      Event: {
+        update: {
+          data: {
+            endDate: null,
+          },
+          filters: {
+            id: 123,
+          },
+        },
+      },
+    };
+
+    const [t] = S.createMutateQuery(q, testModel, databaseType);
+
+    expect(t.sql).toEqual(
+      "UPDATE event SET `end_date`=NULL WHERE `id`=123;"
+    );
+  });
+
   test("update a value to null, forbidden", () => {
     const q = {
       Module: {
