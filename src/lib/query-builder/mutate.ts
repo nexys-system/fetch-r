@@ -87,7 +87,7 @@ const getFilters = (
     .join(" AND ");
 };
 
-const getSubQuery = (field: T.Field, model: T.Entity[], v: any) => {
+const getSubQuery = (field: T.Field, model: T.Entity[], v: any, parentTable?: string) => {
   const entity = getModel(field.type, model);
 
   // if the value is NULL and the field is optional, return "NULL"
@@ -119,13 +119,22 @@ const getSubQuery = (field: T.Field, model: T.Entity[], v: any) => {
 
   const table = U.entityToTable(entity);
 
-  return `(SELECT id FROM \`${table}\` WHERE ${idUuid}=${w})`;
+  // MySQL workaround: when inserting into the same table being queried,
+  // wrap the subquery in another SELECT to avoid "can't specify target table for update" error
+  const subquery = `(SELECT id FROM \`${table}\` WHERE ${idUuid}=${w})`;
+
+  if (parentTable && table === parentTable) {
+    return `(SELECT * FROM ${subquery} AS tmp)`;
+  }
+
+  return subquery;
 };
 
 const getValueInsertUnit = (
   v: any,
   field: T.Field,
-  model: T.Entity[]
+  model: T.Entity[],
+  parentTable?: string
 ): string => {
   if (UU.isNull(field.optional, v)) {
     return "NULL";
@@ -136,7 +145,7 @@ const getValueInsertUnit = (
       return UU.formatSQL(v.id, "Long");
     }
 
-    return getSubQuery(field, model, v);
+    return getSubQuery(field, model, v, parentTable);
   }
 
   // todo check option set value
@@ -155,10 +164,11 @@ const getValuesInsert = (
   data: any,
   fields: T.Field[],
   model: T.Entity[],
-  hasUuid: boolean
+  hasUuid: boolean,
+  parentTable?: string
 ) => {
   const fieldsArray = fields.map((field) =>
-    getValueInsertUnit(data[field.name], field, model)
+    getValueInsertUnit(data[field.name], field, model, parentTable)
   );
 
   if (hasUuid) {
@@ -172,9 +182,10 @@ const getValuesInsertMultiple = (
   data: any[],
   fields: T.Field[],
   model: T.Entity[],
-  hasUuid: boolean
+  hasUuid: boolean,
+  parentTable?: string
 ): string =>
-  data.map((d) => getValuesInsert(d, fields, model, hasUuid)).join(", ");
+  data.map((d) => getValuesInsert(d, fields, model, hasUuid, parentTable)).join(", ");
 
 const toQueryInsert = (
   entity: T.Entity,
@@ -192,10 +203,10 @@ const toQueryInsert = (
 
   const fields = fieldsArray.map((x) => sep + x + sep).join(", ");
 
-  const values = Array.isArray(data)
-    ? getValuesInsertMultiple(data, entity.fields, model, entity.uuid)
-    : getValuesInsert(data, entity.fields, model, entity.uuid);
   const table = U.entityToTable(entity);
+  const values = Array.isArray(data)
+    ? getValuesInsertMultiple(data, entity.fields, model, entity.uuid, table)
+    : getValuesInsert(data, entity.fields, model, entity.uuid, table);
   const tableEscaped = table.includes("-") ? "`" + table + "`" : table;
   return `INSERT INTO ${tableEscaped} (${fields}) VALUES ${values};`;
 };

@@ -3,6 +3,34 @@ import * as T from "../type.js";
 import model from "./model-user.js";
 import model2 from "./model-academy.js";
 
+// Test model for self-referencing entity with UUID (like faq_category)
+const categoryModel: T.Entity[] = [
+  {
+    name: "FaqCategory",
+    uuid: true,
+    fields: [
+      {
+        name: "productId",
+        optional: false,
+        column: "product_id",
+        type: "Int",
+      },
+      {
+        name: "name",
+        optional: false,
+        column: "name",
+        type: "String",
+      },
+      {
+        name: "parent",
+        optional: true,
+        column: "parent_id",
+        type: "FaqCategory",
+      },
+    ],
+  },
+];
+
 interface User {
   uuid: string;
   firstName: string;
@@ -64,6 +92,43 @@ describe("create mutate query", () => {
       "INSERT INTO user (`first_name`, `last_name`, `middle_name`, `email`, `status_id`, `log_date_added`, `instance_id`, `lang`, `uuid`) VALUES ('John', 'Doe', NULL, 'john@doe.com', 3, '2015-11-05T13:29:36.000', (SELECT id FROM `instance` WHERE uuid='myuuid'), 'en', UUID());",
     ];
     const ss = S.createMutateQuery(q, model, databaseType);
+    expect(ss.map((_) => _.sql)).toEqual(s);
+  });
+
+  test("insert with self-referencing fk using id (same table)", () => {
+    const data = {
+      title: "Lesson Copy",
+      description: "A copy of another lesson",
+      language: 1,
+      reference: { id: 123 },
+    };
+    const q: T.Mutate = {
+      Lesson: { insert: { data } },
+    };
+
+    // When using ID directly, no subquery is needed (no MySQL error)
+    const s = [
+      "INSERT INTO lesson (`description`, `title`, `test_n_question`, `ref_id`, `language_id`, `test_weight`, `external_id`, `test_passrate`) VALUES ('A copy of another lesson', 'Lesson Copy', NULL, 123, 1, NULL, NULL, NULL);",
+    ];
+    const ss = S.createMutateQuery(q, model2, databaseType);
+    expect(ss.map((_) => _.sql)).toEqual(s);
+  });
+
+  test("insert with self-referencing fk using uuid (same table) - MySQL workaround", () => {
+    const data = {
+      productId: 2,
+      name: "General",
+      parent: { uuid: "5ab20a92-db47-11ec-9500-42010aac0008" },
+    };
+    const q: T.Mutate = {
+      FaqCategory: { insert: { data } },
+    };
+
+    // MySQL requires wrapping the subquery to avoid "can't specify target table for update" error
+    const s = [
+      "INSERT INTO faq_category (`product_id`, `name`, `parent_id`, `uuid`) VALUES (2, 'General', (SELECT * FROM (SELECT id FROM `faq_category` WHERE uuid='5ab20a92-db47-11ec-9500-42010aac0008') AS tmp), UUID());",
+    ];
+    const ss = S.createMutateQuery(q, categoryModel, databaseType);
     expect(ss.map((_) => _.sql)).toEqual(s);
   });
 
