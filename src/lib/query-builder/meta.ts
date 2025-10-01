@@ -163,6 +163,7 @@ export const toMeta = (
 
       const metaFilters: TT.MetaFilter[] = [];
       let aaIdx = aliasIdx;
+      let hasNestedFilters = false;
       Object.entries(filters)
         .filter(([_k, v]) => v !== undefined)
         .forEach(([fieldName, pvalue]) => {
@@ -183,6 +184,7 @@ export const toMeta = (
               depth + 1
             );
             aaIdx++;
+            hasNestedFilters = true;
             return;
           }
 
@@ -199,7 +201,8 @@ export const toMeta = (
           );
         });
 
-      if (metaFilters.length > 0) {
+      // Add unit if there are direct filters OR if this entity is needed for nested filter joins
+      if (metaFilters.length > 0 || (hasNestedFilters && join !== undefined)) {
         // find an array element with the same join object
         const fFilter = ry.findIndex((x) => UU.compareJoins(join, x));
 
