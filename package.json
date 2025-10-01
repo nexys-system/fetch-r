@@ -2,7 +2,7 @@
   "name": "@nexys/fetchr",
   "type": "module",
   "version": "0.14.2",
-  "license": "AGPL-3.0-or-later",
+  "license": "MIT",
   "main": "dist/index.js",
   "files": [
     "dist/*",
