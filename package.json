@@ -1,8 +1,8 @@
 {
   "name": "@nexys/fetchr",
   "type": "module",
-  "version": "0.14.2",
-  "license": "AGPL-3.0-or-later",
+  "version": "0.16.2",
+  "license": "MIT",
   "main": "dist/index.js",
   "files": [
     "dist/*",
@@ -14,20 +14,18 @@
     "url": "https://github.com/nexys-system/fetch-r/"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.22",
+    "@types/bun": "latest",
     "@types/jsonwebtoken": "^8.5.1",
     "@types/koa": "^2.13.1",
     "@types/koa-mount": "^4.0.0",
     "@types/koa-router": "^7.4.1",
     "@types/node": "^20.12.12",
     "dotenv": "^16.4.5",
-    "jest": "^29.7.0",
     "jsonwebtoken": "^9.0.2",
     "koa": "^2.13.1",
     "koa-body": "^4.2.0",
     "koa-mount": "^4.0.0",
     "koa-router": "^10.0.0",
-    "ts-jest": "^29.1.2",
     "tsc-watch": "^4.2.9",
     "typescript": "^5.5.3"
   },
@@ -47,7 +45,7 @@
     "start": "node dist/index.js",
     "build": "tsc",
     "buildPackage": "rm -rf ./dist;tsc -p tsconfig.package.json",
-    "test": "rm -rf dist && TZ=UTC jest",
+    "test": "rm -rf dist && TZ=UTC bun test",
     "watch": "tsc-watch --onSuccess \"node ./dist/index.js\""
   },
   "keywords": [
