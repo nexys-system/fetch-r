@@ -206,3 +206,37 @@ test("multi filters", () => {
 
   expect(s).toEqual(ss);
 });
+
+// Bug test: deploy is in filters but NOT in projection
+test("multi filters - bug case: nested filter without projection", () => {
+  const q = {
+    EnvVar: {
+      projection: { key: true, value: true }, // NOT including service.deploy
+      filters: {
+        product: { id: 2 },
+        service: { deploy: { id: 19 } }, // But filtering by it
+        instance: { uuid: "2c5d0535-26ab-11e9-9284-fa163e41f33d" },
+      },
+    },
+  };
+
+  const entity = "EnvVar";
+
+  const em = M.toMeta(entity, q[entity], model);
+  const s = S.toQuery(em, "MySQL");
+
+  // Expected: should still include JOIN to service_deploy for filtering
+  // Note: the SELECT includes id/uuid from joined tables even though they're not in projection
+  // This is necessary for the query builder to function correctly
+  const ss = [
+    "SELECT t0.`id` AS t0_id, t0.`keyy` AS t0_key, t0.`value` AS t0_value, t1.`id` AS t1_id, t2.`uuid` AS t2_uuid, t3.`id` AS t3_id, t4.`uuid` AS t4_uuid",
+    "FROM product_env_var AS t0",
+    "JOIN product AS t1 ON t1.id=t0.product_id",
+    "LEFT JOIN product_service AS t2 ON t2.id=t0.service_id",
+    "LEFT JOIN service_deploy AS t3 ON t3.id=t2.deploy_id",
+    "JOIN instance AS t4 ON t4.id=t0.instance_id",
+    "WHERE t1.`id`=2 AND t3.`id`=19 AND t4.`uuid`='2c5d0535-26ab-11e9-9284-fa163e41f33d'",
+  ];
+
+  expect(s).toEqual(ss);
+});
